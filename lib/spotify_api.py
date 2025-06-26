@@ -6,12 +6,10 @@ from . import logger
 URL = "https://api.spotify.com/v1"
 USER_ID = os.getenv("SPOTIFY_USER_ID")
 
-# log results of API calles and sys.exit on failure
+# throw runtime error on failure or log success
 def handle_api_response(response: requests.Response, request_name: str | None):
   if response.status_code != 200:
-    logger.error(f"{request_name or "Request"} failed with status code {response.status_code}.")
-    logger.info(f"Response body:\n{response.text}")
-    sys.exit(1)
+    raise RuntimeError(f"{request_name or "Request"} failed with status code {response.status_code}.\nResponse body:\n{response.text}")
   else:
     logger.success(f"{request_name or "Request"} succeeded.")
 
