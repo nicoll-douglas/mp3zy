@@ -24,3 +24,11 @@ CREATE TABLE IF NOT EXISTS track_artist (
   FOREIGN KEY (track_id) REFERENCES tracks(id),
   FOREIGN KEY (artist_id) REFERENCES artists(id)
 );
+
+CREATE TABLE IF NOT EXISTS playlist_track (
+  track_id TEXT,
+  playlist_id TEXT,
+  PRIMARY KEY (track_id, playlist_id),
+  FOREIGN KEY (track_id) REFERENCES tracks(id),
+  FOREIGN KEY (playlist_id) REFERENCES playlists(id)
+);
