@@ -67,24 +67,37 @@ def request_user_playlists(access_token: str):
       "id": p["id"],
       "name": p["name"],
       "cover": p["images"][0]["url"],
-      "tracks_url": p["tracks"]["href"]
+      "tracks_href": p["tracks"]["href"]
     }
     for p in response_body["items"]
   ]
 
+# gets all tracks in a playlist
+def request_playlist_tracks(access_token: str, url: str):
+  headers = get_auth_headers(access_token)
+  fields="next,offset,items(track(id,name,artists(id,name),album(images(url))))"
 
-# from playlist request
-# items[i]["track"]["id"] string
-# items[i]["track"]["name"] string
-# items[i]["track"]["artists"][j]["id"]
-# items[i]["track"]["artists"][j]["name"]
-# def request_user_playlist_tracks(access_token: str, url: str):
-#   logger.debug(f"Requesting user playlist tracks from {url}")
+  next = f"{url}?limit=50&offset=0&fields={fields}"
+  all_tracks = []
 
-#   response = requests.get(
-#     url,
-#     headers=get_auth_headers(access_token)
-#   )
+  while next:
+    logger.debug(f"Requesting playlist tracks from {next}")
+    response = requests.get(
+      next,
+      headers=headers
+    )
+    handle_api_response(response, "Playlist tracks request")
 
-#   handle_api_response(response, "User playlist tracks")
-#   response_body
+    response_body = response.json()
+    all_tracks.extend([
+      {
+        "id": t["track"]["id"],
+        "name": t["track"]["name"],
+        "artists": t["track"]["artists"],
+        "cover": t["track"]["album"]["images"][0]["url"]
+      }
+      for t in response_body["items"]
+    ])
+    next = response_body["next"]
+
+  return all_tracks
