@@ -1,0 +1,10 @@
+# nev
+.env*
+!.env*.example
+pythonenv
+
+# db
+*.db
+
+# cache
+__pycache__
