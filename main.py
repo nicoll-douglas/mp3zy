@@ -51,6 +51,35 @@ def retrieve_user_playlists():
 
 PLAYLISTS = app.attempt("Retrieve User Playlists", retrieve_user_playlists, 2)
 
+def download_playlist_covers():
+  total = len(PLAYLISTS)
+  logging.info(f"Downloading user playlist covers (~{total}).")
+  success_count = 0
+
+  for index, item in enumerate(PLAYLISTS):
+    current_num = index + 1
+    
+    logging.info(f"Downloading {current_num} of ~{total}")
+    cover_img_path, cover_img_is_fresh = download.cover_image(
+      item["cover_source"],
+      disk.PLAYLIST_COVERS_DIR
+    )
+
+    if not cover_img_is_fresh:
+      logging.info("Already downloaded so skipped.")
+      continue
+
+    if not cover_img_path:
+      logging.warning(f"Playlist cover download {current_num} of {total} failed. ({item["id"], item["name"]})")
+      continue
+
+    success_count += 1
+    logging.info(f"Download {current_num} of ~{total} succeeded.")
+
+  logging.info(f"Successfully downloaded {success_count} of {total} new covers.")
+
+app.attempt("Download Playlist Covers", download_playlist_covers, 3)
+
 def retrieve_track_data():
   track = Track(DB_CONN)
   track_artist = TrackArtist(DB_CONN)
@@ -81,46 +110,55 @@ def retrieve_track_data():
     ])
   logging.info("Successfully retrieved and inserted track data.")
 
-app.attempt("Retrieve Track Data", retrieve_track_data, 3)
-
-logging.info("Database is now filled with all necessary data.")
+app.attempt("Retrieve Track Data", retrieve_track_data, 4)
 
 def download_undownloaded():
   disk.create_dirs()
   track = Track(DB_CONN)
   track_artist = TrackArtist(DB_CONN)
-  logging.info("Find all locally unavailable tracks...")
-  locally_unavailable_tracks = track.find_all_locally_unavailable()
 
-  logging.info("Downloading all locally unavailable tracks, this may take some time....")
-  for t in locally_unavailable_tracks:
-    track_artists = track_artist.find_all(t["id"])
+  logging.info("Finding all locally unavailable tracks...")
+  locally_unavailable_tracks = track.find_all_locally_unavailable()
+  total = len(locally_unavailable_tracks)
+  success_count = 0
+
+  logging.info(f"Downloading {total} locally unavailable tracks...")
+  for index, item in enumerate(locally_unavailable_tracks):
+    current_num = index + 1
+    
+    logging.info(f"Downloading {current_num} of {total}...")
+    track_artists = track_artist.find_all(item["id"])
 
     mp3_file_path, track_is_fresh = download.track({
-      "id": t["id"],
-      "name": t["name"],
+      "id": item["id"],
+      "name": item["name"],
       "artists": track_artists,
-      "duration_s": t["duration_ms"] / 1000
+      "duration_s": item["duration_ms"] / 1000
     })
 
     cover_img_path, cover_img_is_fresh = download.cover_image(
-      t["cover_source"],
+      item["cover_source"],
       disk.TRACK_COVERS_DIR
     )
 
-    if not mp3_file_path:
+    if not mp3_file_path or not cover_img_path:
+      logging.warning(f"Track download {current_num} of {total} failed. ({item["id"], item["name"]})")
       continue
 
-    if (track_is_fresh or cover_img_is_fresh):
+    if (track_is_fresh or cover_img_is_fresh) and (mp3_file_path and cover_img_path):
       metadata.set_mp3(
         mp3_file_path,
         {
-          "name": t["name"],
+          "name": item["name"],
           "artists": track_artists,
           "cover_path": cover_img_path
         }
       )
-      track.set_locally_available(t["id"])
-  logging.info("Successfully finished downloading. All tracks in the database are now locally available.")
+      track.set_locally_available(item["id"])
 
-app.attempt("Download All Undownloaded Tracks", download_undownloaded, 4)
+    success_count += 1
+    logging.info(f"Download {current_num} of {total} succeeded.")
+    
+  logging.info(f"Successfully finished downloading {success_count} of {total}.")
+
+app.attempt("Download All Undownloaded Tracks", download_undownloaded, 5)
