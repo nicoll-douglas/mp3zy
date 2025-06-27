@@ -92,14 +92,35 @@ def store_playlist_tracks(
 
   logger.success("Successfully inserted playlist-track relationships.")
 
-# gets all tracks from the database where `locally_available` is false
-# => tracks that haven't been downloaded locally with `yt-dlp` yet
-def get_locally_unavailable_tracks(
-  conn: sqlite3.Connection,
-):
+# get all tracks from tracks table
+def get_all_tracks(conn: sqlite3.Connection,):
+  conn.row_factory = sqlite3.Row
   cursor = conn.cursor()
-  logger.debug(f"Selecting all tracks that aren't available locally...")
-  cursor.execute(
-    "SELECT * FROM tracks WHERE locally_available = ?",
-    (False)
-  )
+
+  logger.debug("Selecting all tracks...")
+  cursor.execute("SELECT * FROM tracks")
+  rows = cursor.fetchall()
+  logger.success("Successfully selected all tracks.")
+
+  conn.row_factory = None
+  
+  return rows
+
+# get all track artists from the track_artists table
+def get_all_track_artists(conn: sqlite3.Connection, track_id: str):
+  cursor = conn.cursor()
+  
+  query = """
+SELECT a.name
+FROM track_artist AS ta
+JOIN artists AS a ON ta.artist_id = a.id
+WHERE ta.track_id = ?
+"""
+  
+  logger.debug(f"Selecting all track artists from `track_artist` table for track: {track_id}")
+  cursor.execute(query, (track_id,))
+  rows = cursor.fetchall()
+  logger.success("Successfully selected all track artists.")
+
+  # return only the artist names
+  return [artist[0] for artist in rows]

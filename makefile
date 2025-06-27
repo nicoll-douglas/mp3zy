@@ -7,4 +7,7 @@ run:
 	./$(ENV_NAME)/bin/python main.py
 
 install-deps:
-	./$(ENV_NAME)/bin/pip install -r requirements.txt
+	./$(ENV_NAME)/bin/pip install -r requirements.txt && sudo apt install -y ffmpeg
+
+run-skip-spotify:
+	./$(ENV_NAME)/bin/python main.py 4
