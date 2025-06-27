@@ -92,7 +92,7 @@ def download_playlist_covers():
   success_count = 0
   logging.info(f"Downloading user playlist covers (~{total}).")
 
-  for index, item in enumerate(PLAYLISTS):
+  for index, item in enumerate(all_playlists):
     current_num = index + 1
     
     logging.info(f"Downloading {current_num} of ~{total}")
