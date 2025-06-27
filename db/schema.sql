@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS tracks (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   cover_source TEXT NOT NULL,
-  cover_local TEXT,
   mobile_available BOOLEAN NOT NULL DEFAULT 0
 );
 

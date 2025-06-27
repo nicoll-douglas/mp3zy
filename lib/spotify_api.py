@@ -1,16 +1,9 @@
 import requests
 import os
-from . import logger
+from . import logger, app
 
 URL = "https://api.spotify.com/v1"
 USER_ID = os.getenv("SPOTIFY_USER_ID")
-
-# throw runtime error on failure or log success
-def handle_api_response(response: requests.Response, request_name: str | None):
-  if response.status_code != 200:
-    raise RuntimeError(f"{request_name or "Request"} failed with status code {response.status_code}.\nResponse body:\n{response.text}")
-  else:
-    logger.success(f"{request_name or "Request"} succeeded.")
 
 # helper to return the necessary auth headers for an API call
 def get_auth_headers(access_token: str):
@@ -40,7 +33,7 @@ def request_access_token() -> str:
     auth=(client_id, client_secret)
   )
 
-  handle_api_response(response, "Access token request")
+  app.handle_http_response(response, "Access token request")
 
   token_data = response.json()
   return token_data["access_token"]
@@ -56,7 +49,7 @@ def request_user_playlists(access_token: str):
     headers=get_auth_headers(access_token)
   )
 
-  handle_api_response(response, "User playlists request")
+  app.handle_http_response(response, "User playlists request")
   response_body = response.json()
 
   return [
@@ -83,7 +76,7 @@ def request_playlist_tracks(access_token: str, url: str):
       next,
       headers=headers
     )
-    handle_api_response(response, "Playlist tracks request")
+    app.handle_http_response(response, "Playlist tracks request")
 
     response_body = response.json()
     all_tracks.extend([
