@@ -2,8 +2,6 @@ from . import logger
 import traceback
 import sys
 
-STARTING_STEP = None
-
 try:
   STARTING_STEP = int(sys.argv[1])
 except ValueError:

@@ -25,11 +25,11 @@ def create_output_dirs():
   os.makedirs(TRACKS_DIR, exist_ok=True)
   logger.success("Successfully created directories.")
 
-  logger.debug(f"Creating output directories for track cover downloaded: {TRACK_COVERS_DIR}")
+  logger.debug(f"Creating output directories for track cover downloads: {TRACK_COVERS_DIR}")
   os.makedirs(TRACK_COVERS_DIR, exist_ok=True)
   logger.success("Successfully created directories.")
 
-  logger.debug(f"Creating output directories for track cover downloaded: {PLAYLIST_COVERS_DIR}")
+  logger.debug(f"Creating output directories for playlist cover downloads: {PLAYLIST_COVERS_DIR}")
   os.makedirs(PLAYLIST_COVERS_DIR, exist_ok=True)
   logger.success("Successfully created directories.")
 
