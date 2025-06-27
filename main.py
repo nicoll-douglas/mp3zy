@@ -84,9 +84,13 @@ def retrieve_track_data():
 app.attempt("Retrieve Track Data", retrieve_track_data, 3)
 
 def download_playlist_covers():
-  total = len(PLAYLISTS)
-  logging.info(f"Downloading user playlist covers (~{total}).")
+  playlist = Playlist(DB_CONN)
+  logging.info("Finding all playlists...")
+  all_playlists = playlist.find_all()
+  
+  total = len(all_playlists)
   success_count = 0
+  logging.info(f"Downloading user playlist covers (~{total}).")
 
   for index, item in enumerate(PLAYLISTS):
     current_num = index + 1
