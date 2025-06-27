@@ -26,18 +26,53 @@ def track(track_info: dict):
   }
   
   with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-    search_query = f"ytsearch20:{track_info["name"]} {", ".join(track_info["artists"])}"
-    info = ydl.extract_info(search_query, download=False)
-    entry = best_track_candidate(info["entries"], track_info)
+    search_query = f"ytsearch5:{track_info["name"]} {", ".join(track_info["artists"])}"
 
-    if not entry:
-      raise RuntimeError(f"Failed to find downloadable entries for track: {track_info["id"]} ({track_info["name"]})")
+    # try to search
+    try:
+      info = ydl.extract_info(search_query, download=False)
+      
+      # try to get candidates
+      logging.debug("Finding best track candidate...")
+      best_entries = best_track_candidates(info["entries"], track_info)
+      
+      # throw if no candidates / get entries
+      if not best_entries:
+        raise RuntimeError(f"Failed to find downloadable entries for track: {track_info["id"]} ({track_info["name"]})")
 
-    ydl.download([entry["webpage_url"]])
+    # log and skip if failed to get entries
+    except Exception as e:
+      logging.error(f"An error occurred: {e}")
+      logging.info("Skipping download...")
+      return False, True
 
-  logging.debug(f"Successfully downloaded track: {track_info["id"]}")
 
-  return disk.track_path(track_info["id"]), True
+    # download best candidate
+    try:
+      logging.debug("Found best track candidate. Download starting...")
+      ydl.download([best_entries[0]["webpage_url"]])
+      logging.debug(f"Successfully downloaded track: {track_info["id"]}")
+      return disk.track_path(track_info["id"]), True
+
+    # log if failed to download
+    except Exception as e:
+      logging.error(f"An error occurred: {e}")
+      logging.warning(f"Failed to download best entry for {track_info["id"]} ({track_info["name"]})")
+
+    # try next candidate if there is one
+    try:
+      if len(best_entries) > 1:
+        logging.info(f"Trying next best entry...")
+        ydl.download([best_entries[1]["webpage_url"]])
+        logging.debug(f"Successfully downloaded track: {track_info["id"]}")
+
+    # log if failed to download
+    except Exception as e:
+      logging.error(f"An error occurred: {e}")
+
+    # no more entries to try so skip
+    logging.info("No more entries to try, skipping...")
+    return False, True
   
 # download an image and save it to disk at the specified path
 def cover_image(url: str, target_dir: str):
@@ -69,7 +104,7 @@ def cover_image(url: str, target_dir: str):
 
   return cover_path, True
 
-def best_track_candidate(entries: list[dict[str]], track: dict[str]):
+def best_track_candidates(entries: list[dict[str]], track: dict[str]):  
   track_name = track["name"].lower()
   track_artists = [t.lower() for t in track["artists"]]
   track_duration_s = track["duration_s"]
@@ -100,4 +135,4 @@ def best_track_candidate(entries: list[dict[str]], track: dict[str]):
 
     return score_value
 
-  return max(entries, key=score, default=None)
+  return sorted(entries, key=score, reverse=True)[:2]

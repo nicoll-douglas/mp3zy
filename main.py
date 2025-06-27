@@ -108,6 +108,9 @@ def download_undownloaded():
       disk.TRACK_COVERS_DIR
     )
 
+    if not mp3_file_path:
+      continue
+
     if (track_is_fresh or cover_img_is_fresh):
       metadata.set_mp3(
         mp3_file_path,

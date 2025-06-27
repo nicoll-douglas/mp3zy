@@ -20,7 +20,7 @@ def attempt(step_name: str, step_handler, step_number: int):
       step_success(step_number)
       return result
     except Exception:
-      logging.error("An error occurred:")
+      logging.critical("A critical error occurred:")
       traceback.print_exc()
       step_fail(step_number)
       logging.info("Exiting...")
@@ -37,7 +37,7 @@ def step_start(number: int, name: str):
   logging.info(f"🟡 STEP {number}: {name} 🟡")
 
 def step_fail(number: int):
-  logging.critical(f"🔴 STEP {number} FAILED 🔴")
+  logging.info(f"🔴 STEP {number} FAILED 🔴")
 
 def step_success(number: int):
   logging.info(f"🟢 STEP {number} SUCCEEDED 🟢")
