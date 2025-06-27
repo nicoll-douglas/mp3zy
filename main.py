@@ -51,35 +51,6 @@ def retrieve_user_playlists():
 
 PLAYLISTS = app.attempt("Retrieve User Playlists", retrieve_user_playlists, 2)
 
-def download_playlist_covers():
-  total = len(PLAYLISTS)
-  logging.info(f"Downloading user playlist covers (~{total}).")
-  success_count = 0
-
-  for index, item in enumerate(PLAYLISTS):
-    current_num = index + 1
-    
-    logging.info(f"Downloading {current_num} of ~{total}")
-    cover_img_path, cover_img_is_fresh = download.cover_image(
-      item["cover_source"],
-      disk.PLAYLIST_COVERS_DIR
-    )
-
-    if not cover_img_is_fresh:
-      logging.info("Already downloaded so skipped.")
-      continue
-
-    if not cover_img_path:
-      logging.warning(f"Playlist cover download {current_num} of {total} failed. ({item["id"], item["name"]})")
-      continue
-
-    success_count += 1
-    logging.info(f"Download {current_num} of ~{total} succeeded.")
-
-  logging.info(f"Successfully downloaded {success_count} of {total} new covers.")
-
-app.attempt("Download Playlist Covers", download_playlist_covers, 3)
-
 def retrieve_track_data():
   track = Track(DB_CONN)
   track_artist = TrackArtist(DB_CONN)
@@ -110,7 +81,36 @@ def retrieve_track_data():
     ])
   logging.info("Successfully retrieved and inserted track data.")
 
-app.attempt("Retrieve Track Data", retrieve_track_data, 4)
+app.attempt("Retrieve Track Data", retrieve_track_data, 3)
+
+def download_playlist_covers():
+  total = len(PLAYLISTS)
+  logging.info(f"Downloading user playlist covers (~{total}).")
+  success_count = 0
+
+  for index, item in enumerate(PLAYLISTS):
+    current_num = index + 1
+    
+    logging.info(f"Downloading {current_num} of ~{total}")
+    cover_img_path, cover_img_is_fresh = download.cover_image(
+      item["cover_source"],
+      disk.PLAYLIST_COVERS_DIR
+    )
+
+    if not cover_img_is_fresh:
+      logging.info("Already downloaded so skipped.")
+      continue
+
+    if not cover_img_path:
+      logging.warning(f"Playlist cover download {current_num} of {total} failed. ({item["id"], item["name"]})")
+      continue
+
+    success_count += 1
+    logging.info(f"Download {current_num} of ~{total} succeeded.")
+
+  logging.info(f"Successfully downloaded {success_count} of {total} new covers.")
+
+app.attempt("Download Playlist Covers", download_playlist_covers, 4)
 
 def download_undownloaded():
   disk.create_dirs()
