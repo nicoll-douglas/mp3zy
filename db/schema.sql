@@ -1,14 +1,15 @@
 CREATE TABLE IF NOT EXISTS playlists (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  cover TEXT NOT NULL
+  cover_source TEXT NOT NULL,
+  cover_local TEXT
 );
 
 CREATE TABLE IF NOT EXISTS tracks (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  cover TEXT NOT NULL,
-  locally_available BOOLEAN NOT NULL DEFAULT 0,
+  cover_source TEXT NOT NULL,
+  cover_local TEXT,
   mobile_available BOOLEAN NOT NULL DEFAULT 0
 );
 
