@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from lib import spotify_api, db, app, download
+from lib import spotify_api, db, app, download, metadata
+import os
 
 conn = None
 def step_0():
@@ -42,9 +43,29 @@ app.attempt("Save Track Data", step_3, 3)
 def step_4():
   all_tracks = db.get_all_tracks(conn)
   download.create_output_dirs()
-  
+
   for track in all_tracks:
     track_artists = db.get_all_track_artists(conn, track["id"])
-    download.download_track(track["name"], track_artists, track["id"])
+    mp3_file_path, track_is_fresh = download.download_track(
+      track["name"], 
+      track_artists, track["id"]
+    )
+
+    cover_img_path_without_ext = os.path.join(
+      download.TRACK_COVERS_DIR, 
+      track["id"]
+    )
+    cover_img_path, cover_img_is_fresh = download.download_cover_image(
+      track["cover_source"],
+      cover_img_path_without_ext
+    )
+
+    if (track_is_fresh or cover_img_is_fresh):
+      metadata.add_mp3_metadata(
+        mp3_file_path,
+        track["name"],
+        track_artists,
+        cover_img_path
+      )
 
 app.attempt("Download All Undownloaded Tracks", step_4, 4)
