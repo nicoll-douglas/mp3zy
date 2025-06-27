@@ -16,7 +16,9 @@ def attempt(step_name: str, step_handler, step_number: int):
     step_start(step_number, step_name)
 
     try:
-      return step_handler()
+      result = step_handler()
+      step_success(step_number)
+      return result
     except Exception:
       logging.error("An error occurred:")
       traceback.print_exc()
@@ -24,7 +26,6 @@ def attempt(step_name: str, step_handler, step_number: int):
       logging.info("Exiting...")
       sys.exit(1)
 
-    step_success(step_number)
 
 def handle_http_response(response: requests.Response, request_name: str | None):
   if response.status_code != 200:

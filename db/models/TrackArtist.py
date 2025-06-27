@@ -1,26 +1,26 @@
 import logging, sqlite3
 
 class TrackArtist:
-  conn: sqlite3.Connection
+  _conn: sqlite3.Connection
   __TABLE = "track_artist"
 
   def __init__(self, conn: sqlite3.Connection):
     self._conn = conn
 
   def insert_many(self, track_id: str, artist_ids: list[str]):
-    cursor = self.conn.cursor()
+    cursor = self._conn.cursor()
     logging.debug(f"Ignore-inserting track-artist relationships into the `{self.__TABLE}` table...")
 
     cursor.executemany(
       f"INSERT OR IGNORE INTO {self.__TABLE} (track_id, artist_id) VALUES (:track_id, :artist_id)",
       [{ "track_id": track_id, "artist_id": id } for id in artist_ids]
     )
-    self.conn.commit()
+    self._conn.commit()
 
     logging.debug("Successfully inserted track-artist relationships.")
   
   def find_all(self, track_id: str) -> list[str]:
-    cursor = self.conn.cursor()
+    cursor = self._conn.cursor()
   
     query = """
 SELECT a.name

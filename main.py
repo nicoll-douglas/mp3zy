@@ -5,7 +5,9 @@ import logging, os
 
 APP_ENV = os.getenv("APP_ENV")
 LOGGING_LEVEL = logging.INFO if APP_ENV == "production" else logging.DEBUG
-logging.basicConfig(level=LOGGING_LEVEL)
+LOGGING_FORMAT = "%(levelname)s | %(message)s"
+
+logging.basicConfig(level=LOGGING_LEVEL, format=LOGGING_FORMAT)
 
 from core import spotify_api, app, download, metadata, disk
 from db.Db import Db
@@ -67,11 +69,11 @@ def retrieve_track_data():
       for d in track_data
     ])
 
-    for track in track_data:
-      artist.insert_many(track["artists"])
+    for t in track_data:
+      artist.insert_many(t["artists"])
       
-      track_artist.insert_many(track["id"], [
-        a["id"] for a in track["artists"]
+      track_artist.insert_many(t["id"], [
+        a["id"] for a in t["artists"]
       ])
     
     playlist_track.insert_many(playlist["id"], [
