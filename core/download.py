@@ -43,7 +43,6 @@ def track(track_info: dict):
     # log and skip if failed to get entries
     except Exception as e:
       logging.error(f"An error occurred: {e}")
-      logging.info("Skipping download...")
       return False, True
 
 
@@ -65,13 +64,14 @@ def track(track_info: dict):
         logging.info(f"Trying next best entry...")
         ydl.download([best_entries[1]["webpage_url"]])
         logging.debug(f"Successfully downloaded track: {track_info["id"]}")
+        return disk.track_path(track_info["id"]), True
 
     # log if failed to download
     except Exception as e:
       logging.error(f"An error occurred: {e}")
 
     # no more entries to try so skip
-    logging.info("No more entries to try, skipping...")
+    logging.warning("No more entries to try.")
     return False, True
   
 # download an image and save it to disk at the specified path
@@ -79,13 +79,15 @@ def cover_image(url: str, target_dir: str):
   logging.debug(f"Downloading cover image: {url}")
   cover_id = disk.get_cover_id(url)
 
-  if disk.cover_is_downloaded(disk.TRACK_COVERS_DIR, cover_id):
+  if disk.cover_is_downloaded(target_dir, cover_id):
     logging.debug("Cover image is already downloaded, skipping...")
     cover_path = disk.cover_path(target_dir, url)
     return cover_path, False
   
   response = requests.get(url)
-  app.handle_http_response(response, "Cover image request")
+  if response.status_code != 200:
+    logging.error("Cover image request failed.")
+    return False, True
 
   content_type = response.headers.get("Content-Type", "")
   ext = mimetypes.guess_extension(content_type.split(";")[0])

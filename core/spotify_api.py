@@ -31,10 +31,13 @@ def request_access_token() -> str:
     auth=(client_id, client_secret)
   )
 
-  app.handle_http_response(response, "Access token request")
-  token_data = response.json()
+  if (response.status_code != 200):
+    raise RuntimeError(f"Access token request failed with status code {response.status_code}.\nResponse body:\n{response.text}")    
+
+  logging.debug("Access token request succeeded.")
+  response_body = response.json()
   
-  return token_data["access_token"]
+  return response_body["access_token"]
 
 # request user playlists
 def request_user_playlists(access_token: str):
@@ -47,7 +50,10 @@ def request_user_playlists(access_token: str):
     headers=get_auth_header(access_token)
   )
 
-  app.handle_http_response(response, "User playlists request")
+  if (response.status_code != 200):
+    raise RuntimeError(f"User playlist request failed with status code {response.status_code}.\nResponse body:\n{response.text}")    
+
+  logging.debug("User playlist request succeeded.")
   response_body = response.json()
 
   return [
@@ -74,7 +80,10 @@ def request_playlist_tracks(access_token: str, url: str):
       next,
       headers=headers
     )
-    app.handle_http_response(response, "Playlist tracks request")
+
+    if response.status_code != 200:
+      logging.warning("Playlist track request failed, data for this run may be partial or incomplete.")
+      return all_tracks
 
     response_body = response.json()
     all_tracks.extend([
