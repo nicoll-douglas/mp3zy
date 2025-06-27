@@ -96,11 +96,12 @@ def download_undownloaded():
   for t in locally_unavailable_tracks:
     track_artists = track_artist.find_all(t["id"])
 
-    mp3_file_path, track_is_fresh = download.track(
-      t["id"],
-      t["name"], 
-      track_artists, 
-    )
+    mp3_file_path, track_is_fresh = download.track({
+      "id": t["id"],
+      "name": t["name"],
+      "artists": track_artists,
+      "duration_s": t["duration_ms"] / 1000
+    })
 
     cover_img_path, cover_img_is_fresh = download.cover_image(
       t["cover_source"],

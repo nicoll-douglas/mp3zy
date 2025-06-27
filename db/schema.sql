@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS tracks (
   name TEXT NOT NULL,
   cover_source TEXT NOT NULL,
   mobile_available BOOLEAN NOT NULL DEFAULT 0,
-  locally_available BOOLEAN NOT NULL DEFAULT 0
+  locally_available BOOLEAN NOT NULL DEFAULT 0,
+  duration_ms INT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS artists (

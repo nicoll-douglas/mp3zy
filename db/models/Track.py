@@ -13,7 +13,7 @@ class Track:
 
     logging.debug(f"Ignore-inserting {track_count} tracks into `{self.__TABLE}` table...")
     cursor.executemany(
-      f"INSERT OR IGNORE INTO {self.__TABLE} (id, name, cover_source) VALUES (:id, :name, :cover_source)",
+      f"INSERT OR IGNORE INTO {self.__TABLE} (id, name, cover_source, duration_ms) VALUES (:id, :name, :cover_source, :duration_ms)",
       tracks
     )
     self._conn.commit()

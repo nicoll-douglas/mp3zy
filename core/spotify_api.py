@@ -63,7 +63,7 @@ def request_user_playlists(access_token: str):
 # gets all tracks in a playlist
 def request_playlist_tracks(access_token: str, url: str):
   headers = get_auth_header(access_token)
-  fields="next,offset,items(track(id,name,artists(id,name),album(images(url))))"
+  fields="next,offset,items(track(id,name,duration_ms,artists(id,name),album(images(url))))"
 
   next = f"{url}?limit=50&offset=0&fields={fields}"
   all_tracks = []
@@ -82,7 +82,8 @@ def request_playlist_tracks(access_token: str, url: str):
         "id": t["track"]["id"],
         "name": t["track"]["name"],
         "artists": t["track"]["artists"],
-        "cover_source": t["track"]["album"]["images"][0]["url"]
+        "cover_source": t["track"]["album"]["images"][0]["url"],
+        "duration_ms": t["track"]["duration_ms"]
       }
       for t in response_body["items"]
     ])
