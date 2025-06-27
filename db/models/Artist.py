@@ -1,5 +1,4 @@
-from core import logging
-import sqlite3
+import logging, sqlite3
 
 class Artist:
   conn: sqlite3.Connection

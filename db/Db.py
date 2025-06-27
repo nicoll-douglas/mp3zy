@@ -1,4 +1,4 @@
-from core import logging
+import logging
 import sqlite3
 
 class Db:

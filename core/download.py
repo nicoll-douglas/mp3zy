@@ -26,7 +26,7 @@ def track(track_id: str, track_name: str, track_artists: list):
   }
   
   with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-    search_query = f"ytsearch1:{", ".join(track_artists)} - {track_name}"
+    search_query = f"ytsearch:{track_name} {", ".join(track_artists)} site:music.youtube.com"
     info = ydl.extract_info(search_query, download=False)
     entry = info["entries"][0] if "entries" in info else info
 

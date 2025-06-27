@@ -1,5 +1,4 @@
-import sqlite3
-from core import logging
+import sqlite3, logging
 
 class Track:
   conn: sqlite3.Connection

@@ -90,7 +90,7 @@ def download_undownloaded():
   logging.info("Find all locally unavailable tracks...")
   locally_unavailable_tracks = track.find_all_locally_unavailable()
 
-  logging.info("Downloading all locally unavailable tracks, this make take some time....")
+  logging.info("Downloading all locally unavailable tracks, this may take some time....")
   for t in locally_unavailable_tracks:
     track_artists = track_artist.find_all(t["id"])
 
