@@ -1,71 +1,120 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from lib import spotify_api, db, app, download, metadata
-import os
+import logging, os
 
-conn = None
-def step_0():
-  global conn
-  conn = db.connect()
-  db.create_tables(conn)
+APP_ENV = os.getenv("APP_ENV")
+LOGGING_LEVEL = logging.INFO if APP_ENV == "production" else logging.DEBUG
+logging.basicConfig(level=LOGGING_LEVEL)
 
-app.attempt("Setup", step_0, 0)
+from core import spotify_api, app, download, metadata, disk
+from db.Db import Db
+from db.models.Track import Track
+from db.models.Playlist import Playlist
+from db.models.TrackArtist import TrackArtist
+from db.models.PlaylistTrack import PlaylistTrack
+from db.models.Artist import Artist
 
-access_token = None
-def step_1():
-  global access_token
+def setup():
+  DB = Db()
+  conn = DB.connect()
+  DB.setup(conn)
+  return conn
+
+DB_CONN = app.attempt("Setup", setup, 0)
+
+def get_access_token():
+  logging.info("Requesting an access token from the Spotify API...")
   access_token = spotify_api.request_access_token()
+  logging.info("Successfully obtained an access token.")
+  return access_token
 
-app.attempt("Obtain Access Token", step_1, 1)
+ACCESS_TOKEN = app.attempt("Obtain Access Token", get_access_token, 1)
 
-user_playlists = None
-def step_2():
-  global user_playlists
-  user_playlists = spotify_api.request_user_playlists(access_token)
-  db.store_user_playlists(conn, user_playlists)
+def retrieve_user_playlists():
+  logging.info("Retrieving user playlist data from the Spotify API")
+  playlist_data = spotify_api.request_user_playlists(ACCESS_TOKEN)
+  logging.info("Successfully retrieved playlist data.")
+  
+  playlist = Playlist(DB_CONN)
 
-app.attempt("Save User Playlists", step_2, 2)
+  logging.info("Inserting playlist data into the database...")
+  playlist.insert_many([
+    { k: v for k, v in d.items() if k != "tracks_href" }
+    for d in playlist_data
+  ])
+  logging.info("Successfully inserted playlist data.")
 
-def step_3():
-  for playlist in user_playlists:
-    tracks = spotify_api.request_playlist_tracks(
-      access_token, 
+  return playlist_data
+
+PLAYLISTS = app.attempt("Retrieve User Playlists", retrieve_user_playlists, 2)
+
+def retrieve_track_data():
+  track = Track(DB_CONN)
+  track_artist = TrackArtist(DB_CONN)
+  playlist_track = PlaylistTrack(DB_CONN)
+  artist = Artist(DB_CONN)
+
+  logging.info("Batch requesting track data for each playlist from the Spotify API and inserting into the database...")
+  for playlist in PLAYLISTS:
+    track_data = spotify_api.request_playlist_tracks(
+      ACCESS_TOKEN, 
       playlist["tracks_href"]
     )
 
-    db.store_tracks(conn, tracks)
-    db.store_track_artists(conn, tracks)
-    db.store_playlist_tracks(conn, tracks, playlist["id"])
+    track.insert_many([
+      { k: v for k, v in d.items() if k != "artists" }
+      for d in track_data
+    ])
 
-app.attempt("Save Track Data", step_3, 3)
+    for track in track_data:
+      artist.insert_many(track["artists"])
+      
+      track_artist.insert_many(track["id"], [
+        a["id"] for a in track["artists"]
+      ])
+    
+    playlist_track.insert_many(playlist["id"], [
+      t["id"] for t in track_data      
+    ])
+  logging.info("Successfully retrieved and inserted track data.")
 
-def step_4():
-  all_tracks = db.get_all_tracks(conn)
-  download.create_output_dirs()
+app.attempt("Retrieve Track Data", retrieve_track_data, 3)
 
-  for track in all_tracks:
-    track_artists = db.get_all_track_artists(conn, track["id"])
-    mp3_file_path, track_is_fresh = download.download_track(
-      track["name"], 
-      track_artists, track["id"]
+logging.info("Database is now filled with all necessary data.")
+
+def download_undownloaded():
+  disk.create_dirs()
+  track = Track(DB_CONN)
+  track_artist = TrackArtist(DB_CONN)
+  logging.info("Find all locally unavailable tracks...")
+  locally_unavailable_tracks = track.find_all_locally_unavailable()
+
+  logging.info("Downloading all locally unavailable tracks, this make take some time....")
+  for t in locally_unavailable_tracks:
+    track_artists = track_artist.find_all(t["id"])
+
+    mp3_file_path, track_is_fresh = download.track(
+      t["id"],
+      t["name"], 
+      track_artists, 
     )
 
-    cover_img_path_without_ext = os.path.join(
-      download.TRACK_COVERS_DIR, 
-      track["id"]
-    )
-    cover_img_path, cover_img_is_fresh = download.download_cover_image(
-      track["cover_source"],
-      cover_img_path_without_ext
+    cover_img_path, cover_img_is_fresh = download.cover_image(
+      t["cover_source"],
+      disk.TRACK_COVERS_DIR
     )
 
     if (track_is_fresh or cover_img_is_fresh):
-      metadata.add_mp3_metadata(
+      metadata.set_mp3(
         mp3_file_path,
-        track["name"],
-        track_artists,
-        cover_img_path
+        {
+          "name": t["name"],
+          "artists": track_artists,
+          "cover_path": cover_img_path
+        }
       )
+      track.set_locally_available(t["id"])
+  logging.info("Successfully finished downloading. All tracks in the database are now locally available.")
 
-app.attempt("Download All Undownloaded Tracks", step_4, 4)
+app.attempt("Download All Undownloaded Tracks", download_undownloaded, 4)

@@ -22,7 +22,7 @@
 
 #### Technologies:
 
-- Python (HTTP module/lib, database interaction module)
+- Python (HTTP module/core, database interaction module)
 - SQLite (to store fetch results)
 
 ### 2. Download Tracks as MP3s
@@ -58,7 +58,7 @@
 
 #### Technologies
 
-- Python (FTP module/lib)
+- Python (FTP module/core)
 
 ### 4. Music Listening App
 

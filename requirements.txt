@@ -4,5 +4,5 @@ idna==3.10
 mutagen==1.47.0
 python-dotenv==1.1.1
 requests==2.32.4
-urllib3==2.5.0
+urlcore3==2.5.0
 yt-dlp==2025.6.25

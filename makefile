@@ -11,3 +11,6 @@ install-deps:
 
 run-skip-spotify:
 	./$(ENV_NAME)/bin/python main.py 4
+
+inspect-database:
+	sqlite3 ./db/app.db
