@@ -8,7 +8,7 @@ def track(track_id: str, track_name: str, track_artists: list):
 
   if disk.track_is_downloaded(track_id):
     logging.debug("Track is already downloaded, skipping...")
-    return disk.get_track_path(track_id), False
+    return disk.track_path(track_id), False
     
   filename_template = f"{track_id}.%(ext)s"
 
@@ -34,7 +34,7 @@ def track(track_id: str, track_name: str, track_artists: list):
 
   logging.debug(f"Successfully downloaded track: {track_id}")
 
-  return disk.get_track_path(track_id), True
+  return disk.track_path(track_id), True
   
 # download an image and save it to disk at the specified path
 def cover_image(url: str, target_dir: str):
@@ -43,7 +43,7 @@ def cover_image(url: str, target_dir: str):
 
   if disk.cover_is_downloaded(disk.TRACK_COVERS_DIR, cover_id):
     logging.debug("Cover image is already downloaded, skipping...")
-    cover_path = disk.get_cover_path(target_dir, url)
+    cover_path = disk.cover_path(target_dir, url)
     return cover_path, False
   
   response = requests.get(url)
@@ -55,7 +55,7 @@ def cover_image(url: str, target_dir: str):
   if not ext:
     ext = "jpg"
 
-  cover_path = disk.get_cover_path(target_dir, url, ext)
+  cover_path = disk.cover_path(target_dir, url, ext)
   
   logging.debug(f"Saving cover image to disk at: {cover_path}")
   

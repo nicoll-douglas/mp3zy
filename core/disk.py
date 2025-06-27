@@ -9,11 +9,11 @@ def get_cover_id(cover_source: str):
   return cover_source.split("/")[-1]
 
 # get the path to a track
-def get_track_path(track_id: str):
+def track_path(track_id: str):
   return os.path.join(TRACKS_DIR, f"{track_id}.mp3")
 
 # gets the path to the cover image stored locally
-def get_cover_path(dir: str, cover_source: str, ext: str | None = None):
+def cover_path(dir: str, cover_source: str, ext: str | None = None):
   id = get_cover_id(cover_source)
   path_without_ext = os.path.join(dir, id)
 
@@ -31,7 +31,7 @@ def cover_is_downloaded(dir: str, cover_id: str):
 
 # checks if a track is downloaded
 def track_is_downloaded(track_id: str):
-  return os.path.exists(get_track_path(track_id))
+  return os.path.exists(track_path(track_id))
 
 # safely create missing directories for the target output directories
 def create_dirs():
