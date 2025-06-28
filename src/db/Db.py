@@ -1,7 +1,7 @@
 import logging, sqlite3, os
 
 class Db:
-  __LOCATION = os.path.join(os.getenv("STORAGE_DIR"), "freemium.db")
+  __LOCATION = os.path.join(os.getenv("STORAGE_DIR"), os.getenv("DB_NAME"))
   __SCHEMA = "db/schema.sql"
 
   def connect(self):

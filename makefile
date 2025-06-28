@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 ENV_NAME = pythonenv
 
 python-env:
@@ -10,4 +11,4 @@ install-deps:
 	./$(ENV_NAME)/bin/pip install -r requirements.txt && sudo apt install -y ffmpeg
 
 db-inspect:
-	sqlite3 ./db/app.db
+	@set -a && source ./.env && set +a && sqlite3 $$STORAGE_DIR/$$DB_NAME
