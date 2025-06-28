@@ -1,12 +1,12 @@
 import os, requests, mimetypes, logging
 import yt_dlp
-from . import app, disk
+from . import disk
 
 # download the given track as an mp3 and save it to the target output directory
-def track(track_info: dict):
-  logging.debug(f"Downloading track: {track_info["id"]}")
+def track(track_info: dict[str]):
+  logging.debug(f"Downloading track: {track_info["id"]} ({track_info["name"]})")
 
-  if disk.track_is_downloaded(track_info["id"]):
+  if disk.track_exists(track_info["id"]):
     logging.debug("Track is already downloaded, skipping...")
     return disk.track_path(track_info["id"]), False
     
@@ -34,7 +34,7 @@ def track(track_info: dict):
       
       # try to get candidates
       logging.debug("Finding best track candidate...")
-      best_entries = best_track_candidates(info["entries"], track_info)
+      best_entries = get_best_track_candidates(info["entries"], track_info)
       
       # throw if no candidates / get entries
       if not best_entries:
@@ -43,7 +43,7 @@ def track(track_info: dict):
     # log and skip if failed to get entries
     except Exception as e:
       logging.error(f"An error occurred: {e}")
-      return False, True
+      return None, None
 
 
     # download best candidate
@@ -71,23 +71,53 @@ def track(track_info: dict):
       logging.error(f"An error occurred: {e}")
 
     # no more entries to try so skip
-    logging.warning("No more entries to try.")
-    return False, True
+    logging.warning("No more entries to try, skipping...")
+    return None, None
+  
+def tracks(track_info_list: list[str]) -> list[str]:
+  total = len(track_info_list)
+  dl_count = 0
+  already_dl_count = 0
+  fail_count = 0
+  downloaded = []
+  
+  logging.info(f"Downloading {total} tracks...")
+  for index, item in enumerate(track_info_list):
+    current_num = index + 1
+    
+    logging.info(f"Downloading track {current_num} of {total}...")
+    mp3_file_path, track_is_fresh = track(item)
+
+    if not track_is_fresh:
+      logging.info("Track already downloaded so skipped.")
+      already_dl_count += 1
+
+    if mp3_file_path and track_is_fresh:
+      logging.info(f"Successfully downloaded track {current_num} of {total}.")
+      downloaded.append(mp3_file_path)
+      dl_count += 1
+      
+    if not mp3_file_path:
+      logging.warning(f"Track download {current_num} of {total} failed. ({item["id"], item["name"]})")
+      fail_count += 1
+
+  logging.info(f"{already_dl_count} tracks already downloaded. Successfully downloaded {dl_count} of {total - already_dl_count}. {fail_count} failed.")
+  return downloaded
   
 # download an image and save it to disk at the specified path
 def cover_image(url: str, target_dir: str):
   logging.debug(f"Downloading cover image: {url}")
-  cover_id = disk.get_cover_id(url)
+  cover_id = disk.cover_id(url)
 
-  if disk.cover_is_downloaded(target_dir, cover_id):
+  if disk.cover_exists(target_dir, cover_id):
     logging.debug("Cover image is already downloaded, skipping...")
-    cover_path = disk.cover_path(target_dir, url)
+    cover_path = disk.cover_path(dir=target_dir, _cover_id=cover_id)
     return cover_path, False
   
   response = requests.get(url)
   if response.status_code != 200:
     logging.error("Cover image request failed.")
-    return False, True
+    return None, None
 
   content_type = response.headers.get("Content-Type", "")
   ext = mimetypes.guess_extension(content_type.split(";")[0])
@@ -95,18 +125,45 @@ def cover_image(url: str, target_dir: str):
   if not ext:
     ext = "jpg"
 
-  cover_path = disk.cover_path(target_dir, url, ext)
+  cover_path = disk.cover_path(dir=target_dir, cover_source=url, ext=ext)
   
   logging.debug(f"Saving cover image to disk at: {cover_path}")
-  
-  with open(cover_path, "wb") as f:
-    f.write(response.content)
-
+  disk.write_b(cover_path, response.content)
   logging.debug("Successfully saved image to disk.")
 
   return cover_path, True
 
-def best_track_candidates(entries: list[dict[str]], track: dict[str]):  
+def cover_images(urls: list[str] | tuple[str], target_dir: str) -> list[str]:
+  total = len(urls)
+  dl_count = 0
+  already_dl_count = 0
+  fail_count = 0
+  downloaded = []
+  
+  logging.info(f"Downloading {total} cover images...")
+  for index, url in enumerate(urls):
+    current_num = index + 1
+    
+    logging.info(f"Downloading cover image {current_num} of {total}...")
+    cover_path, cover_is_fresh = cover_image(url, target_dir)
+
+    if not cover_is_fresh:
+      logging.info("Cover image already downloaded so skipped.")
+      already_dl_count += 1
+
+    if cover_path and cover_is_fresh:
+      logging.info(f"Successfully downloaded cover image {current_num} of {total}.")
+      downloaded.append(cover_path)
+      dl_count += 1
+      
+    if not cover_path:
+      logging.warning(f"Cover image download {current_num} of {total} failed. ({url})")
+      fail_count += 1
+
+  logging.info(f"{already_dl_count} cover images already downloaded. Successfully downloaded {dl_count} of {total - already_dl_count}. {fail_count} failed.")
+  return downloaded
+
+def get_best_track_candidates(entries: list[dict[str]], track: dict[str]):  
   track_name = track["name"].lower()
   track_artists = [t.lower() for t in track["artists"]]
   track_duration_s = track["duration_s"]

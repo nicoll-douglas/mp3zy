@@ -13,8 +13,8 @@ def get_auth_header(access_token: str):
 
 # request client credentials from API
 def request_access_token() -> str:
-  client_id = os.getenv("CLIENT_ID")
-  client_secret = os.getenv("CLIENT_SECRET")
+  client_id = os.getenv("SPOTIFY_CLIENT_ID")
+  client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
   url = "https://accounts.spotify.com/api/token"
   data = {

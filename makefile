@@ -9,8 +9,5 @@ run:
 install-deps:
 	./$(ENV_NAME)/bin/pip install -r requirements.txt && sudo apt install -y ffmpeg
 
-run-skip-spotify:
-	./$(ENV_NAME)/bin/python main.py 4
-
-inspect-database:
+db-inspect:
 	sqlite3 ./db/app.db
