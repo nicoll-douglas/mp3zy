@@ -1,21 +1,59 @@
 import sqlite3, logging
+from db.Model import Model
 
-class PlaylistTrack:
-  _conn: sqlite3.Connection
-  __TABLE = "playlist_track"
-
+class PlaylistTrack(Model):
   def __init__(self, conn: sqlite3.Connection):
-    self._conn = conn
-  
-  # stores data about playlist-track relationships in the `playlist_track` table
-  def insert_many(self, playlist_id: str, track_ids: list[str]):
-    logging.debug(f"Ignore-inserting playlist-track relationships into the `{self.__TABLE}` table...")
-    cursor = self._conn.cursor()
+    super().__init__(conn, "playlist_track")
 
-    cursor.executemany(
-      f"INSERT OR IGNORE INTO {self.__TABLE} (playlist_id, track_id) VALUES (:playlist_id, :track_id)",
-      [{ "playlist_id": playlist_id, "track_id": id } for id in track_ids]
+  def find_playlist(self, playlist_id: str):
+    logging.debug(f"Selecting track_id from the {self._TABLE} table based on playlist_id...")
+    
+    cursor = self._CONN.cursor()
+    cursor.execute(
+      f"SELECT track_id FROM {self._TABLE} WHERE playlist_id = ?",
+      (playlist_id,)
     )
-    self._conn.commit()
+    rows = cursor.fetchall()
 
-    logging.debug("Successfully inserted playlist-track relationships.")
+    logging.debug("Successfully selected rows.")
+
+    return rows
+
+  def delete_many(self, params_list: list[tuple[str]]):
+    cursor = self._CONN.cursor()
+    item_count = len(params_list)
+    
+    logging.debug(f"Deleting {item_count} items from the {self._TABLE} table...")
+    
+    self._CONN.execute("BEGIN")
+    cursor.executemany(
+      f"DELETE FROM {self._TABLE} WHERE playlist_id = ? AND track_id = ?", 
+      params_list
+    )
+    self._CONN.commit()
+
+    logging.debug("Successfully deleted items.")
+
+  def apply_table_diff(
+    self, 
+    playlist_id: str,
+    track_ids: list[str]
+  ):
+    logging.debug(f"Applying table diff for table {self._TABLE}...")
+
+    rows = self.find_playlist(playlist_id)
+    
+    db_pairs = {(playlist_id, track_id) for (track_id) in rows}
+    updated_pairs = {(playlist_id, track_id) for track_id in track_ids }
+
+    self.delete_many([
+      (playlist_id, track_id)
+      for (playlist_id, track_id) in db_pairs - updated_pairs
+    ])
+
+    self.insert_many([
+      {"playlist_id": playlist_id, "track_id": track_id }
+      for (playlist_id, track_id) in updated_pairs - db_pairs
+    ])
+
+    logging.debug("Successfully applied table diff.")

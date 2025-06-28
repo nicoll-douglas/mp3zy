@@ -1,37 +1,62 @@
 import sqlite3, logging
+from db.Model import Model
 
-class Playlist:
-  _conn: sqlite3.Connection
-  __TABLE = "playlists"
-
+class Playlist(Model):
   def __init__(self, conn: sqlite3.Connection):
-    self._conn = conn
-
-  def insert_many(self, playlists: list[dict[str, str]]):
-    cursor = self._conn.cursor()
-    playlist_count = len(playlists)
-
-    logging.debug(f"Replace-inserting {playlist_count} user playlists into `{self.__TABLE}` table...")
-
-    cursor.executemany(
-      f"INSERT OR REPLACE INTO {self.__TABLE} (id, name, cover_source) VALUES (:id, :name, :cover_source)",
-      playlists
-    )
-    self._conn.commit()
+    super().__init__(conn, "playlists")
+  
+  def update_many(self, params_list: list[dict[str, str]]):
+    item_count = len(params_list)
+    cursor = self._CONN.cursor()
     
-    logging.debug("Successfully replace-inserted playlists.")
+    logging.debug(f"Updating {item_count} items in the {self._TABLE} table...")
 
-  def find_all(self):
-    self._conn.row_factory = sqlite3.Row
-    cursor = self._conn.cursor()
+    self._CONN.execute("BEGIN")
+    cursor.executemany(
+      f"UPDATE {self._TABLE} SET name = :name, cover_source = :cover_source WHERE id = :id", 
+      params_list
+    )
+    self._CONN.commit()
 
-    logging.debug(f"Selecting all playlists from the `{self.__TABLE}` table...")
+    logging.debug("Successfully updated items.")
 
-    cursor.execute(f"SELECT * FROM {self.__TABLE}")
-    rows = cursor.fetchall()
+  def delete_many(self, params_list: list[str]):
+    cursor = self._CONN.cursor()
+    item_count = len(params_list)
+    
+    logging.debug(f"Deleting {item_count} items from the {self._TABLE} table...")
 
-    logging.debug("Successfully selected playlists.")
+    self._CONN.execute("BEGIN")
+    cursor.executemany(
+      f"DELETE FROM {self._TABLE} WHERE id = ?", 
+      params_list
+    )
+    self._CONN.commit()
 
-    self._conn.row_factory = None
+    logging.debug("Successfully deleted items")
+  
+  def apply_table_diff(self, new_table: list[dict[str]]):
+    logging.debug(f"Applying table diff for table {self._TABLE}...")
 
-    return rows
+    rows = self.select_all()
+
+    row_map = {row["id"]: row for row in rows}
+    new_table_map = {row["id"]: row for row in new_table}
+
+    db_ids = set(row_map.keys())
+    updated_ids = set(new_table_map.keys())
+
+    self.update_many([
+      new_table_map[_id]
+      for _id in (db_ids & updated_ids)
+      if row_map[_id] != new_table_map[_id]
+    ])
+
+    self.delete_many([_id for _id in db_ids - updated_ids])
+
+    self.insert_many([
+      new_table_map[_id]
+      for _id in updated_ids - db_ids
+    ])
+
+    logging.debug(f"Successfully applied table diff.")

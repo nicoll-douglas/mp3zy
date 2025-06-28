@@ -1,46 +1,47 @@
 import sqlite3, logging
+from db.Model import Model
 
-class Track:
-  _conn: sqlite3.Connection
-  __TABLE = "tracks"
-  
+class Track(Model):
   def __init__(self, conn: sqlite3.Connection):
-    self._conn = conn
-
-  def insert_many(self, tracks: list[dict[str, str]]):
-    cursor = self._conn.cursor()
-    track_count = len(tracks)
-
-    logging.debug(f"Ignore-inserting {track_count} tracks into `{self.__TABLE}` table...")
-    cursor.executemany(
-      f"INSERT OR IGNORE INTO {self.__TABLE} (id, name, cover_source, duration_ms) VALUES (:id, :name, :cover_source, :duration_ms)",
-      tracks
-    )
-    self._conn.commit()
-
-    logging.debug("Successfully ignore-inserted tracks.")
+    super().__init__(conn, "tracks")
   
-  def find_all_locally_unavailable(self) -> list[dict[str]]:
-    self._conn.row_factory = sqlite3.Row
-    cursor = self._conn.cursor()
+  def find_locally_unavailable(self) -> list[dict[str]]:
+    self._CONN.row_factory = sqlite3.Row
+    cursor = self._CONN.cursor()
 
     logging.debug("Selecting all tracks where `locally_available` is `false`...")
-    cursor.execute(f"SELECT * FROM {self.__TABLE} WHERE locally_available = ?", (0,))
+    cursor.execute(f"SELECT * FROM {self._TABLE} WHERE locally_available = ?", (0,))
     rows = cursor.fetchall()
 
     logging.debug("Successfully selected tracks.")
 
-    self._conn.row_factory = None
+    self._CONN.row_factory = None
     
     return rows
 
   def set_locally_available(self, track_id: str):
-    cursor = self._conn.cursor()
+    cursor = self._CONN.cursor()
     
     logging.debug(f"Setting `locally_available` to `true` for track: {track_id}")
     cursor.execute(
-      f"UPDATE {self.__TABLE} SET locally_available = ? WHERE id = ?",
+      f"UPDATE {self._TABLE} SET locally_available = ? WHERE id = ?",
       (1, track_id)
     )
-    self._conn.commit()
+    self._CONN.commit()
     logging.debug(f"Successfully updated track.")
+    
+  def apply_table_diff(self, updated_rows: list[dict[str]]):
+    logging.debug(f"Applying table diff for table {self._TABLE}...")
+
+    rows = self.select_all(("id"))
+    updated_row_map = {row["id"]: row for row in updated_rows}
+
+    db_ids = {row["id"] for row in rows}
+    updated_ids = set(updated_row_map.keys())
+
+    self.insert_many([
+      updated_row_map[_id]
+      for _id in updated_ids - db_ids
+    ])
+    
+    logging.debug(f"Successfully applied table diff.")

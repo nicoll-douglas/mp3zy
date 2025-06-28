@@ -22,14 +22,19 @@ CREATE TABLE IF NOT EXISTS track_artist (
   track_id TEXT,
   artist_id TEXT,
   PRIMARY KEY (track_id, artist_id),
-  FOREIGN KEY (track_id) REFERENCES tracks(id),
-  FOREIGN KEY (artist_id) REFERENCES artists(id)
+  FOREIGN KEY (track_id) REFERENCES tracks(id) ON DELETE CASCADE,
+  FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS playlist_track (
   track_id TEXT,
   playlist_id TEXT,
   PRIMARY KEY (track_id, playlist_id),
-  FOREIGN KEY (track_id) REFERENCES tracks(id),
-  FOREIGN KEY (playlist_id) REFERENCES playlists(id)
+  FOREIGN KEY (track_id) REFERENCES tracks(id) ON DELETE CASCADE,
+  FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
 );
+
+-- get tracks from api for a playlist
+-- compute diff (deleted and inserted for a playlist)
+-- delete tracks from playlist_track
+-- insert tracks into tracks table (+ artist if doenst exist, track_artist if doesnt exist, playlist_track)

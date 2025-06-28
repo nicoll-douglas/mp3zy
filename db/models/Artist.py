@@ -1,20 +1,22 @@
 import logging, sqlite3
+from db.Model import Model
 
-class Artist:
-  _conn: sqlite3.Connection
-  __TABLE = "artists"
-
+class Artist(Model):
   def __init__(self, conn: sqlite3.Connection):
-    self._conn = conn
+    super().__init__(conn, "artists")
 
-  def insert_many(self, artists: list[dict[str, str]]):
-    cursor = self._conn.cursor()
-    logging.debug(f"Ignore-inserting artists into `{self.__TABLE}` table...")
+  def apply_table_diff(self, updated_rows: list[dict[str, str]]):
+    logging.debug(f"Applying table diff for table {self._TABLE}...")
 
-    cursor.executemany(
-      f"INSERT OR IGNORE INTO {self.__TABLE} (id, name) VALUES (:id, :name)",
-      artists
-    )
-    self._conn.commit()
+    rows = self.select_all(("id"))
+    updated_row_map = {row["id"]: row for row in updated_rows}
 
-    logging.debug("Successfully inserted artists.")
+    db_ids = {row["id"] for row in rows}
+    updated_ids = set(updated_row_map.keys())
+
+    self.insert_many([
+      updated_row_map[_id]
+      for _id in updated_ids - db_ids
+    ])
+    
+    logging.debug(f"Successfully applied table diff.")
