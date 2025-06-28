@@ -1,11 +1,11 @@
 import logging, sqlite3
-from db.Model import Model
+from ..Model import Model
 
 class Artist(Model):
   def __init__(self, conn: sqlite3.Connection):
     super().__init__(conn, "artists")
 
-  def apply_table_diff(self, updated_rows: list[dict[str, str]]):
+  def sync(self, updated_rows: list[dict[str, str]]):
     logging.debug(f"Applying table diff for table {self._TABLE}...")
 
     rows = self.select_all(("id"))

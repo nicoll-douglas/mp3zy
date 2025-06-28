@@ -1,5 +1,5 @@
 import sqlite3, logging
-from db.Model import Model
+from ..Model import Model
 
 class Playlist(Model):
   def __init__(self, conn: sqlite3.Connection):
@@ -35,8 +35,9 @@ class Playlist(Model):
 
     logging.debug("Successfully deleted items")
   
-  def apply_table_diff(self, new_table: list[dict[str]]):
-    logging.debug(f"Applying table diff for table {self._TABLE}...")
+  def sync(self, new_table: list[dict[str]]):
+    logging.info("Syncing database with new playlist data...")
+    logging.debug(f"Computing and applying table diff for table {self._TABLE}...")
 
     rows = self.select_all()
 
@@ -60,3 +61,4 @@ class Playlist(Model):
     ])
 
     logging.debug(f"Successfully applied table diff.")
+    logging.info("Successfully synced database.")

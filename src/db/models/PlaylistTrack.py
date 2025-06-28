@@ -1,5 +1,5 @@
 import sqlite3, logging
-from db.Model import Model
+from ..Model import Model
 
 class PlaylistTrack(Model):
   def __init__(self, conn: sqlite3.Connection):
@@ -34,7 +34,7 @@ class PlaylistTrack(Model):
 
     logging.debug("Successfully deleted items.")
 
-  def apply_table_diff(
+  def sync(
     self, 
     playlist_id: str,
     track_ids: list[str]

@@ -6,5 +6,6 @@ pythonenv
 # db
 *.db
 
-# cache
+# python generated
 __pycache__
+*.egg-info

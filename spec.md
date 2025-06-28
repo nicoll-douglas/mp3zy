@@ -67,3 +67,13 @@
 ### 5. Syncing
 
 - Set up a CRON job to run the script periodically (e.g every 24 hours) to keep the mobile playlists up to date with the Spotify playlists
+- When making calls to Spotify API:
+  - Playlists
+    - Find diff against database (when you have all playlists)
+    - Playlist deleted -> Delete playlist, playlist tracks, and tracks that arent in any other playlists
+    - New playlist -> Insert and download resources
+    - Playlist updated -> update cover source / name in database and replace cover (disk)
+  - Tracks
+    - Find diff against database (when you have all tracks)
+    - New tracks -> Add new tracks to database if any and download resources
+    - Deleted tracks -> remove from database and disk, (remove tracks, playlist tracks, etc)

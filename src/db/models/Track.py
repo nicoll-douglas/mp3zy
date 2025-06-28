@@ -1,11 +1,11 @@
 import sqlite3, logging
-from db.Model import Model
+from ..Model import Model
 
 class Track(Model):
   def __init__(self, conn: sqlite3.Connection):
     super().__init__(conn, "tracks")
   
-  def find_locally_unavailable(self) -> list[dict[str]]:
+  def find_locally_unavailable(self):
     self._CONN.row_factory = sqlite3.Row
     cursor = self._CONN.cursor()
 
@@ -30,7 +30,7 @@ class Track(Model):
     self._CONN.commit()
     logging.debug(f"Successfully updated track.")
     
-  def apply_table_diff(self, updated_rows: list[dict[str]]):
+  def sync(self, updated_rows: list[dict[str]]):
     logging.debug(f"Applying table diff for table {self._TABLE}...")
 
     rows = self.select_all(("id"))

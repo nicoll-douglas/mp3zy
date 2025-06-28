@@ -1,5 +1,5 @@
 import logging, sqlite3
-from db.Model import Model
+from ..Model import Model
 
 class TrackArtist(Model):
   def __init__(self, conn: sqlite3.Connection):
@@ -24,7 +24,7 @@ WHERE ta.track_id = ?
 
     return rows
   
-  def apply_table_diff(
+  def sync(
     self,
     track_id: str,
     artists_ids: list[str]
