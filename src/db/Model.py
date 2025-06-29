@@ -19,13 +19,16 @@ class Model:
     columns = ", ".join(columns_list)
     params = ", ".join([f"{col} = :{col}" for col in columns_list])
 
+    self._CONN.row_factory = sqlite3.Row
     cursor = self._CONN.cursor()
+
     cursor.execute("BEGIN")
     cursor.executemany(
       f"INSERT OR IGNORE INTO {self._TABLE} ({columns}) VALUES ({params})",
       new_rows
     )
     self._CONN.commit()
+    self._CONN.row_factory = None
 
     logging.debug("Successfully inserted items.")
 
