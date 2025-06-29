@@ -10,7 +10,8 @@ class LocalSyncer:
     db_conn: sqlite3.Connection, 
     spotify_client: SpotifyApiClient
   ):
-    logging.info("Syncing playlist data in the database and playlist cover images with the Spotify API...")
+    logging.info("Syncing playlist data from the Spotify API with database...")
+
     playlist_data = spotify_client.fetch_user_playlists()
     updated_rows = [
       { 
@@ -23,12 +24,16 @@ class LocalSyncer:
 
     playlist = models.Playlist(db_conn)
     playlist.sync(updated_rows)
+    
+    logging.info("Finished data syncing.")
+    logging.info("Syncing all playlist cover image files with updated entries...")
 
     SpotifyApiClient.download_cdn_images(
       [d["cover_source"] for d in updated_rows],
       disk.PlaylistCover.DIR
     )
-    logging.info("Finished syncing.")
+    
+    logging.info("Finished file syncing.")
     
     return playlist_data
 
@@ -38,20 +43,46 @@ class LocalSyncer:
     spotify_client: SpotifyApiClient,
     playlist_data: dict[str],
   ):
+    m_track = models.Track(db_conn)
+    m_track_artist = models.TrackArtist(db_conn)
+
     logging.info("Syncing track data from the Spotify API with database...")
+    self._sync_track_data(db_conn, spotify_client, playlist_data)
+    logging.info("Finished data syncing.")
+
+    # query entire database and sync tracks
+    logging.info("Syncing all track files with all track entries in the database...")
+    locally_unavailable_tracks = m_track.find_locally_unavailable()
+    self._sync_track_files(db_conn, [
+      {
+        "id": row["id"],
+        "name": row["name"],
+        "cover_source": row["cover_source"],
+        "duration_ms": row["duration_ms"],
+        "artists": m_track_artist.find_artists(row["id"])
+      }
+      for row in locally_unavailable_tracks
+    ])
+
+    logging.info("Finished file syncing.")
+
+  def _sync_track_data(
+    self,
+    db_conn: sqlite3.Connection,
+    spotify_client: SpotifyApiClient,
+    playlist_data: dict[str],
+  ):
     m_track = models.Track(db_conn)
     m_artist = models.Artist(db_conn)
     m_track_artist = models.TrackArtist(db_conn)
     m_playlist_track = models.PlaylistTrack(db_conn)
-    
+
     for playlist in playlist_data:
-      # fetch
       track_data = spotify_client.fetch_playlist_tracks(
         playlist["tracks_href"], 
         playlist["name"]
       )
 
-      # start update db
       m_track.sync([
         {
           "id": d["id"],
@@ -73,25 +104,6 @@ class LocalSyncer:
           track["id"], 
           [d["id"] for d in track["artists"]]
         )
-      # finish update db
-
-    logging.info("Finished data syncing.")
-    logging.info("Syncing all track files with all track entries in the database...")
-
-    # query entire database and sync tracks
-    locally_unavailable_tracks = m_track.find_locally_unavailable()
-    self._sync_track_files(db_conn, [
-      {
-        "id": row["id"],
-        "name": row["name"],
-        "cover_source": row["cover_source"],
-        "duration_ms": row["duration_ms"],
-        "artists": m_track_artist.find_artists(row["id"])
-      }
-      for row in locally_unavailable_tracks
-    ])
-
-    logging.info("Finished file syncing.")
 
   def _sync_track_files(
     self,
