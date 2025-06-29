@@ -34,7 +34,7 @@ class Track(Model):
   def sync(self, updated_rows: list[dict[str]]):
     logging.debug(f"Applying table diff for table {self._TABLE}...")
 
-    rows = self.select_all(("id"))
+    rows = self.select_all(("id",))
     updated_row_map = {row["id"]: row for row in updated_rows}
 
     db_ids = {row["id"] for row in rows}

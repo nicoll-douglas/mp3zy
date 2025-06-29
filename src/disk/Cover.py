@@ -20,7 +20,7 @@ class Cover(File):
     if not _id and self._source:
       _id = self._source.split("/")[-1]
 
-    super().__init(
+    super().__init__(
       _id=_id,
       ext=ext,
       path=path

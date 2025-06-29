@@ -43,10 +43,10 @@ class PlaylistTrack(Model):
 
     rows = self.find_playlist(playlist_id)
     
-    db_pairs = {(playlist_id, track_id) for (track_id) in rows}
-    updated_pairs = {(playlist_id, track_id) for track_id in track_ids }
+    db_pairs = {(playlist_id, track_id) for (track_id,) in rows}
+    updated_pairs = {(playlist_id, track_id) for track_id in track_ids}
 
-    self.delete_many([p for p in db_pairs - updated_pairs])
+    self.delete_many(list(db_pairs - updated_pairs))
 
     self.insert_many([
       {"playlist_id": playlist_id, "track_id": track_id }

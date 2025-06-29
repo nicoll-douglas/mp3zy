@@ -137,9 +137,10 @@ class SpotifyApiClient:
 
     logging.info(f"Downloading {total} cover images...")
     for index, url in enumerate(incoming_hrefs):
+      current_num = index + 1
+
       logging.info(f"Downloading cover image {current_num} of {total}...")
       save_path, cover_is_fresh = cls.download_cdn_image(url, target_dir)
-      current_num = index + 1
 
       if not save_path:
         logging.warning(f"Cover image download {current_num} of {total} failed. ({url})")
@@ -149,6 +150,7 @@ class SpotifyApiClient:
       if not cover_is_fresh:
         logging.info("Cover image already downloaded so skipped.")
         skip_count += 1
+        continue
       
       logging.info(f"Successfully downloaded cover image {current_num} of {total}.")
       success_count += 1

@@ -6,7 +6,7 @@ import bootstrap
 # imports
 
 from db import *
-from services import SpotifyApiClient, LocalSyncer
+from services import SpotifyApiClient, SpotifySync
 from utils.helpers import attempt_step
 
 # Step 1: Set up database and authenticate with Spotify API
@@ -35,8 +35,8 @@ DB_CONN, SPOTIFY_CLIENT = attempt_step(("Setup", 1), setup)
 #   - If some cover downloads fail then the images on disk will not be synced with the expected from the database
 
 def sync_user_playlist_data():
-  syncer = LocalSyncer()
-  playlist_data = syncer.sync_playlists(DB_CONN, SPOTIFY_CLIENT)
+  syncer = SpotifySync(DB_CONN, SPOTIFY_CLIENT)
+  playlist_data = syncer.sync_playlists()
   return playlist_data
 
 playlist_data = attempt_step(
@@ -55,10 +55,13 @@ playlist_data = attempt_step(
 #   - FOREACH track DOWNLOAD track.cover IF NOT IN disk.track_covers
 #   - FOREACH track DOWNLOAD track IF NOT IN disk.tracks
 #   - FOREACH track IF track.downloaded AND track.cover.downloaded SET track.locally_available
+# Notes:
+#   - If some downloads fail then the images and track files on disk will not be synced with the database
+#   - Only if both track and cover downloads succeed then track metadata is set and locally_available is set to true
 
 def sync_playlist_track_data():
-  syncer = LocalSyncer()
-  syncer.sync_tracks(DB_CONN, SPOTIFY_CLIENT, playlist_data)
+  syncer = SpotifySync(DB_CONN, SPOTIFY_CLIENT)
+  syncer.sync_tracks(playlist_data)
 
 attempt_step(
   ("Sync Playlist Track Data", 3),

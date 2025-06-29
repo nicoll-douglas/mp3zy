@@ -7,6 +7,7 @@ class Track(File):
   DIR: str = os.path.join(os.getenv("STORAGE_DIR"), "tracks")
   
   def __init__(
+    self,
     _id: str | None = None,
     path: str | None = None
   ):

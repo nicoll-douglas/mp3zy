@@ -6,8 +6,8 @@ class TrackArtist(Model):
     super().__init__(conn, "track_artist")
   
   def find_artists(self, track_id: str):
-    logging.debug(f"Finding all artists associated with {track_id} from tables {self._TABLE} and artists...")
-    self._CONN.row_factory = sqlite3.Connection
+    logging.debug(f"Finding all artists associated with track id {track_id} from tables {self._TABLE} and artists...")
+    self._CONN.row_factory = sqlite3.Row
     cursor = self._CONN.cursor()
     
     query = f"""

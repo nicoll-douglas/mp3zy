@@ -4,15 +4,22 @@ import sqlite3, logging
 from services import SpotifyApiClient, YtDlpClient
 import disk
 
-class LocalSyncer:
-  def sync_playlists(
+class SpotifySync:
+  _DB_CONN: sqlite3.Connection
+  _SPOTIFY_CLIENT: SpotifyApiClient
+  
+  def __init__(
     self,
     db_conn: sqlite3.Connection, 
     spotify_client: SpotifyApiClient
   ):
+    self._DB_CONN = db_conn
+    self._SPOTIFY_CLIENT = spotify_client
+  
+  def sync_playlists(self):
     logging.info("Syncing playlist data from the Spotify API with database...")
 
-    playlist_data = spotify_client.fetch_user_playlists()
+    playlist_data = self._SPOTIFY_CLIENT.fetch_user_playlists()
     updated_rows = [
       { 
         "id": d["id"],
@@ -22,7 +29,7 @@ class LocalSyncer:
       for d in playlist_data
     ]
 
-    playlist = models.Playlist(db_conn)
+    playlist = models.Playlist(self._DB_CONN)
     playlist.sync(updated_rows)
     
     logging.info("Finished data syncing.")
@@ -39,21 +46,19 @@ class LocalSyncer:
 
   def sync_tracks(
     self,
-    db_conn: sqlite3.Connection,
-    spotify_client: SpotifyApiClient,
     playlist_data: list[dict[str, str]],
   ):
-    m_track = models.Track(db_conn)
-    m_track_artist = models.TrackArtist(db_conn)
+    m_track = models.Track(self._DB_CONN)
+    m_track_artist = models.TrackArtist(self._DB_CONN)
 
     logging.info("Syncing track data from the Spotify API with database...")
-    self._sync_track_data(db_conn, spotify_client, playlist_data)
+    self._sync_track_data(playlist_data)
     logging.info("Finished data syncing.")
 
     # query entire database and sync tracks
     logging.info("Syncing all track files with all track entries in the database...")
     locally_unavailable_tracks = m_track.find_locally_unavailable()
-    self._sync_track_files(db_conn, [
+    self._sync_track_files([
       {
         "id": row["id"],
         "name": row["name"],
@@ -68,17 +73,17 @@ class LocalSyncer:
 
   def _sync_track_data(
     self,
-    db_conn: sqlite3.Connection,
-    spotify_client: SpotifyApiClient,
     playlist_data: list[dict[str, str]],
   ):
-    m_track = models.Track(db_conn)
-    m_artist = models.Artist(db_conn)
-    m_track_artist = models.TrackArtist(db_conn)
-    m_playlist_track = models.PlaylistTrack(db_conn)
+    logging.info("Syncing track data...")
+    
+    m_track = models.Track(self._DB_CONN)
+    m_artist = models.Artist(self._DB_CONN)
+    m_track_artist = models.TrackArtist(self._DB_CONN)
+    m_playlist_track = models.PlaylistTrack(self._DB_CONN)
 
     for playlist in playlist_data:
-      track_data = spotify_client.fetch_playlist_tracks(
+      track_data = self._SPOTIFY_CLIENT.fetch_playlist_tracks(
         playlist["tracks_href"], 
         playlist["name"]
       )
@@ -93,7 +98,11 @@ class LocalSyncer:
         for d in track_data
       ])
 
-      m_artist.sync([d["artists"] for d in track_data])
+      m_artist.sync([
+        a
+        for t in track_data
+        for a in t["artists"]
+      ])
 
       m_playlist_track.sync(
         playlist["id"], 
@@ -109,13 +118,14 @@ class LocalSyncer:
         for a in t["artists"]
       ])
 
+    logging.info("Synced successfully.")
+
   def _sync_track_files(
     self,
-    db_conn: sqlite3.Connection,
     track_data: list[dict[str]]
   ):
     ytDlpClient = YtDlpClient()
-    m_track = models.Track(db_conn)
+    m_track = models.Track(self._DB_CONN)
     
     for track in track_data:
       cover_save_path = SpotifyApiClient.download_cdn_image(

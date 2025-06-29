@@ -9,6 +9,3 @@ logging.basicConfig(
   level=logging.INFO if os.getenv("APP_ENV") == "production" else logging.DEBUG, 
   format="%(levelname)s | %(message)s"
 )
-
-# resolve cli args
-from services import cli
