@@ -57,17 +57,18 @@ class YtDlpClient:
       logging.info(f"Downloading track {current_num} of {total}...")
       save_path, track_is_fresh = self.download_track(item)
 
-      if not track_is_fresh:
-        logging.info("Track already downloaded so skipped.")
-        skip_count += 1
-
-      if save_path and track_is_fresh:
-        logging.info(f"Successfully downloaded track {current_num} of {total}.")
-        success_count += 1
-        
       if not save_path:
         logging.warning(f"Track download {current_num} of {total} failed. ({item["id"], item["name"]})")
         fail_count += 1
+        continue
+
+      if not track_is_fresh:
+        logging.info("Track already downloaded so skipped.")
+        skip_count += 1
+        continue
+
+      logging.info(f"Successfully downloaded track {current_num} of {total}.")
+      success_count += 1
 
     logging.info(
       f"{skip_count} tracks already downloaded. Successfully downloaded {success_count} of {total - skip_count}. {fail_count} failed."

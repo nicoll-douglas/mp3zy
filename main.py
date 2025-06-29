@@ -53,7 +53,7 @@ playlist_data = attempt_step(
 #   - FIND tracks IN db.tracks WHERE db.track.is_locally_unavailable (no cover or no mp3)
 #   - FOREACH track DOWNLOAD track.cover IF NOT IN disk.track_covers
 #   - FOREACH track DOWNLOAD track IF NOT IN disk.tracks
-#   - IF track.downloaded AND track.cover.downloaded SET track.locally_available
+#   - FOREACH track IF track.downloaded AND track.cover.downloaded SET track.locally_available
 
 def sync_playlist_track_data():
   syncer = LocalSyncer()

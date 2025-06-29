@@ -140,17 +140,17 @@ class SpotifyApiClient:
       logging.info(f"Downloading cover image {current_num} of {total}...")
       save_path, cover_is_fresh = cls.download_cdn_image(url, target_dir)
       current_num = index + 1
+
+      if not save_path:
+        logging.warning(f"Cover image download {current_num} of {total} failed. ({url})")
+        fail_count += 1
+        continue
       
       if not cover_is_fresh:
         logging.info("Cover image already downloaded so skipped.")
         skip_count += 1
       
-      if save_path and cover_is_fresh:
-        logging.info(f"Successfully downloaded cover image {current_num} of {total}.")
-        success_count += 1
-
-      if not save_path:
-        logging.warning(f"Cover image download {current_num} of {total} failed. ({url})")
-        fail_count += 1
+      logging.info(f"Successfully downloaded cover image {current_num} of {total}.")
+      success_count += 1
 
     logging.info(f"{skip_count} cover images already downloaded. Successfully downloaded {success_count} of {total - skip_count}. {fail_count} failed.")
