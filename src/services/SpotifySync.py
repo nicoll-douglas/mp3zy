@@ -134,74 +134,78 @@ class SpotifySync:
     success_count = 0
     fail_count = 0
 
-    logging.info(f"Syncing files for {total} tracks...")
-    for index, track in enumerate(track_data):
-      current_num = index + 1
-      track_label = f"{", ".join(track['artists'])} - {track['name']}"
-      logging.info(f"Syncing track {current_num} of {total} ({track_label})...")
-      
-      # download cover image
-      logging.info("Downloading cover image...")
-      cover_save_path, cover_is_fresh = SpotifyApiClient.download_cdn_image(
-        track["cover_source"],
-        disk.TrackCover.DIR
-      )
+    try:
+      logging.info(f"Syncing files for {total} tracks...")
+      for index, track in enumerate(track_data):
+        current_num = index + 1
+        track_label = f"{", ".join(track['artists'])} - {track['name']}"
+        logging.info(f"Syncing track {current_num} of {total} ({track_label})...")
+        
+        # download cover image
+        logging.info("Downloading cover image...")
+        cover_save_path, cover_is_fresh = SpotifyApiClient.download_cdn_image(
+          track["cover_source"],
+          disk.TrackCover.DIR
+        )
 
-      # cover download states
-      cover_skipped = (not cover_is_fresh) and cover_save_path
-      cover_success = cover_is_fresh and cover_save_path
-      cover_fail = not cover_save_path
+        # cover download states
+        cover_skipped = (not cover_is_fresh) and cover_save_path
+        cover_success = cover_is_fresh and cover_save_path
+        cover_fail = not cover_save_path
 
-      # log for cover image download status
-      if cover_skipped:
-        logging.info("Cover image already downloaded.")
-      
-      if cover_success:
-        logging.info("Successfully downloaded cover image.")
+        # log for cover image download status
+        if cover_skipped:
+          logging.info("Cover image already downloaded.")
+        
+        if cover_success:
+          logging.info("Successfully downloaded cover image.")
 
-      if cover_fail:
-        logging.error("Failed to download cover image.")
+        if cover_fail:
+          logging.error("Failed to download cover image.")
 
-      # download track
-      logging.info("Downloading track...")
-      track_save_path, track_is_fresh = ytDlpClient.download_track({
-        "id": track["id"],
-        "name": track["name"],
-        "artists": track["artists"],
-        "duration_s": track["duration_ms"] / 1000
-      })
-
-      # track download status
-      track_skipped = (not track_is_fresh) and track_save_path
-      track_success = track_is_fresh and track_save_path
-      track_fail = not track_save_path
-
-      # log for track download status
-      if track_skipped:
-        logging.info("Track already downloaded.")
-
-      if track_success:
-        logging.info("Successfully downloaded track.")
-      
-      if track_fail:
-        logging.info("Failed to download track.")
-
-      # sync status
-      track_is_in_sync = cover_save_path and track_save_path
-
-      # log and act based on results
-      if track_is_in_sync:
-        d_track = disk.Track(path=track_save_path)
-        d_track.set_metadata({
+        # download track
+        logging.info("Downloading track...")
+        track_save_path, track_is_fresh = ytDlpClient.download_track({
+          "id": track["id"],
           "name": track["name"],
           "artists": track["artists"],
-          "cover": cover_save_path
+          "duration_s": track["duration_ms"] / 1000
         })
-        m_track.set_locally_available(track["id"])
-        logging.info("Successfully synced track.")
-        success_count += 1
-      else:
-        logging.info("Failed to sync track.")
-        fail_count += 1
 
-    logging.info(f"Successfully synced {success_count} of {total}. {fail_count} failed.")
+        # track download status
+        track_skipped = (not track_is_fresh) and track_save_path
+        track_success = track_is_fresh and track_save_path
+        track_fail = not track_save_path
+
+        # log for track download status
+        if track_skipped:
+          logging.info("Track already downloaded.")
+
+        if track_success:
+          logging.info("Successfully downloaded track.")
+        
+        if track_fail:
+          logging.info("Failed to download track.")
+
+        # sync status
+        track_is_in_sync = cover_save_path and track_save_path
+
+        # log and act based on results
+        if track_is_in_sync:
+          d_track = disk.Track(path=track_save_path)
+          d_track.set_metadata({
+            "name": track["name"],
+            "artists": track["artists"],
+            "cover": cover_save_path
+          })
+          m_track.set_locally_available(track["id"])
+          logging.info("Successfully synced track.")
+          success_count += 1
+        else:
+          logging.info("Failed to sync track.")
+          fail_count += 1
+    except Exception as e:
+      raise e
+    finally:
+      logging.info(f"Successfully synced {success_count} of {total}. {fail_count} failed.")
+
