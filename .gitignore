@@ -1,11 +1,11 @@
-# nev
+# env
 .env*
 !.env*.example
-pythonenv
 
 # db
 *.db
 
-# python generated
+# python
 __pycache__
 *.egg-info
+.pyvenv

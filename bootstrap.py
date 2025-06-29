@@ -10,4 +10,5 @@ logging.basicConfig(
   format="%(levelname)s | %(message)s"
 )
 
+# resolve cli args
 from services import cli
