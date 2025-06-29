@@ -2,6 +2,7 @@ import os, logging
 from .File import File
 from mutagen.id3 import ID3, APIC, TIT2, TPE1, error
 from mutagen.mp3 import MP3
+from .TrackCover import TrackCover
 
 class Track(File):
   DIR: str = os.path.join(os.getenv("STORAGE_DIR"), "tracks")
@@ -23,24 +24,26 @@ class Track(File):
       return ""
       
     filename_template = f"{self._id}.%(ext)s"
-    return os.path.join(self.DIR, filename_template),
+    return os.path.join(self.DIR, filename_template)
 
   def set_metadata(self, metadata: dict[str]):
     logging.debug(f"Updating metadata for: {self._path}")
 
     audio = MP3(self._path)
-    cover_img_mimetype = metadata["cover"].mimetype() or "application/octet-stream"
+    t_cov = TrackCover(path=metadata["cover"])
+    cover_img_mimetype = t_cov.mimetype() or "application/octet-stream"
 
     try:
       audio.delete()
     except error:
       pass
 
+
     audio.tags = ID3()
     audio.tags.add(TIT2(encoding=3, text=metadata["name"]))
     audio.tags.add(TPE1(encoding=3, text=metadata["artists"]))
 
-    with open(metadata["cover"].get_path(), "rb") as img:
+    with open(metadata["cover"], "rb") as img:
       audio.tags.add(
         APIC(
           encoding=3,

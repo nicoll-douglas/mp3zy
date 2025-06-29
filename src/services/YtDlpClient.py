@@ -1,5 +1,5 @@
 from __future__ import annotations
-import logging
+import logging, traceback
 import disk
 import yt_dlp
 
@@ -16,7 +16,7 @@ class YtDlpClient:
     ydl_opts = self._get_dl_opts(track_info["id"])
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-      first, second = self._query_youtube(track_info)
+      first, second = self._query_youtube(ydl, track_info)
 
       # check for entries
       if not first:
@@ -26,7 +26,7 @@ class YtDlpClient:
       # helper
       def try_entry(entry: dict[str], number: int):
         try:
-          logging.debug(f"Found entry({number}). Download starting...")
+          logging.debug(f"Found entry ({number}). Download starting...")
           ydl.download([entry["webpage_url"]])
           logging.debug(f"Successfully downloaded track: {track_info["id"]}")
           return True
@@ -74,7 +74,7 @@ class YtDlpClient:
       f"{skip_count} tracks already downloaded. Successfully downloaded {success_count} of {total - skip_count}. {fail_count} failed."
     )
 
-  def _get_dl_opts(track_id: str):
+  def _get_dl_opts(self, track_id: str):
     return {
       "format": "bestaudio/best",
       "noplaylist": True,
@@ -88,8 +88,15 @@ class YtDlpClient:
       "outtmpl": disk.Track(track_id).ytdtl_download_path()
     }
 
-  def _query_youtube(self, ydl: yt_dlp.YoutubeDL, track_info: dict[str]):
-    search_query = f"ytsearch5:{track_info["name"]} {", ".join(track_info["artists"])}"
+  def _query_youtube(
+    self, 
+    ydl: yt_dlp.YoutubeDL, 
+    track_info: dict[str]
+  ):
+    track_name = track_info["name"]
+    track_artists = ", ".join(track_info["artists"]) 
+    search_query = f"ytsearch5:{track_name} {track_artists}"
+    logging.debug(f"Finding entries for query: {search_query}")
 
     try:
       info = ydl.extract_info(search_query, download=False)
@@ -106,6 +113,7 @@ class YtDlpClient:
       return [None, None]
     
   def _get_best_track_candidates(
+    self,
     entries: list[dict[str]], 
     track_info: dict[str]
   ):
