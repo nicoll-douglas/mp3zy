@@ -1,5 +1,5 @@
-import glob, os, mimetypes, logging
 from __future__ import annotations
+import glob, os, mimetypes, logging
 from pathlib import Path
 
 class File:

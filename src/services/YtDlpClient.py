@@ -1,7 +1,7 @@
+from __future__ import annotations
 import logging
 import disk
 import yt_dlp
-from __future__ import annotations
 
 class YtDlpClient:
   def download_track(self, track_info: dict[str]):

@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 # bootstrap
 import bootstrap
 
 # imports
-from __future__ import annotations
 
 from db import *
 from services import SpotifyApiClient, LocalSyncer
