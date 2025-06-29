@@ -101,12 +101,12 @@ class SpotifyApiClient:
 
     if cover.exists():
       logging.debug("Cover image is already downloaded, skipping...")
-      return cover.get_path()
+      return cover.get_path(), False
 
     response = requests.get(url)
     if response.status_code != 200:
       logging.error("Cover image request failed.")
-      return None
+      return None, None
 
     # get ext from content type (including cases ~ "image/jpeg; charset=UTF-8")
     content_type = response.headers.get("Content-Type", "")
@@ -117,14 +117,14 @@ class SpotifyApiClient:
     
     logging.debug(f"Saving cover image to disk at: {save_path}")
 
-    # don't worry about download failure, not critical
+    # don't worry about write failure, not critical
     try:
       cover.write(response.content)
       logging.debug("Successfully saved image to disk.")
-      return save_path
+      return save_path, True
     except Exception as e:
       logging.error(e)
-      return None
+      return None, None
     
   @classmethod
   def download_cdn_images(cls, incoming_hrefs: list[str], target_dir: str):

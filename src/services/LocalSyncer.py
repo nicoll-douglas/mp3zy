@@ -29,7 +29,7 @@ class LocalSyncer:
     logging.info("Syncing all playlist cover image files with updated entries...")
 
     SpotifyApiClient.download_cdn_images(
-      [d["cover_source"] for d in updated_rows],
+      [d["cover_source"] for d in playlist_data],
       disk.PlaylistCover.DIR
     )
     

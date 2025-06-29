@@ -72,6 +72,7 @@ class File:
       elif self._ext:
         self._path = os.path.join(self.DIR, self._id + self._ext)
 
+    # REMARK: move this into the constructor perhaps since we may not need to run it on every .build_path?
     elif self._path:
       p = Path(self._path)
       self._id = p.stem
@@ -79,13 +80,13 @@ class File:
     return self
   
   @staticmethod
-  def delete_many(covers: list[File]):
-    total = len(covers)
+  def delete_many(files: list[File]):
+    total = len(files)
     logging.debug(f"Deleting {total} files from disk...")
     delete_count = 0
 
-    for cover in covers:
-      result = cover.delete()
+    for file in files:
+      result = file.delete()
       delete_count += int(result)
 
     logging.debug(f"Successfully deleted {delete_count} of {total} files. {total - delete_count} failed.")

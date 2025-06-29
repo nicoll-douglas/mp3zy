@@ -1,8 +1,5 @@
-import logging
-from pathlib import Path
 from __future__ import annotations
 from disk.File import File
-from services import SpotifyApiClient
 
 class Cover(File):
   DIR: str | None
