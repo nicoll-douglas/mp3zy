@@ -8,7 +8,7 @@ except ValueError:
   logging.critical("Arg 1 (workflow step to start from) must be an integer.")
   sys.exit(1)
 except IndexError:
-  pass
+  _ARGS["STARTING_STEP"] = 1
 
 def arg(name: str):
-  return _ARGS.get(name, 1)
+  return _ARGS.get(name, None)

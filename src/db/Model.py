@@ -9,14 +9,17 @@ class Model:
     self._TABLE = table
 
   def insert_many(self, new_rows: list[dict[str]]):
-    cursor = self._CONN.cursor()
-    item_count = len(new_rows)
-    
+    item_count = len(new_rows)    
     logging.debug(f"Ignore-inserting {item_count} items into the {self._TABLE} table...")
 
-    columns = ", ".join([d["id"] for d in new_rows])
-    params = ", ".join([f":{d["id"]}" for d in new_rows])
+    if item_count == 0:
+      return
 
+    columns_list = new_rows[0].keys()
+    columns = ", ".join(columns_list)
+    params = ", ".join([f"{col} = :{col}" for col in columns_list])
+
+    cursor = self._CONN.cursor()
     cursor.execute("BEGIN")
     cursor.executemany(
       f"INSERT OR IGNORE INTO {self._TABLE} ({columns}) VALUES ({params})",

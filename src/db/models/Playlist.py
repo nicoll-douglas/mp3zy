@@ -20,7 +20,7 @@ class Playlist(Model):
 
     logging.debug("Successfully updated items.")
 
-  def delete_many(self, params_list: list[str]):
+  def delete_many(self, params_list: list[tuple[str]]):
     cursor = self._CONN.cursor()
     item_count = len(params_list)
     
@@ -35,7 +35,7 @@ class Playlist(Model):
 
     logging.debug("Successfully deleted items")
   
-  def sync(self, new_table: list[dict[str]]):
+  def sync(self, new_table: list[dict[str, str]]):
     logging.info("Syncing database with new playlist data...")
     logging.debug(f"Computing and applying table diff for table {self._TABLE}...")
 
@@ -53,7 +53,7 @@ class Playlist(Model):
       if row_map[_id] != new_table_map[_id]
     ])
 
-    self.delete_many([_id for _id in db_ids - updated_ids])
+    self.delete_many([(_id,) for _id in db_ids - updated_ids])
 
     self.insert_many([
       new_table_map[_id]

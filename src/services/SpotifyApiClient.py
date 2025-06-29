@@ -31,8 +31,6 @@ class SpotifyApiClient:
     }
 
     logging.info("Successfully obtained an access token.")
-    
-    return response_body["access_token"]
 
   # request user playlists
   def fetch_user_playlists(self):
