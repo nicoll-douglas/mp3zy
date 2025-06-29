@@ -23,6 +23,7 @@ class Track(Model):
     cursor = self._CONN.cursor()
     
     logging.debug(f"Setting `locally_available` to `true` for track: {track_id}")
+    cursor.execute("BEGIN")
     cursor.execute(
       f"UPDATE {self._TABLE} SET locally_available = ? WHERE id = ?",
       (1, track_id)

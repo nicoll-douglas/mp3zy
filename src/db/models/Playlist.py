@@ -11,7 +11,7 @@ class Playlist(Model):
     
     logging.debug(f"Updating {item_count} items in the {self._TABLE} table...")
 
-    self._CONN.execute("BEGIN")
+    cursor.execute("BEGIN")
     cursor.executemany(
       f"UPDATE {self._TABLE} SET name = :name, cover_source = :cover_source WHERE id = :id", 
       params_list
@@ -26,7 +26,7 @@ class Playlist(Model):
     
     logging.debug(f"Deleting {item_count} items from the {self._TABLE} table...")
 
-    self._CONN.execute("BEGIN")
+    cursor.execute("BEGIN")
     cursor.executemany(
       f"DELETE FROM {self._TABLE} WHERE id = ?", 
       params_list

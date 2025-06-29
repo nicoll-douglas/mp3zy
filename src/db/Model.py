@@ -17,7 +17,7 @@ class Model:
     columns = ", ".join([d["id"] for d in new_rows])
     params = ", ".join([f":{d["id"]}" for d in new_rows])
 
-    self._CONN.execute("BEGIN")
+    cursor.execute("BEGIN")
     cursor.executemany(
       f"INSERT OR IGNORE INTO {self._TABLE} ({columns}) VALUES ({params})",
       new_rows

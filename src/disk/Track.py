@@ -39,7 +39,7 @@ class Track(File):
     audio.tags.add(TIT2(encoding=3, text=metadata["name"]))
     audio.tags.add(TPE1(encoding=3, text=metadata["artists"]))
 
-    with open(metadata["image"].get_path(), "rb") as img:
+    with open(metadata["cover"].get_path(), "rb") as img:
       audio.tags.add(
         APIC(
           encoding=3,

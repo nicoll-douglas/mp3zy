@@ -33,8 +33,3 @@ CREATE TABLE IF NOT EXISTS playlist_track (
   FOREIGN KEY (track_id) REFERENCES tracks(id) ON DELETE CASCADE,
   FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
 );
-
--- get tracks from api for a playlist
--- compute diff (deleted and inserted for a playlist)
--- delete tracks from playlist_track
--- insert tracks into tracks table (+ artist if doenst exist, track_artist if doesnt exist, playlist_track)

@@ -25,7 +25,7 @@ class PlaylistTrack(Model):
     
     logging.debug(f"Deleting {item_count} items from the {self._TABLE} table...")
     
-    self._CONN.execute("BEGIN")
+    cursor.execute("BEGIN")
     cursor.executemany(
       f"DELETE FROM {self._TABLE} WHERE playlist_id = ? AND track_id = ?", 
       params_list

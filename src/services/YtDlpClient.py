@@ -11,7 +11,7 @@ class YtDlpClient:
 
     if track.exists():
       logging.debug("Track is already downloaded, skipping...")
-      return track.get_path(), False
+      return track.get_path()
       
     ydl_opts = {
       "format": "bestaudio/best",
@@ -44,14 +44,14 @@ class YtDlpClient:
       # log and skip if failed to get entries
       except Exception as e:
         logging.error(f"An error occurred: {e}")
-        return None, None
+        return None
 
       # download best candidate
       try:
         logging.debug("Found best track candidate. Download starting...")
         ydl.download([best_entries[0]["webpage_url"]])
         logging.debug(f"Successfully downloaded track: {track_info["id"]}")
-        return track.build_path().get_path(), True
+        return track.build_path().get_path()
 
       # log if failed to download
       except Exception as e:
@@ -64,14 +64,14 @@ class YtDlpClient:
           logging.info(f"Trying next best entry...")
           ydl.download([best_entries[1]["webpage_url"]])
           logging.debug(f"Successfully downloaded track: {track_info["id"]}")
-          return track.build_path().get_path(), True
+          return track.build_path().get_path()
 
       # log if failed to download
       except Exception as e:
         logging.error(f"An error occurred: {e}")
         # no more entries to try so skip
         logging.warning("No more entries to try, skipping...")
-        return None, None
+        return None
       
   def download_tracks(self, track_info_list: list[dict[str]]):
     total = len(track_info_list)

@@ -34,7 +34,7 @@ playlist_data = attempt_step(
 # Step 3: Query Spotify API and sync playlist track data in the database and on disk
 def sync_playlist_track_data():
   syncer = LocalSyncer()
-  syncer.sync_playlist_tracks(DB_CONN, SPOTIFY_CLIENT, playlist_data)
+  syncer.sync_tracks(DB_CONN, SPOTIFY_CLIENT, playlist_data)
 
 attempt_step(
   ("Sync Playlist Track Data", 3),

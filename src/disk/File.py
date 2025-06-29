@@ -1,5 +1,6 @@
 import glob, os, mimetypes, logging
 from __future__ import annotations
+from pathlib import Path
 
 class File:
   DIR: str | None
@@ -70,6 +71,11 @@ class File:
         self._ext = mimetypes.guess_extension(files[0])
       elif self._ext:
         self._path = os.path.join(self.DIR, self._id + self._ext)
+
+    elif self._path:
+      p = Path(self._path)
+      self._id = p.stem
+    
     return self
   
   @staticmethod
