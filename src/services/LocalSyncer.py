@@ -41,7 +41,7 @@ class LocalSyncer:
     self,
     db_conn: sqlite3.Connection,
     spotify_client: SpotifyApiClient,
-    playlist_data: dict[str],
+    playlist_data: list[dict[str, str]],
   ):
     m_track = models.Track(db_conn)
     m_track_artist = models.TrackArtist(db_conn)
@@ -70,7 +70,7 @@ class LocalSyncer:
     self,
     db_conn: sqlite3.Connection,
     spotify_client: SpotifyApiClient,
-    playlist_data: dict[str],
+    playlist_data: list[dict[str, str]],
   ):
     m_track = models.Track(db_conn)
     m_artist = models.Artist(db_conn)
@@ -87,7 +87,8 @@ class LocalSyncer:
         {
           "id": d["id"],
           "name": d["name"],
-          "cover_source": d["cover_source"]
+          "cover_source": d["cover_source"],
+          "duration_ms": d["duration_ms"]
         }
         for d in track_data
       ])
@@ -99,11 +100,14 @@ class LocalSyncer:
         [d["id"] for d in track_data]
       )
 
-      for track in track_data:
-        m_track_artist.sync(
-          track["id"], 
-          [d["id"] for d in track["artists"]]
-        )
+      m_track_artist.sync([
+        {
+          "track_id": t["id"],
+          "artist_id": a["id"]
+        }
+        for t in track_data
+        for a in t["artists"]
+      ])
 
   def _sync_track_files(
     self,

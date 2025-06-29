@@ -1,77 +1,48 @@
 import logging
 import disk
 import yt_dlp
+from __future__ import annotations
 
 class YtDlpClient:
   def download_track(self, track_info: dict[str]):
     logging.debug(f"Downloading track: {track_info["id"]} ({track_info["name"]})")
 
     track = disk.Track(track_info["id"])
-    outtmpl = track.ytdtl_download_path()
 
     if track.exists():
       logging.debug("Track is already downloaded, skipping...")
-      return track.get_path()
+      return track.get_path(), False
       
-    ydl_opts = {
-      "format": "bestaudio/best",
-      "noplaylist": True,
-      "quiet": True,
-      "no_warnings": True,
-      "postprocessors": [{
-        "key": "FFmpegExtractAudio",
-        "preferredcodec": "mp3",
-        "preferredquality": "192",
-      }],
-      "outtmpl": outtmpl
-    }
+    ydl_opts = self._get_dl_opts(track_info["id"])
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-      search_query = f"ytsearch5:{track_info["name"]} {", ".join(track_info["artists"])}"
+      first, second = self._query_youtube(track_info)
 
-      # try to search
-      try:
-        info = ydl.extract_info(search_query, download=False)
-        
-        # try to get candidates
-        logging.debug("Finding best track candidate...")
-        best_entries = self._get_best_track_candidates(info["entries"], track_info)
-        
-        # throw if no candidates / get entries
-        if not best_entries:
-          raise RuntimeError(f"Failed to find downloadable entries for track: {track_info["id"]} ({track_info["name"]})")
-
-      # log and skip if failed to get entries
-      except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        return None
-
-      # download best candidate
-      try:
-        logging.debug("Found best track candidate. Download starting...")
-        ydl.download([best_entries[0]["webpage_url"]])
-        logging.debug(f"Successfully downloaded track: {track_info["id"]}")
-        return track.build_path().get_path()
-
-      # log if failed to download
-      except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        logging.warning(f"Failed to download best entry for {track_info["id"]} ({track_info["name"]})")
-
-      # try next candidate if there is one
-      try:
-        if len(best_entries) > 1:
-          logging.info(f"Trying next best entry...")
-          ydl.download([best_entries[1]["webpage_url"]])
+      # check for entries
+      if not first:
+        logging.warning("Found no downloadable entries to try, skipping....")
+        return None, None
+      
+      # helper
+      def try_entry(entry: dict[str], number: int):
+        try:
+          logging.debug(f"Found entry({number}). Download starting...")
+          ydl.download([entry["webpage_url"]])
           logging.debug(f"Successfully downloaded track: {track_info["id"]}")
-          return track.build_path().get_path()
+          return True
 
-      # log if failed to download
-      except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        # no more entries to try so skip
-        logging.warning("No more entries to try, skipping...")
-        return None
+        # log if failed to download
+        except Exception as e:
+          logging.error(f"An error occurred: {e}")
+          logging.warning(f"Failed to download track: {track_info["id"]} ({track_info["name"]})")
+          return False
+
+      # try entries
+      if try_entry(first, 1) or (second and try_entry(second, 2)):
+        return track.get_path(), True
+
+      logging.warning("No more entries to try, skipping...")
+      return None, None
       
   def download_tracks(self, track_info_list: list[dict[str]]):
     total = len(track_info_list)
@@ -101,6 +72,37 @@ class YtDlpClient:
     logging.info(
       f"{skip_count} tracks already downloaded. Successfully downloaded {success_count} of {total - skip_count}. {fail_count} failed."
     )
+
+  def _get_dl_opts(track_id: str):
+    return {
+      "format": "bestaudio/best",
+      "noplaylist": True,
+      "quiet": True,
+      "no_warnings": True,
+      "postprocessors": [{
+        "key": "FFmpegExtractAudio",
+        "preferredcodec": "mp3",
+        "preferredquality": "192",
+      }],
+      "outtmpl": disk.Track(track_id).ytdtl_download_path()
+    }
+
+  def _query_youtube(self, ydl: yt_dlp.YoutubeDL, track_info: dict[str]):
+    search_query = f"ytsearch5:{track_info["name"]} {", ".join(track_info["artists"])}"
+
+    try:
+      info = ydl.extract_info(search_query, download=False)
+      
+      logging.debug("Finding best track candidate...")
+      best_entries = self._get_best_track_candidates(
+        info.get("entries", []) if info else [], 
+        track_info
+      )
+
+      return best_entries
+    except Exception as e:
+      logging.error(f"An error occurred: {e}")
+      return [None, None]
     
   def _get_best_track_candidates(
     entries: list[dict[str]], 
@@ -136,4 +138,12 @@ class YtDlpClient:
 
       return score_value
 
-    return sorted(entries, key=score, reverse=True)[:2]
+    results = sorted(entries, key=score, reverse=True)[:2]
+
+    match len(results):
+      case 2:
+        return results
+      case 1:
+        return [results[0], None]
+      case 0:
+        return [None, None]

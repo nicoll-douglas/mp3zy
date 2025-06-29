@@ -75,7 +75,8 @@ class SpotifyApiClient:
       )
 
       if response.status_code != 200:
-        logging.warning("Playlist track request failed, data for this run may be partial or incomplete.")
+        logging.error("Playlist track request failed.")
+        logging.warning("Data for this run may be partial or incomplete.")
         return all_tracks
 
       response_body = response.json()
@@ -106,6 +107,7 @@ class SpotifyApiClient:
     response = requests.get(url)
     if response.status_code != 200:
       logging.error("Cover image request failed.")
+      logging.warning("Data for this run may be partial or incomplete.")
       return None, None
 
     # get ext from content type (including cases ~ "image/jpeg; charset=UTF-8")

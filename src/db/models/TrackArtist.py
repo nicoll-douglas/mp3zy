@@ -24,21 +24,23 @@ WHERE ta.track_id = ?
 
     return rows
   
-  def sync(
-    self,
-    track_id: str,
-    artists_ids: list[str]
-  ):
+  def sync(self, updated_rows: list[dict[str, str]]):
     logging.debug(f"Applying table diff for table {self._TABLE}...")
 
-    rows = self.find_artists(track_id)
+    rows = self.select_all()
 
-    db_pairs = {(track_id, row["id"]) for row in rows}
-    updated_pairs = {(track_id, artist_id) for artist_id in artists_ids }
+    db_pairs = {
+      (row["track_id"], row["artist_id"]) 
+      for row in rows
+    }
+    updated_pairs = {
+      (row["track_id"], row["artist_id"]) 
+      for row in updated_rows 
+    }
 
     self.insert_many([
-      {"artist_id": artist_id, "track_id": track_id}
-      for (artist_id, track_id) in updated_pairs - db_pairs
+      {"artist_id": a_id, "track_id": t_id}
+      for (t_id, a_id) in updated_pairs - db_pairs
     ])
     
     logging.debug(f"Successfully applied table diff.")

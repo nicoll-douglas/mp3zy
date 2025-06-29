@@ -72,7 +72,6 @@ class File:
       elif self._ext:
         self._path = os.path.join(self.DIR, self._id + self._ext)
 
-    # REMARK: move this into the constructor perhaps since we may not need to run it on every .build_path?
     elif self._path:
       p = Path(self._path)
       self._id = p.stem
