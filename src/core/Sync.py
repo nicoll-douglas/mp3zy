@@ -92,25 +92,21 @@ class Sync:
       ftp_server.MusicManager.get_track_filename(t["id"])
       for t in incoming_tracks
     }
-    logging.info(f"Removing {len(to_delete)} tracks from FTP server...")
     to_delete = current_track_filenames - incoming_track_filenames
+    logging.info(f"Removing {len(to_delete)} tracks from FTP server...")
     for filename in to_delete:
       self._FTP_MUSIC_MANAGER.remove_track(filename)
     logging.info("Finished removing.")
 
     # delete necessary tracks on disk
-    logging.info(f"Removing {len(to_delete)} tracks from disk...")
     current_track_paths = {t.get_path() for t in disk.models.Track.get_all()}
     incoming_track_paths = {
       disk.models.Track(d["id"]).get_path() 
       for d in incoming_tracks
     }
-    incoming_track_map = {
-      track["id"]: track
-      for track in incoming_tracks
-    }
     to_delete = current_track_paths - incoming_track_paths
     to_insert = incoming_track_paths - current_track_paths
+    logging.info(f"Removing {len(to_delete)} tracks from disk...")
     for path in to_delete:
       os.remove(path)
     logging.info("Finished removing.")
@@ -119,6 +115,10 @@ class Sync:
     success_count = 0
     fail_count = 0
     to_insert_total = len(to_insert)
+    incoming_track_map = {
+      track["id"]: track
+      for track in incoming_tracks
+    }
 
     logging.info(f"Writing {to_insert_total} tracks to disk and FTP server...")
     try:
