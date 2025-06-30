@@ -85,7 +85,7 @@ class YtDlpClient:
         "preferredcodec": "mp3",
         "preferredquality": "192",
       }],
-      "outtmpl": disk.Track(track_id).ytdtl_download_path()
+      "outtmpl": disk.Track(track_id).get_outtmpl()
     }
 
   def _query_youtube(

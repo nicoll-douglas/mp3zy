@@ -62,12 +62,6 @@ class FtpClient:
     logging.debug("(FTP) Successfully created directory.")
     return self
 
-  def rmdir(self, path: str):
-    self._ftp_instance.rmd(
-      self._resolve_path(path)
-    )
-    return self
-  
   def ls(self):
     return self._ftp_instance.nlst()
   
@@ -76,14 +70,18 @@ class FtpClient:
   
   def mkdir_p(self, path: str):
     self.log("debug", f"Recursively creating directories: {path}")
-
     parts = path.strip("/").split("/")
-    start_from_root = path[0] == "/"
-    current_path = "/" if start_from_root else ""
+    current_path = ""
     
     for part in parts:
-      current_path += part
+      current_path += path
       self.mkdir(current_path)
       current_path += "/"
 
     self.log("debug", "Successfully created directories.")
+
+  def pwd(self):
+    self._ftp_instance.pwd()
+
+  def cwd(self, dir: str):
+    self._ftp_instance.cwd(dir)

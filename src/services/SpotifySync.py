@@ -28,10 +28,6 @@ class SpotifySync:
     updated_playlists = {disk.MobilePlaylist(d["name"]).get_path() for d in playlist_data}
     disk.MobilePlaylist.sync_files(updated_playlists)
 
-    # delete any playlist paths in ftp/playlists if not in updated
-    # insert any playlist paths in updated if not in ftp/playlists
-    self._FTP_MUSIC_MANAGER.sync_playlists({d["name"] for d in playlist_data})
-
     all_tracks = []
 
     logging.info("Syncing playlist tracks from the Spotify API for the user...")
@@ -54,12 +50,17 @@ class SpotifySync:
       # insert any track paths in updated if not in local
       mobile_pl = disk.MobilePlaylist(playlist["name"])
       mobile_pl.sync_tracks({
-        FtpMusicManager.path_to_track_from_playlist(t["name"])
+        FtpMusicManager.path_to_track_from_playlist(t["id"])
         for t in tracks
       })
 
       all_tracks.extend(tracks)
 
+    # delete any playlist paths in ftp/playlists if not in updated
+    # insert any playlist paths in updated if not in ftp/playlists
+    self._FTP_MUSIC_MANAGER.sync_playlists({d["name"] for d in playlist_data})
+
+    # sync tracks
     self._sync_track_files(all_tracks)
     self._FTP_MUSIC_MANAGER.sync_tracks({d["id"] for d in all_tracks})
     
@@ -75,10 +76,10 @@ class SpotifySync:
     success_count = 0
     fail_count = 0
 
-    to_delete = {
+    to_delete = {t.get_path() for t in disk.Track.get_all()} - {
       disk.Track(d["id"]).get_path() 
       for d in track_data
-    } - {t.get_path() for t in disk.Track.get_all()}
+    }
 
     for path in to_delete:
       os.remove(path)
@@ -136,7 +137,7 @@ class SpotifySync:
             "name": track["name"],
             "artists": track["artists"],
             "cover": cover_save_path
-          }, track["Id"])
+          }, track["id"])
           logging.info("Successfully synced track.")
           success_count += 1
         else:
