@@ -119,28 +119,6 @@ class MusicManager(Client):
     playlists = self.nlst()
     self.cwd(original_dir)
     return playlists
-  
-  def sync_tracks(self, incoming_tracks: set[str]):
-    self.log("info", "Syncing client track files to server...")
-    current_tracks = self.list_tracks()
-
-    to_delete = {
-      self.get_track_filename(_id)
-      for _id in incoming_tracks
-    } - set(current_tracks)
-    to_write = {
-      self.get_track_id(filename)
-      for filename in current_tracks
-    } - incoming_tracks
-
-    self.log("debug", "Deleting diffed tracks...")
-    for filename in to_delete:
-      self.remove_track(filename)
-    self.log("debug", "Inserting diffed tracks...")
-    for track_id in to_write:
-      self.write_track(track_id)
-
-    self.log("info", "Client track files synced successfully.")    
 
   def sync_playlists(self, updated_playlist_names: set[str]):
     self.log("info", "Syncing client playlist files to server...")

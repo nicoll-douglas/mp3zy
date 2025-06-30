@@ -29,11 +29,9 @@ class Sync:
       d["name"] for d in playlist_data
     })
 
-    self._FTP_MUSIC_MANAGER.sync_tracks({
-      t["id"] for t in all_tracks
-    })
+    self._sync_tracks(all_tracks)
 
-    logging.info("Finished syncing")
+    logging.info("Finished syncing.")
     self._FTP_MUSIC_MANAGER.quit()
 
   def _sync_disk_playlists(self, incoming_playlists: list[dict[str]]):
