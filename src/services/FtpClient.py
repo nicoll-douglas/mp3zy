@@ -1,39 +1,33 @@
 import os, logging, traceback
 from ftplib import FTP_TLS, error_perm
 
-class FtpClient:
+class FtpClient(FTP_TLS):
   __FTP_USERNAME = os.getenv("FTP_USERNAME")
   __FTP_PASSWORD = os.getenv("FTP_PASSWORD")
   __FTP_HOST = os.getenv("FTP_HOST")
   __FTP_PORT = int(os.getenv("FTP_PORT"))
-  _ftp_instance: FTP_TLS | None
 
   def __init__(self):
-    self._ftp_instance = None
+    super().__init__()
   
   def connect(self):
-    ftps = FTP_TLS()
-
     logging.info(f"Connecting to FTP host {self.__FTP_HOST}...")
-    ftps.connect(self.__FTP_HOST, self.__FTP_PORT)
+    super().connect(self.__FTP_HOST, self.__FTP_PORT)
 
     logging.info("Securing connection...")
-    ftps.auth()
-    ftps.prot_p()
+    self.auth()
+    self.prot_p()
     
     logging.info("Logging in with configured credentials...")
-    ftps.login(self.__FTP_USERNAME, self.__FTP_PASSWORD)
-
-    self._ftp_instance = ftps
+    self.login(self.__FTP_USERNAME, self.__FTP_PASSWORD)
     
     logging.info("Successfully connected to FTP host.")
     return self
   
   def quit(self):
     logging.info("Quitting and closing connection to FTP server...")
-    self._ftp_instance.quit()
+    super().quit()
     logging.info("Successfully quit and closed FTP connection.")
-    return True
 
   def log(self, level: str, msg: str):
     attr = getattr(logging, level)
@@ -41,32 +35,29 @@ class FtpClient:
 
   def write(self, local_path: str, server_path: str,):
     with open(local_path, "rb") as file:
-      self._ftp_instance.storbinary(f"STOR {server_path}", file)
+      self.storbinary(f"STOR {server_path}", file)
     return self
 
   def rm(self, path: str):
-    logging.debug(f"(FTP) Deleting file: {path}")
-    self._ftp_instance.delete(path)
+    self.log("debug", f"Deleting file: {path}")
+    self.delete(path)
     return self
 
   def mkdir(self, path: str):
-    logging.debug(f"(FTP) Creating directory: {path}")
-    original_dir = self._ftp_instance.pwd()
+    self.log("debug", f"Creating directory: {path}")
+    original_dir = self.pwd()
 
     try:
-      self._ftp_instance.cwd(path)
-      self._ftp_instance.cwd(original_dir)
+      self.cwd(path)
+      self.cwd(original_dir)
     except error_perm:
-      self._ftp_instance.mkd(path)
+      self.mkd(path)
 
-    logging.debug("(FTP) Successfully created directory.")
+    self.log("debug", "Successfully created directory.")
     return self
 
-  def ls(self):
-    return self._ftp_instance.nlst()
-  
   def exists_here(self, file_or_dir_name: str):
-    return file_or_dir_name in self.ls()
+    return file_or_dir_name in self.nlst()
   
   def mkdir_p(self, path: str):
     self.log("debug", f"Recursively creating directories: {path}")
@@ -74,14 +65,8 @@ class FtpClient:
     current_path = ""
     
     for part in parts:
-      current_path += path
+      current_path += part
       self.mkdir(current_path)
       current_path += "/"
 
     self.log("debug", "Successfully created directories.")
-
-  def pwd(self):
-    self._ftp_instance.pwd()
-
-  def cwd(self, dir: str):
-    self._ftp_instance.cwd(dir)

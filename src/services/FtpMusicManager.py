@@ -5,6 +5,7 @@ import disk
 class FtpMusicManager(FtpClient):
   __TRACKS_DIR = os.path.join(os.getenv("FTP_MUSIC_STORAGE_DIR"), "tracks")
   __PLAYLISTS_DIR = os.path.join(os.getenv("FTP_MUSIC_STORAGE_DIR"), "playlists")
+  __INTERNAL_STORAGE_ROOT = "/storage/emulated/0/"
   
   def __init__(self):
     super().__init__()
@@ -35,8 +36,12 @@ class FtpMusicManager(FtpClient):
     return playlist_name + disk.Playlist.EXT
 
   @classmethod
-  def path_to_track_from_playlist(cls, track_id: str):
-    return "../tracks/" + cls.get_track_filename(track_id)
+  def get_absolute_track_path(cls, track_id: str):
+    return os.path.join(
+      cls.__INTERNAL_STORAGE_ROOT, 
+      cls.__TRACKS_DIR, 
+      cls.get_track_filename(track_id)
+    )
   
   def insert_track(self, track_id: str):
     track = disk.Track(track_id)
@@ -81,14 +86,14 @@ class FtpMusicManager(FtpClient):
   def get_all_tracks(self):
     original_dir = self.pwd()
     self.__cd_tracks()
-    tracks = self.ls()
+    tracks = self.nlst()
     self.cwd(original_dir)
     return tracks
 
   def get_all_playlists(self):
     original_dir = self.pwd()
     self.__cd_playlists()
-    playlists = self.ls()
+    playlists = self.nlst()
     self.cwd(original_dir)
     return playlists
   
@@ -117,16 +122,16 @@ class FtpMusicManager(FtpClient):
       self.get_playlist_filename(t)
       for t in updated_playlist_names
     }
-    to_insert = updated_playlist_names - {
-      self.get_playlist_id(t)
-      for t in current_playlists
+    to_write = updated_playlist_names - {
+      self.get_playlist_id(file) 
+      for file in to_delete
     }
 
     self.log("debug", "Deleting diffed playlists...")
     for filename in to_delete:
       self.remove_playlist(filename)
     self.log("debug", "Inserting diffed playlists")
-    for playlist_name in to_insert:
+    for playlist_name in to_write:
       self.insert_playlist(playlist_name)
 
     self.log("info", "Playlist data synced successfully.")    
