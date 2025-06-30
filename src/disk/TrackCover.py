@@ -3,7 +3,7 @@ import os, logging
 
 class TrackCover(File):
   _source: str | None
-  DIR: str = os.path.join(os.getenv("STORAGE_DIR"), "track_covers")
+  DIR: str = os.path.join("/data", "track_covers")
 
   def __init__(
     self, 

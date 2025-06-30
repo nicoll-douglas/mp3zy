@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: freemium_dev
+    working_dir: /app
+    command: python main.py
+    environment:
+      - PYTHONUNBUFFERED=1
+      - APP_ENV=development
+    env_file:
+      - .env
+    volumes:
+      - "${HOST_STORAGE_DIR}:/data"

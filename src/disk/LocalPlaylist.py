@@ -2,7 +2,7 @@ from .Playlist import Playlist
 import os
 
 class LocalPlaylist(Playlist):
-  DIR: str = os.path.join(os.getenv("STORAGE_DIR"), "playlists", "local")
+  DIR: str = os.path.join("/data", "playlists", "local")
   
   def __init__(
     self, 

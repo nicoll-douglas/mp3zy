@@ -5,7 +5,7 @@ from pathlib import Path
 class Playlist(File):
   _HEADER_LINE: str = "#EXTM3U\n"
   EXT: str = ".m3u8"
-  DIR: str = os.path.join(os.getenv("STORAGE_DIR"), "playlists")
+  DIR: str = os.path.join("/data", "playlists")
   
   def __init__(
     self, 

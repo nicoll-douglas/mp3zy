@@ -1,11 +1,9 @@
 SHELL := /bin/bash
-ENV_NAME = .pyvenv
 
-python-env:
-	python3 -m venv $(ENV_NAME) && bash -c "source ./$(ENV_NAME)/bin/activate && exec bash"
+dev:
+	docker compose up --build
 
-run:
-	./$(ENV_NAME)/bin/python main.py
-
-install-deps:
-	./$(ENV_NAME)/bin/pip install -r requirements.txt && sudo apt install -y ffmpeg
+deploy:
+	docker login
+	docker build -t nicolldouglas/freemium:latest .
+	docker push nicolldouglas/freemium:latest

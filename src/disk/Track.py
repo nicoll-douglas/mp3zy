@@ -6,7 +6,7 @@ from .TrackCover import TrackCover
 from pathlib import Path
 
 class Track(File):  
-  DIR: str = os.path.join(os.getenv("STORAGE_DIR"), "tracks")
+  DIR: str = os.path.join("/data", "tracks")
   EXT: str = ".mp3"
   
   def __init__(

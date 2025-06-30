@@ -2,7 +2,7 @@ from .Playlist import Playlist
 import os
 
 class MobilePlaylist(Playlist):
-  DIR: str = os.path.join(os.getenv("STORAGE_DIR"), "playlists", "mobile")
+  DIR: str = os.path.join("/data", "playlists", "mobile")
   
   def __init__(
     self, 
