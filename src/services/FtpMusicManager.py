@@ -3,9 +3,9 @@ import os, logging
 import disk
 
 class FtpMusicManager(FtpClient):
-  __TRACKS_DIR = os.path.join(os.getenv("FTP_MUSIC_STORAGE_DIR"), "tracks")
-  __PLAYLISTS_DIR = os.path.join(os.getenv("FTP_MUSIC_STORAGE_DIR"), "playlists")
-  __INTERNAL_STORAGE_ROOT = "/storage/emulated/0/"
+  __TRACKS_DIR: str = os.path.join(os.getenv("FTP_MUSIC_STORAGE_DIR"), "tracks")
+  __PLAYLISTS_DIR: str = os.path.join(os.getenv("FTP_MUSIC_STORAGE_DIR"), "playlists")
+  __INTERNAL_STORAGE_ROOT: str = "/storage/emulated/0/"
   
   def __init__(self):
     super().__init__()
@@ -39,7 +39,7 @@ class FtpMusicManager(FtpClient):
   def get_absolute_track_path(cls, track_id: str):
     return os.path.join(
       cls.__INTERNAL_STORAGE_ROOT, 
-      cls.__TRACKS_DIR, 
+      cls.__TRACKS_DIR.strip("/"),
       cls.get_track_filename(track_id)
     )
   

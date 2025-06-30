@@ -82,7 +82,6 @@ class SpotifySync:
       for d in track_data
     }
     to_delete = current_tracks - incoming_tracks
-    print(to_delete)
 
     for path in to_delete:
       os.remove(path)
