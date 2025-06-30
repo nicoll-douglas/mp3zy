@@ -34,7 +34,7 @@ class Client(FTP_TLS):
     attr("(FTP) " + msg)
 
   def write(self, local_path: str, server_path: str,):
-    self.log("debug," f"Writing {local_path} to {server_path}...")
+    self.log("debug", f"Writing {local_path} to {server_path}...")
     with open(local_path, "rb") as file:
       self.storbinary(f"STOR {server_path}", file)
     self.log("debug", "Successfully wrote.")
