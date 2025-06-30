@@ -37,8 +37,8 @@ class Playlist(File):
     
   def sync_tracks(self, playlist_tracks: set[str]):
     current_tracks = self.get_tracks()
-    self.remove_tracks(playlist_tracks - current_tracks)
-    self.insert_tracks(current_tracks - playlist_tracks)
+    self.remove_tracks(current_tracks - playlist_tracks)
+    self.insert_tracks(playlist_tracks - current_tracks)
 
   def create(self, track_paths = []):
     if not self.exists():

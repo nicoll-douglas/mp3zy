@@ -78,8 +78,7 @@ class SpotifySync:
     to_delete = {
       disk.Track(d["id"]).get_path() 
       for d in track_data
-    } 
-    - {t.get_path() for t in disk.Track.get_all()}
+    } - {t.get_path() for t in disk.Track.get_all()}
 
     for path in to_delete:
       os.remove(path)
