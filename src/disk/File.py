@@ -1,7 +1,6 @@
 from __future__ import annotations
 import glob, os, mimetypes, logging
 from pathlib import Path
-
 class File:
   DIR: str | None
   _ext: str | None
@@ -9,32 +8,21 @@ class File:
   _path: str | None
 
   def __init__(
-    self, 
+    self,
     _id: str | None = None,
     ext: str | None = None, 
     path: str | None = None
   ):
-    self._ext = ext
     self._id = _id
+    self._ext = ext
     self._path = path
     os.makedirs(self.DIR, exist_ok=True)
-    self.build_path()
+    self.normalise()
     
   def exists(self):
     if not self._path:
       return False
     return os.path.exists(self._path)
-  
-  def write(self, buffer):
-    logging.debug(f"Writing binary content to disk at: {self._path}")
-
-    if not self._path:
-      raise RuntimeError("Failed to write binary content to path for a `File` object, property `_path` is not set.")
-    
-    with open(self._path, "wb") as f:
-      f.write(buffer)
-    
-    logging.debug("Successfully wrote to disk.")
 
   def delete(self):
     logging.debug(f"Removing file from disk: {self._path}")
@@ -48,7 +36,7 @@ class File:
     
     return True
   
-  def mimetype(self):
+  def get_mimetype(self):
     if not self._path:
       return False
     file_mimetype, _ = mimetypes.guess_type(self._path)
@@ -56,12 +44,11 @@ class File:
   
   def get_path(self):
     return self._path
+
+  def get_ext(self):
+    return self._ext
   
-  def set_ext(self, ext: str):
-    self._ext = ext
-    return self
-  
-  def build_path(self):
+  def normalise(self):
     if self._id:
       path_without_ext = os.path.join(self.DIR, self._id)
       files = glob.glob(path_without_ext + ".*")
@@ -75,19 +62,6 @@ class File:
     elif self._path:
       p = Path(self._path)
       self._id = p.stem
+      self._ext = p.suffix
     
     return self
-  
-  @staticmethod
-  def delete_many(files: list[File]):
-    total = len(files)
-    logging.debug(f"Deleting {total} files from disk...")
-    delete_count = 0
-
-    for file in files:
-      result = file.delete()
-      delete_count += int(result)
-
-    logging.debug(f"Successfully deleted {delete_count} of {total} files. {total - delete_count} failed.")
-    return delete_count
-  

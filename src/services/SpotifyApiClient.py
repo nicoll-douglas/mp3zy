@@ -1,5 +1,5 @@
 import os, logging, requests, mimetypes
-from disk import Cover
+from disk import TrackCover
 
 class SpotifyApiClient:
   __API_URL = "https://api.spotify.com/v1"
@@ -51,9 +51,7 @@ class SpotifyApiClient:
 
     return [
       {
-        "id": p["id"],
         "name": p["name"],
-        "cover_source": p["images"][0]["url"],
         "tracks_href": p["tracks"]["href"]
       }
       for p in response_body["items"]
@@ -84,7 +82,7 @@ class SpotifyApiClient:
         {
           "id": t["track"]["id"],
           "name": t["track"]["name"],
-          "artists": t["track"]["artists"],
+          "artists": [a["name"] for a in t["track"]["artists"]],
           "cover_source": t["track"]["album"]["images"][0]["url"],
           "duration_ms": t["track"]["duration_ms"]
         }
@@ -96,9 +94,9 @@ class SpotifyApiClient:
     return all_tracks
   
   @staticmethod
-  def download_cdn_image(url: str, target_dir: str):
+  def download_cdn_track_cover(url: str):
     logging.debug(f"Downloading cover image: {url}")
-    cover = Cover(source=url, _dir=target_dir)
+    cover = TrackCover(source=url)
 
     if cover.exists():
       logging.debug("Cover image is already downloaded, skipping...")
@@ -115,7 +113,7 @@ class SpotifyApiClient:
     ext = mimetypes.guess_extension(content_type.split(";")[0]) or ".jpg"
 
     # build and get path now that we know the extension
-    save_path = cover.set_ext(ext).build_path().get_path()
+    save_path = cover.set_ext(ext).normalise().get_path()
     
     logging.debug(f"Saving cover image to disk at: {save_path}")
 
@@ -127,32 +125,3 @@ class SpotifyApiClient:
     except Exception as e:
       logging.error(e)
       return None, None
-    
-  @classmethod
-  def download_cdn_images(cls, incoming_hrefs: list[str], target_dir: str):
-    total = len(incoming_hrefs)
-    success_count = 0
-    fail_count = 0
-    skip_count = 0
-
-    logging.info(f"Downloading {total} cover images...")
-    for index, url in enumerate(incoming_hrefs):
-      current_num = index + 1
-
-      logging.info(f"Downloading cover image {current_num} of {total}...")
-      save_path, cover_is_fresh = cls.download_cdn_image(url, target_dir)
-
-      if not save_path:
-        logging.warning(f"Cover image download {current_num} of {total} failed. ({url})")
-        fail_count += 1
-        continue
-      
-      if not cover_is_fresh:
-        logging.info("Cover image already downloaded so skipped.")
-        skip_count += 1
-        continue
-      
-      logging.info(f"Successfully downloaded cover image {current_num} of {total}.")
-      success_count += 1
-
-    logging.info(f"{skip_count} cover images already downloaded. Successfully downloaded {success_count} of {total - skip_count}. {fail_count} failed.")
