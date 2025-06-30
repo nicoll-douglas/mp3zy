@@ -110,14 +110,14 @@ class FtpMusicManager(FtpClient):
     self.log("info", "Syncing playlist data...")
     current_playlists = self.get_all_playlists()
 
-    to_delete = {
+    to_delete = set(current_playlists) - {
       self.get_playlist_filename(t)
       for t in updated_playlist_names
-    } - set(current_playlists)
-    to_insert = {
+    }
+    to_insert = updated_playlist_names - {
       self.get_playlist_id(t)
       for t in current_playlists
-    } - updated_playlist_names
+    }
 
     self.__cd_playlists()
     self.log("debug", "Deleting diffed playlists...")
