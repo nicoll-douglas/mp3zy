@@ -44,17 +44,22 @@ class FtpMusicManager(FtpClient):
     )
   
   def insert_track(self, track_id: str):
+    original_dir = self.pwd()
+    self.__cd_tracks()
+
+    track_filename = self.get_track_filename(track_id)
+
+    if self.exists_here(track_filename):
+      self.cwd(original_dir)
+      return
+
     track = disk.Track(track_id)
     path = track.get_path()
-
-    if path and track.exists():
-      original_dir = self.pwd()
-      self.__cd_tracks()
-      self.write(
-        path, 
-        self.get_track_filename(track_id)
-      )
-      self.cwd(original_dir)
+    
+    if track.exists():
+      self.write(path, track_filename)
+      
+    self.cwd(original_dir)
 
   def remove_track(self, track_filename: str):
     original_dir = self.pwd()
