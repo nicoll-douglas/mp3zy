@@ -1,13 +1,15 @@
 FROM python:3.12-slim
 
 # Install ffmpeg and system dependencies
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -y ffmpeg \
+  && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
+
+RUN python3 -m venv .pyvenv
+RUN source .pyvenv/bin/activate
 
 # Copy application files
 COPY src/ src/

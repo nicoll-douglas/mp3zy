@@ -13,3 +13,4 @@ services:
       - .env
     volumes:
       - "${HOST_STORAGE_DIR}:/data"
+      - ".:/app"
