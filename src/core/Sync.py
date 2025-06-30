@@ -87,7 +87,7 @@ class Sync:
     logging.info(f"Syncing tracks on disk and on FTP server for {total} incoming tracks...")
 
     # delete necessary tracks on ftp
-    current_track_filenames = self._FTP_MUSIC_MANAGER.list_tracks()
+    current_track_filenames = set(self._FTP_MUSIC_MANAGER.list_tracks())
     incoming_track_filenames = {
       ftp_server.MusicManager.get_track_filename(t["id"])
       for t in incoming_tracks

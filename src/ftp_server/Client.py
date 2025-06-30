@@ -14,11 +14,11 @@ class Client(FTP_TLS):
     logging.info(f"Connecting to FTP host {self.__FTP_HOST}...")
     super().connect(self.__FTP_HOST, self.__FTP_PORT)
 
-    logging.debug("Securing connection...")
+    logging.info("Securing connection...")
     self.auth()
     self.prot_p()
     
-    logging.debug("Logging in with configured credentials...")
+    logging.info("Logging in with configured credentials...")
     self.login(self.__FTP_USERNAME, self.__FTP_PASSWORD)
     
     logging.info("Successfully connected to FTP host.")
