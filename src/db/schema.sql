@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS tracks (
+  id TEXT PRIMARY KEY,
+  synced
+)

@@ -21,19 +21,19 @@ class FtpMusicManager(FtpClient):
 
   @staticmethod
   def get_track_id(track_filename: str):
-    return track_filename.split(disk.Track.EXT)[0]
+    return track_filename.split(disk.models.Track.EXT)[0]
 
   @staticmethod
   def get_playlist_id(playlist_filename: str):
-    return playlist_filename.split(disk.Playlist.EXT)[0]
+    return playlist_filename.split(disk.models.Playlist.EXT)[0]
 
   @staticmethod
   def get_track_filename(track_id: str):
-    return track_id + disk.Track.EXT
+    return track_id + disk.models.Track.EXT
 
   @staticmethod
   def get_playlist_filename(playlist_name: str):
-    return playlist_name + disk.Playlist.EXT
+    return playlist_name + disk.models.Playlist.EXT
 
   @classmethod
   def get_absolute_track_path(cls, track_id: str):
@@ -53,7 +53,7 @@ class FtpMusicManager(FtpClient):
       self.cwd(original_dir)
       return
 
-    track = disk.Track(track_id)
+    track = disk.models.Track(track_id)
     path = track.get_path()
     
     if track.exists():
@@ -69,7 +69,7 @@ class FtpMusicManager(FtpClient):
     self.cwd(original_dir)
 
   def insert_playlist(self, playlist_name: str):
-    playlist = disk.MobilePlaylist(playlist_name)
+    playlist = disk.models.MobilePlaylist(playlist_name)
     path = playlist.get_path()
 
     if path and playlist.exists():

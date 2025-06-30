@@ -1,5 +1,5 @@
 from __future__ import annotations
-import logging, traceback
+import logging
 import disk
 import yt_dlp
 
@@ -7,7 +7,7 @@ class YtDlpClient:
   def download_track(self, track_info: dict[str]):
     logging.debug(f"Downloading track: {track_info["id"]} ({track_info["name"]})")
 
-    track = disk.Track(track_info["id"])
+    track = disk.models.Track(track_info["id"])
 
     if track.exists():
       logging.debug("Track is already downloaded, skipping...")
@@ -85,7 +85,7 @@ class YtDlpClient:
         "preferredcodec": "mp3",
         "preferredquality": "192",
       }],
-      "outtmpl": disk.Track(track_id).get_outtmpl()
+      "outtmpl": disk.models.Track(track_id).get_outtmpl()
     }
 
   def _query_youtube(

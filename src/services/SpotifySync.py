@@ -20,13 +20,13 @@ class SpotifySync:
   
     # delete any playlist paths in local if not in updated
     # insert any playlist paths in updated if not in local
-    updated_playlists = {disk.LocalPlaylist(d["name"]).get_path() for d in playlist_data}
-    disk.LocalPlaylist.sync_files(updated_playlists)
+    updated_playlists = {disk.models.LocalPlaylist(d["name"]).get_path() for d in playlist_data}
+    disk.models.LocalPlaylist.sync_files(updated_playlists)
 
     # delete any playlist paths in playlists/mobile if not in updated
     # insert any playlist paths in updated if not in playlists/mobile
-    updated_playlists = {disk.MobilePlaylist(d["name"]).get_path() for d in playlist_data}
-    disk.MobilePlaylist.sync_files(updated_playlists)
+    updated_playlists = {disk.models.MobilePlaylist(d["name"]).get_path() for d in playlist_data}
+    disk.models.MobilePlaylist.sync_files(updated_playlists)
 
     all_tracks = []
 
@@ -40,15 +40,15 @@ class SpotifySync:
 
       # delete any track paths in local if not in updated
       # insert any track paths in updated if not in local
-      local_pl = disk.LocalPlaylist(playlist["name"])
+      local_pl = disk.models.LocalPlaylist(playlist["name"])
       local_pl.sync_tracks({
-        disk.Track(t["id"]).get_path() 
+        disk.models.Track(t["id"]).get_path() 
         for t in tracks
       })
 
       # delete any track paths in local if not in updated
       # insert any track paths in updated if not in local
-      mobile_pl = disk.MobilePlaylist(playlist["name"])
+      mobile_pl = disk.models.MobilePlaylist(playlist["name"])
       mobile_pl.sync_tracks({
         FtpMusicManager.get_absolute_track_path(t["id"])
         for t in tracks
@@ -76,9 +76,9 @@ class SpotifySync:
     success_count = 0
     fail_count = 0
     
-    current_tracks = {t.get_path() for t in disk.Track.get_all()}
+    current_tracks = {t.get_path() for t in disk.models.Track.get_all()}
     incoming_tracks = {
-      disk.Track(d["id"]).get_path() 
+      disk.models.Track(d["id"]).get_path() 
       for d in track_data
     }
     to_delete = current_tracks - incoming_tracks
@@ -134,7 +134,7 @@ class SpotifySync:
 
         # log and set metadata if there is a save path
         if track_save_path:
-          d_track = disk.Track(path=track_save_path)
+          d_track = disk.models.Track(path=track_save_path)
           d_track.set_metadata({
             "name": track["name"],
             "artists": track["artists"],
