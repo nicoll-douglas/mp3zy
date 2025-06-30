@@ -50,34 +50,29 @@ class Playlist(File):
       return False
     
     with open(self._path, "r", encoding="utf-8") as f:
-      new_lines = "\n".join(
-        set([
-          line.strip()
-          for line in f.readlines() 
-          if line.strip()
-          and line != self._HEADER_LINE
-        ]) 
-        - track_paths
-      )
-      return True
+      new_lines = "\n".join({
+        line.strip()
+        for line in f.readlines() 
+        if line.strip()
+        and line != self._HEADER_LINE
+      } - track_paths)
 
     with open(self._path, "w", encoding="utf-8") as f:
       f.write(self._HEADER_LINE + new_lines)
+    
+    return True
 
   def insert_tracks(self, track_path: set[str]):
     if not self.exists():
       self.create()
 
     with open(self._path, "r", encoding="utf-8") as f:
-      new_lines = "\n".join(
-        set([
-          line.strip()
-          for line in f.readlines()
-          if line.strip()
-          and line != self._HEADER_LINE
-        ])
-        | track_path
-      )
+      new_lines = "\n".join({
+        line.strip()
+        for line in f.readlines()
+        if line.strip()
+        and line != self._HEADER_LINE
+      } | track_path)
 
     with open(self._path, "w", encoding="utf-8") as f:
       f.write(self._HEADER_LINE + new_lines)
@@ -86,10 +81,10 @@ class Playlist(File):
   
   def get_tracks(self):
     with open(self._path, "r", encoding="utf-8") as f:
-      return set([
+      return {
         line.strip()
         for line in f.readlines() 
         if line.strip()
         and line != self._HEADER_LINE
-      ])
+      }
     
