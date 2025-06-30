@@ -1,4 +1,4 @@
-import os, logging
+import os, logging, traceback
 from ftplib import FTP_TLS, error_perm
 
 class FtpClient:
@@ -35,8 +35,9 @@ class FtpClient:
     logging.info("Successfully quit and closed FTP connection.")
     return True
 
-  def log(level: str, msg: str):
-    getattr(logging, level)("(FTP) " + msg)
+  def log(self, level: str, msg: str):
+    attr = getattr(logging, level)
+    attr("(FTP) " + msg)
 
   def write(self, local_path: str, server_path: str,):
     with open(local_path, "rb") as file:

@@ -1,4 +1,3 @@
-from __future__ import annotations
 import bootstrap
 from services import SpotifyApiClient, SpotifySync
 

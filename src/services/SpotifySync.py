@@ -64,6 +64,7 @@ class SpotifySync:
     self._FTP_MUSIC_MANAGER.sync_tracks({d["id"] for d in all_tracks})
     
     logging.info("Finished data syncing.")
+    self._FTP_MUSIC_MANAGER.quit()
 
   def _sync_track_files(
     self,
