@@ -64,5 +64,5 @@ class Track(File):
 
   @classmethod
   def get_all(cls):
-    p = Path()
+    p = Path(cls.DIR)
     return [cls(path=path.resolve()) for path in p.iterdir()]
