@@ -14,9 +14,11 @@ class MusicManager(Client):
     self.mkdir_p(self.__PLAYLISTS_DIR)
 
   def __cd_tracks(self):
+    self.log("debug", f"cd'ing to {self.__TRACKS_DIR}")
     self.cwd(self.__TRACKS_DIR)
 
   def __cd_playlists(self):
+    self.log("debug", f"cd'ing to {self.__PLAYLISTS_DIR}")
     self.cwd(self.__PLAYLISTS_DIR)
 
   @staticmethod
@@ -43,85 +45,106 @@ class MusicManager(Client):
       cls.get_track_filename(track_id)
     )
   
-  def insert_track(self, track_id: str):
+  def write_track(self, track_id: str):
+    self.log("debug", f"Transfering track to server: {track_id}")
     original_dir = self.pwd()
     self.__cd_tracks()
 
     track_filename = self.get_track_filename(track_id)
 
     if self.exists_here(track_filename):
+      self.log("debug", "File already exists, skipping...")
+      self.log("debug", f"cd'ing back to {original_dir}")
       self.cwd(original_dir)
       return
 
     track = disk.models.Track(track_id)
-    path = track.get_path()
-    
     if track.exists():
+      path = track.get_path()
       self.write(path, track_filename)
-      
+      self.log("debug", f"Successfully transferred.")
+    else:
+      self.log("File does not exist on client.")
+    
+    self.log("debug", f"cd'ing back to {original_dir}")
     self.cwd(original_dir)
 
   def remove_track(self, track_filename: str):
+    self.log("debug", f"Removing track: {track_filename}")
     original_dir = self.pwd()
     self.__cd_tracks()
     if self.exists_here(track_filename):
       self.rm(track_filename)
+    self.log("debug", "Successfully removed.")
+    self.log("debug", f"cd'ing back to {original_dir}")
     self.cwd(original_dir)
 
-  def insert_playlist(self, playlist_name: str):
+  def write_playlist(self, playlist_name: str):
+    self.log("debug", f"Transferring playlist to server: {playlist_name}")
     playlist = disk.models.MobilePlaylist(playlist_name)
-    path = playlist.get_path()
 
-    if path and playlist.exists():
+    if playlist.exists():
       original_dir = self.pwd()
       self.__cd_playlists()
       self.write(
-        path, 
+        playlist.get_path(), 
         self.get_playlist_filename(playlist_name)
       )
+      self.log("debug", "Successfully transferred.")
+      self.log("debug", f"cd'ing back to {original_dir}")
       self.cwd(original_dir)
+    else:
+      self.log("File does not exist on client.")
 
   def remove_playlist(self, playlist_filename: str):
+    self.log("debug", f"Removing playlist: {playlist_filename}")
     original_dir = self.pwd()
     self.__cd_playlists()
     if self.exists_here(playlist_filename):
       self.rm(playlist_filename)
+    self.log("debug", "Successfully removed.")
+    self.log("debug", f"cd'ing back to {original_dir}")
     self.cwd(original_dir)
 
-  def get_all_tracks(self):
+  def list_tracks(self):
     original_dir = self.pwd()
     self.__cd_tracks()
     tracks = self.nlst()
     self.cwd(original_dir)
     return tracks
 
-  def get_all_playlists(self):
+  def list_playlists(self):
     original_dir = self.pwd()
     self.__cd_playlists()
     playlists = self.nlst()
     self.cwd(original_dir)
     return playlists
   
-  def sync_tracks(self, updated_track_ids: set[str]):
-    current_tracks = self.get_all_tracks()
+  def sync_tracks(self, incoming_tracks: set[str]):
+    self.log("info", "Syncing client track files to server...")
+    current_tracks = self.list_tracks()
 
     to_delete = {
-      self.get_track_filename(t) 
-      for t in updated_track_ids
+      self.get_track_filename(_id)
+      for _id in incoming_tracks
     } - set(current_tracks)
-    to_insert = {
-      self.get_track_id(t)
-      for t in current_tracks
-    } - updated_track_ids
+    to_write = {
+      self.get_track_id(filename)
+      for filename in current_tracks
+    } - incoming_tracks
 
+    self.log("debug", "Deleting diffed tracks...")
     for filename in to_delete:
       self.remove_track(filename)
-    for track_id in to_insert:
-      self.insert_track(track_id)
+    self.log("debug", "Inserting diffed tracks...")
+    for track_id in to_write:
+      self.write_track(track_id)
+
+    self.log("info", "Client track files synced successfully.")    
 
   def sync_playlists(self, updated_playlist_names: set[str]):
-    self.log("info", "Syncing playlist data...")
-    current_playlists = self.get_all_playlists()
+    self.log("info", "Syncing client playlist files to server...")
+    current_playlists = self.list_playlists()
 
     to_delete = set(current_playlists) - {
       self.get_playlist_filename(t)
@@ -135,8 +158,8 @@ class MusicManager(Client):
     self.log("debug", "Deleting diffed playlists...")
     for filename in to_delete:
       self.remove_playlist(filename)
-    self.log("debug", "Inserting diffed playlists")
+    self.log("debug", "Inserting diffed playlists...")
     for playlist_name in to_write:
-      self.insert_playlist(playlist_name)
+      self.write_playlist(playlist_name)
 
-    self.log("info", "Playlist data synced successfully.")    
+    self.log("info", "Client playlist files synced successfully.")    

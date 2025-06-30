@@ -1,5 +1,5 @@
-import os, logging, requests, mimetypes
-from disk import TrackCover
+import os, logging, requests, mimetypes, sys
+import disk
 
 class SpotifyApiClient:
   __API_URL = "https://api.spotify.com/v1"
@@ -23,7 +23,9 @@ class SpotifyApiClient:
     )
 
     if (response.status_code != 200):
-      raise RuntimeError(f"Access token request failed with status code {response.status_code}.\nResponse body:\n{response.text}")    
+      logging.critical(f"Access token request failed with status code {response.status_code}.")
+      logging.debug(f"Response body: {response.text}")
+      sys.exit(1)
 
     response_body = response.json()
     self.__API_AUTH_HEADERS = {
@@ -34,7 +36,7 @@ class SpotifyApiClient:
 
   # request user playlists
   def fetch_user_playlists(self):
-    logging.info("Retrieving user playlist data from the Spotify API...")
+    logging.info("Retrieving all user playlists from the Spotify API...")
 
     user_playlists_url = f"{self.__API_URL}/users/{self.__USER_ID}/playlists?limit=50"
     response = requests.get(
@@ -43,10 +45,13 @@ class SpotifyApiClient:
     )
 
     if (response.status_code != 200):
-      raise RuntimeError(f"User playlist request failed with status code {response.status_code}.\nResponse body:\n{response.text}")    
+      logging.error(
+        f"Request failed with status code {response.status_code}."
+      )
+      logging.debug(f"Response body: {response.text}")
+      return []
 
     response_body = response.json()
-
     logging.info("Successfully retrieved playlist data.")
 
     return [
@@ -59,21 +64,21 @@ class SpotifyApiClient:
 
   # gets all tracks in a playlist
   def fetch_playlist_tracks(self, url: str, playlist_name: str):
-    logging.info(f"Requesting track data for playlist '{playlist_name}'...")
+    logging.info(f"Retrieving playlist tracks for playlist '{playlist_name}'...")
     fields="next,offset,items(track(id,name,duration_ms,artists(id,name),album(images(url))))"
 
     next = f"{url}?limit=50&offset=0&fields={fields}"
     all_tracks = []
 
     while next:
-      logging.debug(f"Requesting playlist tracks from {next}")
       response = requests.get(
         next,
         headers=self.__API_AUTH_HEADERS
       )
 
+      logging.debug(f"Request: GET {next}")
       if response.status_code != 200:
-        logging.error("Playlist track request failed.")
+        logging.error("Failed to retrieve all playlist tracks.")
         logging.warning("Data for this run may be partial or incomplete.")
         return all_tracks
 
@@ -95,11 +100,11 @@ class SpotifyApiClient:
   
   @staticmethod
   def download_cdn_track_cover(url: str):
-    logging.debug(f"Downloading cover image: {url}")
-    cover = TrackCover(source=url)
+    logging.info(f"Downloading cover image...")
+    cover = disk.models.TrackCover(source=url)
 
     if cover.exists():
-      logging.debug("Cover image is already downloaded, skipping...")
+      logging.info("Cover image is already downloaded.")
       return cover.get_path(), False
 
     response = requests.get(url)
@@ -120,8 +125,10 @@ class SpotifyApiClient:
     # don't worry about write failure, not critical
     try:
       cover.write(response.content)
-      logging.debug("Successfully saved image to disk.")
+      logging.info("Successfully downloaded cover image.")
       return save_path, True
     except Exception as e:
       logging.error(e)
+      logging.warning("Failed to save cover image to disk.")
+      logging.warning("Data for this run may be partial or incomplete.")
       return None, None

@@ -1,7 +1,7 @@
 import logging, os
 
 logging.basicConfig(
-  level=logging.INFO if os.getenv("APP_ENV") == "production" else logging.DEBUG, 
+  level=logging.DEBUG if os.getenv("DEBUG") == "true" else logging.INFO, 
   format="%(levelname)s | %(message)s"
 )
 

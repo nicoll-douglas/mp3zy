@@ -5,12 +5,13 @@ import yt_dlp
 
 class YtDlpClient:
   def download_track(self, track_info: dict[str]):
-    logging.debug(f"Downloading track: {track_info["id"]} ({track_info["name"]})")
+    logging.info(f"Downloading track....")
+    logging.debug(f"Track ID: {track_info["id"]}")
 
     track = disk.models.Track(track_info["id"])
 
     if track.exists():
-      logging.debug("Track is already downloaded, skipping...")
+      logging.info("Track is already downloaded.")
       return track.get_path(), False
       
     ydl_opts = self._get_dl_opts(track_info["id"])
@@ -20,59 +21,30 @@ class YtDlpClient:
 
       # check for entries
       if not first:
-        logging.warning("Found no downloadable entries to try, skipping....")
+        logging.error("Found no downloadable entries to try.")
+        logging.error("Download failed.")
         return None, None
       
       # helper
       def try_entry(entry: dict[str], number: int):
         try:
-          logging.debug(f"Found entry ({number}). Download starting...")
+          logging.info(f"Found entry ({number}). Download starting...")
           ydl.download([entry["webpage_url"]])
-          logging.debug(f"Successfully downloaded track: {track_info["id"]}")
+          logging.info(f"Successfully downloaded track.")
           return True
 
         # log if failed to download
         except Exception as e:
           logging.error(f"An error occurred: {e}")
-          logging.warning(f"Failed to download track: {track_info["id"]} ({track_info["name"]})")
+          logging.warning(f"Failed to download.")
           return False
 
       # try entries
       if try_entry(first, 1) or (second and try_entry(second, 2)):
         return track.get_path(), True
 
-      logging.warning("No more entries to try, skipping...")
+      logging.warning("No more entries to try")
       return None, None
-      
-  def download_tracks(self, track_info_list: list[dict[str]]):
-    total = len(track_info_list)
-    success_count = 0
-    skip_count = 0
-    fail_count = 0
-    
-    logging.info(f"Downloading {total} tracks...")
-    for index, item in enumerate(track_info_list):
-      current_num = index + 1
-      
-      logging.info(f"Downloading track {current_num} of {total}...")
-      save_path, track_is_fresh = self.download_track(item)
-
-      if not save_path:
-        logging.warning(f"Track download {current_num} of {total} failed. ({item["id"], item["name"]})")
-        fail_count += 1
-        continue
-
-      if not track_is_fresh:
-        logging.info("Track already downloaded so skipped.")
-        skip_count += 1
-        continue
-
-      logging.info(f"Successfully downloaded track {current_num} of {total}.")
-      success_count += 1
-
-    logging.info(
-      f"{skip_count} tracks already downloaded. Successfully downloaded {success_count} of {total - skip_count}. {fail_count} failed."
-    )
 
   def _get_dl_opts(self, track_id: str):
     return {

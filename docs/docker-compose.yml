@@ -6,7 +6,6 @@ services:
     container_name: freemium
     environment:
       - PYTHONUNBUFFERED=1
-      - APP_ENV=production
     env_file:
       - .env
     volumes:

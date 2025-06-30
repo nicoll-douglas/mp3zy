@@ -9,7 +9,7 @@ RUN apt-get update \
 WORKDIR /app
 
 RUN python3 -m venv .pyvenv
-RUN source .pyvenv/bin/activate
+RUN bash -c "source .pyvenv/bin/activate"
 
 # Copy application files
 COPY src/ src/

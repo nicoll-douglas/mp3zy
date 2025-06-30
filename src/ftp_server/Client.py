@@ -14,33 +14,36 @@ class Client(FTP_TLS):
     logging.info(f"Connecting to FTP host {self.__FTP_HOST}...")
     super().connect(self.__FTP_HOST, self.__FTP_PORT)
 
-    logging.info("Securing connection...")
+    logging.debug("Securing connection...")
     self.auth()
     self.prot_p()
     
-    logging.info("Logging in with configured credentials...")
+    logging.debug("Logging in with configured credentials...")
     self.login(self.__FTP_USERNAME, self.__FTP_PASSWORD)
     
     logging.info("Successfully connected to FTP host.")
     return self
   
   def quit(self):
-    logging.info("Quitting and closing connection to FTP server...")
+    logging.info("Closing connection to FTP server...")
     super().quit()
-    logging.info("Successfully quit and closed FTP connection.")
+    logging.info("Successfully closed FTP connection.")
 
   def log(self, level: str, msg: str):
     attr = getattr(logging, level)
     attr("(FTP) " + msg)
 
   def write(self, local_path: str, server_path: str,):
+    self.log("debug," f"Writing {local_path} to {server_path}...")
     with open(local_path, "rb") as file:
       self.storbinary(f"STOR {server_path}", file)
+    self.log("debug", "Successfully wrote.")
     return self
 
   def rm(self, path: str):
     self.log("debug", f"Deleting file: {path}")
     self.delete(path)
+    self.log("debug", "Successfully deleted.")
     return self
 
   def mkdir(self, path: str):

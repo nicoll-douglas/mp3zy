@@ -1,5 +1,5 @@
 from ..File import File
-import os
+import os, logging
 from pathlib import Path
 
 class Playlist(File):
@@ -24,10 +24,10 @@ class Playlist(File):
     return [cls(path=str(path.resolve())) for path in p.iterdir()]
 
   @classmethod
-  def sync_files(cls, updated_playlists: set[str]):
+  def sync_files(cls, incoming_playlists: set[str]):
     current_playlists = {pl.get_path() for pl in cls.get_all()}
-    to_create = updated_playlists - current_playlists
-    to_delete = current_playlists - updated_playlists
+    to_create = incoming_playlists - current_playlists
+    to_delete = current_playlists - incoming_playlists
     
     for path in to_delete:
       os.remove(path)
@@ -35,10 +35,12 @@ class Playlist(File):
       pl = cls(path=path)
       pl.create()
     
-  def sync_tracks(self, playlist_tracks: set[str]):
+  def sync_tracks(self, incoming_tracks: set[str]):
     current_tracks = self.get_tracks()
-    self.remove_tracks(current_tracks - playlist_tracks)
-    self.insert_tracks(playlist_tracks - current_tracks)
+    to_remove = current_tracks - incoming_tracks
+    to_insert = incoming_tracks - current_tracks
+    self.remove_tracks(to_remove)
+    self.insert_tracks(to_insert)
 
   def create(self, track_paths = []):
     if not self.exists():
@@ -62,7 +64,7 @@ class Playlist(File):
     
     return True
 
-  def insert_tracks(self, track_path: set[str]):
+  def insert_tracks(self, track_paths: set[str]):
     if not self.exists():
       self.create()
 
@@ -72,7 +74,7 @@ class Playlist(File):
         for line in f.readlines()
         if line.strip()
         and line != self._HEADER_LINE
-      } | track_path)
+      } | track_paths)
 
     with open(self._path, "w", encoding="utf-8") as f:
       f.write(self._HEADER_LINE + new_lines)

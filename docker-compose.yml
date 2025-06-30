@@ -8,7 +8,6 @@ services:
     command: python main.py
     environment:
       - PYTHONUNBUFFERED=1
-      - APP_ENV=development
     env_file:
       - .env
     volumes:

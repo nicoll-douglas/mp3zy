@@ -59,7 +59,6 @@ class Track(File):
       logging.warning(f"Track {track_id} doesn't have its cover set in its metadata.")
     
     audio.save(v2_version=3)
-
     logging.debug("Successfully updated metadata.")
 
   @classmethod

@@ -8,130 +8,138 @@ class Sync:
   _SPOTIFY_CLIENT: SpotifyApiClient
   _FTP_MUSIC_MANAGER: ftp_server.MusicManager
   
-  def __init__(self, spotify_client: SpotifyApiClient):
+  def __init__(
+    self, 
+    spotify_client: SpotifyApiClient
+  ):
     self._SPOTIFY_CLIENT = spotify_client
     self._FTP_MUSIC_MANAGER = ftp_server.MusicManager()
   
   def trigger(self):
-    logging.info("Syncing playlist data from the Spotify API for the user...")
-    # fetch updated playlist data
+    logging.info("Syncing data from the Spotify API for the user...")
     playlist_data = self._SPOTIFY_CLIENT.fetch_user_playlists()
-  
-    # delete any playlist paths in local if not in updated
-    # insert any playlist paths in updated if not in local
-    updated_playlists = {disk.models.LocalPlaylist(d["name"]).get_path() for d in playlist_data}
-    disk.models.LocalPlaylist.sync_files(updated_playlists)
-
-    # delete any playlist paths in playlists/mobile if not in updated
-    # insert any playlist paths in updated if not in playlists/mobile
-    updated_playlists = {disk.models.MobilePlaylist(d["name"]).get_path() for d in playlist_data}
-    disk.models.MobilePlaylist.sync_files(updated_playlists)
+    self._sync_disk_playlists(playlist_data)
 
     all_tracks = []
-
-    logging.info("Syncing playlist tracks from the Spotify API for the user...")
     for playlist in playlist_data:
-      # fetch updated track data
-      tracks = self._SPOTIFY_CLIENT.fetch_playlist_tracks(
-        playlist["tracks_href"],
-        playlist["name"]
-      )
+      playlist_tracks = self._sync_disk_playlist_tracks(playlist)
+      all_tracks.extend(playlist_tracks)
 
-      # delete any track paths in local if not in updated
-      # insert any track paths in updated if not in local
-      local_pl = disk.models.LocalPlaylist(playlist["name"])
-      local_pl.sync_tracks({
-        disk.models.Track(t["id"]).get_path() 
-        for t in tracks
-      })
+    self._FTP_MUSIC_MANAGER.sync_playlists({
+      d["name"] for d in playlist_data
+    })
 
-      # delete any track paths in local if not in updated
-      # insert any track paths in updated if not in local
-      mobile_pl = disk.models.MobilePlaylist(playlist["name"])
-      mobile_pl.sync_tracks({
-        ftp_server.MusicManager.get_absolute_track_path(t["id"])
-        for t in tracks
-      })
+    self._FTP_MUSIC_MANAGER.sync_tracks({
+      t["id"] for t in all_tracks
+    })
 
-      all_tracks.extend(tracks)
-
-    # delete any playlist paths in ftp/playlists if not in updated
-    # insert any playlist paths in updated if not in ftp/playlists
-    self._FTP_MUSIC_MANAGER.sync_playlists({d["name"] for d in playlist_data})
-
-    # sync tracks
-    self._sync_track_files(all_tracks)
-    self._FTP_MUSIC_MANAGER.sync_tracks({d["id"] for d in all_tracks})
-    
-    logging.info("Finished data syncing.")
+    logging.info("Finished syncing")
     self._FTP_MUSIC_MANAGER.quit()
 
-  def _sync_track_files(
-    self,
-    track_data: list[dict[str]]
-  ):
-    ytDlpClient = YtDlpClient()    
-    total = len(track_data)
-    success_count = 0
-    fail_count = 0
-    
-    current_tracks = {t.get_path() for t in disk.models.Track.get_all()}
-    incoming_tracks = {
-      disk.models.Track(d["id"]).get_path() 
-      for d in track_data
-    }
-    to_delete = current_tracks - incoming_tracks
+  def _sync_disk_playlists(self, incoming_playlists: list[dict[str]]):
+    logging.info("Syncing incoming playlist data with playlist state on disk...")
 
+    logging.debug("Syncing local playlist state on disk...")
+    updated_playlists = {
+      disk.models.LocalPlaylist(d["name"]).get_path() 
+      for d in incoming_playlists
+    }
+    disk.models.LocalPlaylist.sync_files(updated_playlists)
+    logging.debug("Synced local playlist state.")
+
+    logging.debug("Syncing mobile playlist state on disk...")
+    updated_playlists = {
+      disk.models.MobilePlaylist(d["name"]).get_path() 
+      for d in incoming_playlists
+    }
+    disk.models.MobilePlaylist.sync_files(updated_playlists)
+    logging.debug("Synced mobile playlist state.")
+    
+    logging.info("Successfully synced playlists on disk.")
+
+  def _sync_disk_playlist_tracks(self, playlist: dict[str]):
+    logging.info(f"Syncing playlist tracks for playlist '{playlist["name"]}' with playlist files on disk...")
+    tracks = self._SPOTIFY_CLIENT.fetch_playlist_tracks(
+      playlist["tracks_href"],
+      playlist["name"]
+    )
+
+    logging.debug("Syncing local playlists on disk...")
+    local_pl = disk.models.LocalPlaylist(playlist["name"])
+    local_pl.sync_tracks({
+      disk.models.Track(t["id"]).get_path() 
+      for t in tracks
+    })
+    logging.debug("Synced local playlists.")
+
+    logging.debug("Syncing mobile playlists on disk...")
+    mobile_pl = disk.models.MobilePlaylist(playlist["name"])
+    mobile_pl.sync_tracks({
+      ftp_server.MusicManager.get_absolute_track_path(t["id"])
+      for t in tracks
+    })
+    logging.debug("Synced mobile playlists")
+
+    logging.info("Successfully synced playlist files.")
+    return tracks
+
+  def _sync_tracks(self, incoming_tracks: list[dict[str]]):
+    ytDlpClient = YtDlpClient()   
+    total = len(incoming_tracks)
+    logging.info(f"Syncing tracks on disk and on FTP server for {total} incoming tracks...")
+
+    # delete necessary tracks on ftp
+    current_track_filenames = self._FTP_MUSIC_MANAGER.list_tracks()
+    incoming_track_filenames = {
+      ftp_server.MusicManager.get_track_filename(t["id"])
+      for t in incoming_tracks
+    }
+    logging.info(f"Removing {len(to_delete)} tracks from FTP server...")
+    to_delete = current_track_filenames - incoming_track_filenames
+    for filename in to_delete:
+      self._FTP_MUSIC_MANAGER.remove_track(filename)
+    logging.info("Finished removing.")
+
+    # delete necessary tracks on disk
+    logging.info(f"Removing {len(to_delete)} tracks from disk...")
+    current_track_paths = {t.get_path() for t in disk.models.Track.get_all()}
+    incoming_track_paths = {
+      disk.models.Track(d["id"]).get_path() 
+      for d in incoming_tracks
+    }
+    incoming_track_map = {
+      track["id"]: track
+      for track in incoming_tracks
+    }
+    to_delete = current_track_paths - incoming_track_paths
+    to_insert = incoming_track_paths - current_track_paths
     for path in to_delete:
       os.remove(path)
+    logging.info("Finished removing.")
 
+    # write necessary tracks to disk and FTP
+    success_count = 0
+    fail_count = 0
+    to_insert_total = len(to_insert)
+
+    logging.info(f"Writing {to_insert_total} tracks to disk and FTP server...")
     try:
-      logging.info(f"Syncing files for {total} tracks...")
-      for index, track in enumerate(track_data):
+      for index, track_id in enumerate(to_insert):
+        track = incoming_track_map[track_id]
         current_num = index + 1
         track_label = f"{', '.join(track['artists'])} - {track['name']}"
-        logging.info(f"Syncing track {current_num} of {total} ({track_label})...")
-        
-        # download cover image
-        logging.info("Downloading cover image...")
-        cover_save_path, cover_is_fresh = SpotifyApiClient.download_cdn_track_cover(track["cover_source"])
 
-        # cover download states
-        cover_skipped = (not cover_is_fresh) and cover_save_path
-        cover_success = cover_is_fresh and cover_save_path
-        cover_fail = not cover_save_path
+        logging.info(f"Syncing track {current_num} of {to_insert_total} ({track_label})...")
 
-        # log for cover image download status
-        if cover_skipped:
-          logging.info("Cover image already downloaded.")
-        if cover_success:
-          logging.info("Successfully downloaded cover image.")
-        if cover_fail:
-          logging.error("Failed to download cover image.")
+        cover_save_path, _ = SpotifyApiClient.download_cdn_track_cover(track["cover_source"])
 
-        # download track
-        logging.info("Downloading track...")
-        track_save_path, track_is_fresh = ytDlpClient.download_track({
+        track_save_path, _ = ytDlpClient.download_track({
           "id": track["id"],
           "name": track["name"],
           "artists": track["artists"],
           "duration_s": track["duration_ms"] / 1000
         })
 
-        # track download status
-        track_skipped = (not track_is_fresh) and track_save_path
-        track_success = track_is_fresh and track_save_path
-        track_fail = not track_save_path
-
-        # log for track download status
-        if track_skipped:
-          logging.info("Track already downloaded.")
-        if track_success:
-          logging.info("Successfully downloaded track.")
-        if track_fail:
-          logging.info("Failed to download track.")
-
-        # log and set metadata if there is a save path
         if track_save_path:
           d_track = disk.models.Track(path=track_save_path)
           d_track.set_metadata({
@@ -139,17 +147,15 @@ class Sync:
             "artists": track["artists"],
             "cover": cover_save_path
           }, track["id"])
+          self._FTP_MUSIC_MANAGER.write_track(track["id"])
           
-          self._FTP_MUSIC_MANAGER.insert_track(track["id"])
-          
-          logging.info("Successfully synced track.")
+          logging.info("Successfully wrote track to disk and FTP server.")
           success_count += 1
         else:
-          logging.info("Failed to sync track.")
+          logging.info("Failed to sync disk track.")
           fail_count += 1
-
     except Exception as e:
       raise e
     finally:
-      logging.info(f"Successfully synced {success_count} of {total}. {fail_count} failed.")
-
+      logging.info("Finished syncing tracks.")
+      logging.info(f"Successfully synced {success_count} of {to_insert_total} tracks. {fail_count} failed.")
