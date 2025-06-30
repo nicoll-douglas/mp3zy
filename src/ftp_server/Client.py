@@ -6,6 +6,8 @@ class Client(FTP_TLS):
   __FTP_PASSWORD = os.getenv("FTP_PASSWORD")
   __FTP_HOST = os.getenv("FTP_HOST")
   __FTP_PORT = int(os.getenv("FTP_PORT"))
+  _FTP_INTERNAL_STORAGE_ROOT: str = "/storage/emulated/0/ftp_data"
+
 
   def __init__(self):
     super().__init__()
