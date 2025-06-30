@@ -48,6 +48,9 @@ class File:
   def get_ext(self):
     return self._ext
   
+  def get_id(self):
+    return self._id
+  
   def normalise(self):
     if self._id:
       path_without_ext = os.path.join(self.DIR, self._id)

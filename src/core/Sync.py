@@ -122,8 +122,9 @@ class Sync:
 
     logging.info(f"Writing {to_insert_total} tracks to disk and FTP server...")
     try:
-      for index, track_id in enumerate(to_insert):
-        track = incoming_track_map[track_id]
+      for index, track_path in enumerate(to_insert):
+        d_track = disk.models.Track(path=track_path)
+        track = incoming_track_map[d_track.get_id()]
         current_num = index + 1
         track_label = f"{', '.join(track['artists'])} - {track['name']}"
 
