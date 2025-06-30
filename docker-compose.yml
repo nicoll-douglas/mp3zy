@@ -13,3 +13,4 @@ services:
     volumes:
       - "${HOST_STORAGE_DIR}:/data"
       - ".:/app"
+    restart: unless-stopped
