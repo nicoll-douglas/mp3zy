@@ -1,19 +1,18 @@
 from __future__ import annotations
 import logging, os
 import disk
-from .SpotifyApiClient import SpotifyApiClient
-from .YtDlpClient import YtDlpClient
-from .FtpMusicManager import FtpMusicManager
+import ftp_server
+from services import SpotifyApiClient, YtDlpClient
 
-class SpotifySync:
+class Sync:
   _SPOTIFY_CLIENT: SpotifyApiClient
-  _FTP_MUSIC_MANAGER: FtpMusicManager
+  _FTP_MUSIC_MANAGER: ftp_server.MusicManager
   
   def __init__(self, spotify_client: SpotifyApiClient):
     self._SPOTIFY_CLIENT = spotify_client
-    self._FTP_MUSIC_MANAGER = FtpMusicManager()
+    self._FTP_MUSIC_MANAGER = ftp_server.MusicManager()
   
-  def sync(self):
+  def trigger(self):
     logging.info("Syncing playlist data from the Spotify API for the user...")
     # fetch updated playlist data
     playlist_data = self._SPOTIFY_CLIENT.fetch_user_playlists()
@@ -50,7 +49,7 @@ class SpotifySync:
       # insert any track paths in updated if not in local
       mobile_pl = disk.models.MobilePlaylist(playlist["name"])
       mobile_pl.sync_tracks({
-        FtpMusicManager.get_absolute_track_path(t["id"])
+        ftp_server.MusicManager.get_absolute_track_path(t["id"])
         for t in tracks
       })
 

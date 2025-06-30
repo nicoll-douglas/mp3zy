@@ -1,7 +1,7 @@
-import os, logging, traceback
+import os, logging
 from ftplib import FTP_TLS, error_perm
 
-class FtpClient(FTP_TLS):
+class Client(FTP_TLS):
   __FTP_USERNAME = os.getenv("FTP_USERNAME")
   __FTP_PASSWORD = os.getenv("FTP_PASSWORD")
   __FTP_HOST = os.getenv("FTP_HOST")

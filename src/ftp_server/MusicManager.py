@@ -1,8 +1,8 @@
-from .FtpClient import FtpClient
-import os, logging
+from .Client import Client
+import os
 import disk
 
-class FtpMusicManager(FtpClient):
+class MusicManager(Client):
   __TRACKS_DIR: str = os.path.join(os.getenv("FTP_STORAGE_DIR"), "tracks")
   __PLAYLISTS_DIR: str = os.path.join(os.getenv("FTP_STORAGE_DIR"), "playlists")
   __INTERNAL_STORAGE_ROOT: str = "/storage/emulated/0/"

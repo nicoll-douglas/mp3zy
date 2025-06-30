@@ -1,4 +1,4 @@
-from .File import File
+from ..File import File
 import os, logging
 
 class TrackCover(File):

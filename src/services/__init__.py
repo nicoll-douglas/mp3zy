@@ -1,2 +1,2 @@
 from .SpotifyApiClient import SpotifyApiClient
-from .SpotifySync import SpotifySync
+from .YtDlpClient import YtDlpClient

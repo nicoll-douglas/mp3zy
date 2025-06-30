@@ -5,9 +5,10 @@ logging.basicConfig(
   format="%(levelname)s | %(message)s"
 )
 
-from services import SpotifyApiClient, SpotifySync
+from services import SpotifyApiClient
+from core import Sync
 
 SPOTIFY_CLIENT = SpotifyApiClient()
-SPOTIFY_SYNC = SpotifySync(SPOTIFY_CLIENT)
+SPOTIFY_SYNC = Sync(SPOTIFY_CLIENT)
 
-SPOTIFY_SYNC.sync()
+SPOTIFY_SYNC.trigger()

@@ -1,5 +1,5 @@
-from .File import File
-import os, logging
+from ..File import File
+import os
 from pathlib import Path
 
 class Playlist(File):
