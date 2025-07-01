@@ -7,15 +7,18 @@ logging.basicConfig(
 )
 
 from services import SpotifyApiClient
+from ftp_server import MusicManager
 from core import Sync
 import time
 
 def main():
   logging.info(f"🟡 NEW SYNC STARTED AT {datetime.now()} 🟡")
-  SPOTIFY_CLIENT = SpotifyApiClient()
-  SPOTIFY_SYNC = Sync(SPOTIFY_CLIENT)
-  SPOTIFY_SYNC.trigger()
+  spotify_client = SpotifyApiClient()
+  ftp_music_manager = MusicManager()
+  spotify_sync = Sync(spotify_client, ftp_music_manager)
+  spotify_sync.trigger()
   logging.info(f"🟢 SYNC FINISHED AT {datetime.now()} 🟢")
+  ftp_music_manager.quit()
 
 while True:
   main()

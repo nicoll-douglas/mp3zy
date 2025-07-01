@@ -10,10 +10,11 @@ class Sync:
   
   def __init__(
     self, 
-    spotify_client: SpotifyApiClient
+    spotify_client: SpotifyApiClient,
+    ftp_music_manager: ftp_server.MusicManager
   ):
     self._SPOTIFY_CLIENT = spotify_client
-    self._FTP_MUSIC_MANAGER = ftp_server.MusicManager()
+    self._FTP_MUSIC_MANAGER = ftp_music_manager
   
   def trigger(self):
     logging.info("Syncing data from the Spotify API for the user...")
@@ -32,7 +33,6 @@ class Sync:
     self._sync_tracks(all_tracks)
 
     logging.info("Finished syncing.")
-    self._FTP_MUSIC_MANAGER.quit()
 
   def _sync_disk_playlists(self, incoming_playlists: list[dict[str]]):
     logging.info("Syncing incoming playlist data with playlist state on disk...")
@@ -87,31 +87,32 @@ class Sync:
     logging.info(f"Syncing tracks on disk and on FTP server for {total} incoming tracks...")
 
     # delete necessary tracks on ftp
-    current_track_filenames = set(self._FTP_MUSIC_MANAGER.list_tracks())
-    incoming_track_filenames = {
-      ftp_server.MusicManager.get_track_filename(t["id"])
-      for t in incoming_tracks
-    }
-    to_delete = current_track_filenames - incoming_track_filenames
-    logging.info(f"Removing {len(to_delete)} tracks from FTP server...")
-    for filename in to_delete:
-      self._FTP_MUSIC_MANAGER.remove_track(filename)
-    logging.info("Finished removing.")
+    # current_track_filenames = set(self._FTP_MUSIC_MANAGER.list_tracks())
+    # incoming_track_filenames = {
+    #   ftp_server.MusicManager.get_track_filename(t["id"])
+    #   for t in incoming_tracks
+    # }
+    # to_delete = current_track_filenames - incoming_track_filenames
+    # logging.info(f"Removing {len(to_delete)} tracks from FTP server...")
+    # for filename in to_delete:
+    #   self._FTP_MUSIC_MANAGER.remove_track(filename)
+    # logging.info("Finished removing.")
 
-    # delete necessary tracks on disk
     current_track_paths = {t.get_path() for t in disk.models.Track.get_all()}
     incoming_track_paths = {
       disk.models.Track(d["id"]).get_path() 
       for d in incoming_tracks
     }
-    to_delete = current_track_paths - incoming_track_paths
-    to_insert = incoming_track_paths - current_track_paths
-    logging.info(f"Removing {len(to_delete)} tracks from disk...")
-    for path in to_delete:
-      os.remove(path)
-    logging.info("Finished removing.")
+
+    # delete necessary tracks on disk
+    # to_delete = current_track_paths - incoming_track_paths
+    # logging.info(f"Removing {len(to_delete)} tracks from disk...")
+    # for path in to_delete:
+    #   os.remove(path)
+    # logging.info("Finished removing.")
 
     # write necessary tracks to disk and FTP
+    to_insert = incoming_track_paths - current_track_paths
     success_count = 0
     fail_count = 0
     to_insert_total = len(to_insert)
