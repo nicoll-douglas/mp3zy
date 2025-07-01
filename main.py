@@ -24,4 +24,4 @@ while True:
   main()
   sync_interval = os.getenv("SYNC_INTERVAL") or 12
   logging.info(f"🔴 SLEEPING FOR {sync_interval} HOURS BEFORE NEXT SYNC 🔴")
-  time.sleep(sync_interval * 60 * 60)
+  time.sleep(int(sync_interval) * 60 * 60)
