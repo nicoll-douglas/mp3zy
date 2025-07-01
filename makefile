@@ -1,14 +1,12 @@
 SHELL := /bin/bash
 
-all: pyvenv dev
+all: prod
 
 dev:
 	docker compose up --build
 
-deploy:
-	docker login
-	docker build -t nicolldouglas/freemium:latest .
-	docker push nicolldouglas/freemium:latest
+prod:
+	docker compose up -d && docker logs freemium_dev -f
 
 pyvenv:
 	python3 -m venv .pyvenv
