@@ -1,4 +1,4 @@
-import logging, os, time
+import logging, os, time, sys
 from datetime import datetime
 
 logging.basicConfig(
@@ -20,8 +20,13 @@ def main():
   logging.info(f"🟢 SYNC FINISHED AT {datetime.now()} 🟢")
   ftp_music_manager.quit()
 
-while True:
-  main()
-  sync_interval = os.getenv("SYNC_INTERVAL") or 12
-  logging.info(f"🔴 SLEEPING FOR {sync_interval} HOURS BEFORE NEXT SYNC 🔴")
-  time.sleep(int(sync_interval) * 60 * 60)
+try:
+  while True:
+    main()
+    sync_interval = os.getenv("SYNC_INTERVAL") or 12
+    logging.info(f"🔴 SLEEPING FOR {sync_interval} HOURS BEFORE NEXT SYNC 🔴")
+    time.sleep(int(sync_interval) * 60 * 60)
+except Exception as e:
+  logging.critical(e)
+  logging.critical("Failed to sync.")
+  sys.exit(1)
