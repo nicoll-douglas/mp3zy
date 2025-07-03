@@ -6,7 +6,7 @@ dev:
 	docker compose up --build
 
 prod:
-	docker compose up -d && docker logs freemium_dev -f
+	docker compose up -d && docker logs freemium -f
 
 pyvenv:
 	python3 -m venv .pyvenv
