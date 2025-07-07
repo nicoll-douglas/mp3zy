@@ -20,6 +20,14 @@ class Track(File):
       path=path
     )
     
+  def get_host_path(self):
+    return os.path.join(
+      os.getenv("HOST_STORAGE_DIR"), 
+      "tracks",
+      self.get_id(), 
+      self.get_ext()
+    )
+  
   def get_outtmpl(self) -> str:
     if not self._id:
       logging.warning(f"You may be attempting to download a track without knowing it's target filename.")

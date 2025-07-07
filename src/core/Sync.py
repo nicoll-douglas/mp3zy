@@ -65,7 +65,7 @@ class Sync:
     logging.debug("Syncing local playlists on disk...")
     local_pl = disk.models.LocalPlaylist(playlist["name"])
     local_pl.sync_tracks({
-      disk.models.Track(t["id"]).get_path() 
+      disk.models.Track(t["id"]).get_host_path() 
       for t in tracks
     })
     logging.debug("Synced local playlists.")
