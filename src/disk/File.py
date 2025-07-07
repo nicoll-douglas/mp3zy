@@ -58,7 +58,8 @@ class File:
 
       if len(files) > 0:
         self._path = files[0]
-        self._ext = mimetypes.guess_extension(files[0])
+        p = Path(files[0])
+        self._ext = p.suffix
       elif self._ext:
         self._path = os.path.join(self.DIR, self._id + self._ext)
 
