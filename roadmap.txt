@@ -1,0 +1,23 @@
+[Settings / Setup flow / Dashboard]
+- select primary folder where music is stored, default to reasonable location
+- select folder where files are downloaded, default to downloads
+- show ftp connection status in top corner
+- show "filesystem" of save locatiom for mp3's , option to edit metadata, maybe crud on files?
+- i18n?
+
+[Downloader]
+- desktop app with python backend (local), cross platform so electron gui for frontend
+- gui for downloading mp3s with yt-dlp
+- search youtube, show results, show all metadata / video information, prefill mp3 metadata
+- hold album covers in cache folder
+- option to select audio quality / bitrate
+- checkboxes for whether to download to mobile and desktop
+- if mobile, prompt ftp connection
+
+[Syncer]
+- button/option to sync pc filesystem to mobile
+- prompt for ftp
+- support ftp, ftps and sftp
+- sync mp3 folder structure on desktop to the target
+- have authentication flow with spotify to have access to all playlist data and liked songs
+- sync spotify to mobile and/or pc
