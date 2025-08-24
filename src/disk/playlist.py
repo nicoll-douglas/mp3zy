@@ -12,9 +12,14 @@ class Playlist:
   directory = None
 
   def __init__(self, path = None, name = None, directory = None):
+    self.safe_create_dirs()
     self.path = path
     self.name = name
     self.directory = directory
+
+  @classmethod
+  def safe_create_dirs(cls):
+    os.makedirs(cls.DESKTOP_PL_DIR, exist_ok=True)
 
   def build_path(self):
     return os.path.join(self.directory, self.name + self.EXT)
@@ -46,7 +51,7 @@ class Playlist:
 
       path = t.search_and_get_path()
       if path:
-        paths.extend(path)
+        paths.append(path)
 
     # write file paths to the file path
     with open(self.path, "w", encoding="utf-8") as f:
