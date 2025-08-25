@@ -56,7 +56,7 @@ class Track:
   
   def search(self):
     stem = self.build_stem()
-    return glob.glob(f"{self.SAVE_DIR}/{stem}.*")
+    return glob.glob(f"{self.SAVE_DIR}/{glob.escape(stem)}.*")
   
   # search for and get the path of a track on disk based on track info (if it exists)
   def search_and_get_path(self):
