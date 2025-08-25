@@ -91,7 +91,7 @@ def main():
 
       if not track_path:
         print("⚠️ Audio download Failed.")
-        failed_tracks.add((track_artists[0], artist_name))
+        failed_tracks.add((track_artists[0], track_name))
         fail_count += 1
         continue
 
