@@ -10,7 +10,11 @@ def spotify_callback():
       return f"Error: {error}"
 
     auth_code = request.args.get("code")
+    print("✅ Successfully received authorization code.")
+
+    print("🔄 Exchanging authorization code for an access token...")
     SpotifyApiClient.request_access_token(auth_code)
+    print("✅ Successfully obtained access token.")
 
     # resume main thread execution once access token obtained (authorization is complete)
     SpotifyApiClient.auth_event.set()

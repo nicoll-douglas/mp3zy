@@ -1,4 +1,4 @@
-import os, requests, mimetypes, string, secrets, base64, hashlib, threading
+import os, requests, mimetypes, string, secrets, base64, hashlib, threading, time
 import disk
 from urllib.parse import urlencode
 
@@ -15,6 +15,8 @@ class SpotifyApiClient:
   user_id = None
   _code_verifier = None
   _access_token = None
+  _refresh_token = None
+  _access_token_duration = None
 
   @classmethod
   def _get_code_challenge(cls):
@@ -65,6 +67,43 @@ class SpotifyApiClient:
 
     # store tokens
     cls._access_token = body["access_token"]
+    cls._refresh_token = body["refresh_token"]
+    cls._access_token_duration = body["expires_in"]
+
+  @classmethod
+  def refresh_access_token(cls):
+    data = {
+      "grant_type": "refresh_token",
+      "refresh_token": cls._refresh_token,
+      "client_id": cls.CLIENT_ID
+    }
+
+    r = requests.post(cls.TOKEN_URL, data=data)
+    r.raise_for_status()
+    body = r.json()
+
+    cls._access_token = body["access_token"]
+    cls._access_token_duration = body["expires_in"]
+
+    if "refresh_token" in body:
+      cls._refresh_token = body["refresh_token"]
+
+  @classmethod 
+  def auto_refresh_access_token(cls, initial_refresh = False):
+    def refresh():
+      print("🔄 Refreshing access token...")
+      cls.refresh_access_token()
+      print("✅ Successfully refreshed access token.")
+    
+    if initial_refresh:
+      refresh()
+      
+    while True:
+      next_refresh_s = 0.9 * cls._access_token_duration
+      next_refresh_m = round(next_refresh_s / 60)
+      print(f"ℹ️ {next_refresh_m} minutes until next refresh.")
+      time.sleep(next_refresh_s)
+      refresh()
 
   @classmethod
   def fetch_user_id(cls):

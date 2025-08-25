@@ -7,8 +7,7 @@ from disk import Codec, Playlist, Metadata
 import api
 
 def main():
-  if __name__ == "__main__":
-    threading.Thread(target=api.serve, daemon=True).start()
+  threading.Thread(target=api.serve, daemon=True).start()
 
   auth_url = SpotifyApiClient.build_auth_url()
   print("👉 Open this URL in your browser:", auth_url)
@@ -16,6 +15,8 @@ def main():
   print("⏳ Waiting for user to authenticate...")
   SpotifyApiClient.auth_event.wait()
   print("✅ Authentication successful.")
+
+  threading.Thread(target=SpotifyApiClient.auto_refresh_access_token).start()
 
   print("⬇️ Fetching user ID...")
   user_id = SpotifyApiClient.fetch_user_id()
