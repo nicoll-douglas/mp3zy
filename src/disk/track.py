@@ -1,5 +1,6 @@
 import os, glob, mimetypes
 from platformdirs import user_data_dir
+from pathvalidate import sanitize_filename
 
 class Track:  
   SAVE_DIR = os.path.join(user_data_dir(os.getenv("APP_NAME")), "tracks")
@@ -43,7 +44,9 @@ class Track:
   def build_stem(self):
     file_disk_num = str(self.disc_number).zfill(3)
     file_track_num = str(self.number).zfill(3)
-    return f"{file_disk_num}-{file_track_num} - {self.artists[0]} - {self.album} - {self.name}"
+    raw_filename = f"{file_disk_num}-{file_track_num} - {self.artists[0]} - {self.album} - {self.name}"
+    
+    return sanitize_filename(raw_filename)
 
   def build_path(self):
     return os.path.join(self.SAVE_DIR, self.build_stem() + self.ext)

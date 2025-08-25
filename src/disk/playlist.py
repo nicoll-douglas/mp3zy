@@ -2,6 +2,7 @@ from . import Track
 import os
 from pathlib import Path
 from platformdirs import user_data_dir
+from pathvalidate import sanitize_filename
 
 class Playlist:
   EXT = ".m3u"
@@ -22,7 +23,8 @@ class Playlist:
     os.makedirs(cls.DESKTOP_PL_DIR, exist_ok=True)
 
   def build_path(self):
-    return os.path.join(self.directory, self.name + self.EXT)
+    filename = sanitize_filename(self.name)
+    return os.path.join(self.directory, filename + self.EXT)
 
   def write(self, playlist_items):
     paths = []
