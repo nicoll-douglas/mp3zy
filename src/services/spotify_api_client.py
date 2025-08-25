@@ -91,7 +91,7 @@ class SpotifyApiClient:
   @classmethod 
   def auto_refresh_access_token(cls, initial_refresh = False):
     def refresh():
-      print("🔄 Refreshing access token...")
+      print("Refreshing access token...")
       cls.refresh_access_token()
       print("✅ Successfully refreshed access token.")
     
@@ -101,7 +101,7 @@ class SpotifyApiClient:
     while True:
       next_refresh_s = 0.9 * cls._access_token_duration
       next_refresh_m = round(next_refresh_s / 60)
-      print(f"ℹ️ {next_refresh_m} minutes until next refresh.")
+      print(f"{next_refresh_m} minutes until next refresh.")
       time.sleep(next_refresh_s)
       refresh()
 

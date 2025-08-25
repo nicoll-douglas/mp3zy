@@ -18,28 +18,30 @@ def main():
 
   threading.Thread(target=SpotifyApiClient.auto_refresh_access_token).start()
 
-  print("⬇️ Fetching user ID...")
+  print("Fetching user ID...")
   user_id = SpotifyApiClient.fetch_user_id()
   SpotifyApiClient.user_id = user_id
   print("✅ Fetched user ID.")
 
-  print("⬇️ Fetching user playlists...")
+  print("Fetching user playlists...")
   user_playlists = SpotifyApiClient.fetch_user_playlists()
   print("✅ Fetched user playlists.")
 
   ytdlp_client = YtDlpClient(Codec.FLAC)
 
   total_playlists = len(user_playlists)
+  failed_tracks = set()
 
   for pl_index, pl in enumerate(user_playlists):
     playlist_name = pl["name"]
     playlist_id = pl["id"]
     playlist_items_url = SpotifyApiClient.playlist_items_url(playlist_id)
 
-    print(f"⬇️ Fetching playlist tracks for playlist '{playlist_name}' ({pl_index + 1}/{total_playlists})...")
+    print(f"Fetching playlist tracks for playlist '{playlist_name}' ({pl_index + 1}/{total_playlists})...")
     playlist_items = SpotifyApiClient.fetch_playlist_items(playlist_items_url)
     print("✅ Fetched playlist tracks.")
 
+    print(f"Downloading playlist tracks for playlist '{playlist_name}'...")
     total_tracks = len(playlist_items)
     skip_count = 0
     success_count = 0
@@ -50,10 +52,10 @@ def main():
       is_not_track = pl_item["track"]["type"] != "track"
       is_local = pl_item["is_local"]
       
-      print(f"⬇️ Downloading track '{track_name}' ({pl_item_index + 1}/{total_tracks})...")
+      print(f"Downloading track '{track_name}' ({pl_item_index + 1}/{total_tracks})...")
 
       if is_local or is_not_track:
-        print(f"⏩ Download skipped, track is either local or an episode.")
+        print(f"Download skipped, track is either local or an episode.")
         skip_count += 1
         continue
 
@@ -66,11 +68,18 @@ def main():
       cover_url = pl_item["track"]["album"]["images"][0]["url"]
       release_date = pl_item["track"]["album"]["release_date"]
 
-      cover_path, _ = SpotifyApiClient.download_cdn_track_cover(
+      print("Downloading album cover...")
+      cover_path, cover_is_fresh = SpotifyApiClient.download_cdn_track_cover(
         url=cover_url,
         album_id=album_id
       )
 
+      if not cover_path:
+        print("⚠️ Cover download Failed.")
+      elif not cover_is_fresh:
+        print("⏩ Cover download skipped, cover is already downloaded.")
+
+      print("Downloading audio...")
       track_path, track_is_fresh = ytdlp_client.download_track(
         number=track_number,
         artists=track_artists,
@@ -81,18 +90,19 @@ def main():
       )
 
       if not track_path:
-        print("⚠️ Download Failed.")
+        print("⚠️ Audio download Failed.")
+        failed_tracks.add((track_artists[0], artist_name))
         fail_count += 1
         continue
 
       if not track_is_fresh:
-        print("⏩ Download skipped, track is already downloaded.")
+        print("⏩ Audio download skipped, file is already downloaded.")
         skip_count += 1
         continue
 
-      print("✅ Successfully downloaded track.")
+      print("✅ Successfully downloaded audio.")
 
-      print("🔁 Updating track metadata...")
+      print("Updating audio file metadata...")
       meta = Metadata(
         cover_path=cover_path,
         track_name=track_name,
@@ -107,9 +117,11 @@ def main():
       success_count += 1
       print("✅ Updated metadata.")
 
-    print(f"✅ Finished downloading playlist tracks ({success_count} successful, {skip_count} skipped, {fail_count} failed).")
+      print("✅ Successfully downloaded track.")
 
-    print(f"🔁 Creating playlist file for playlist '{playlist_name}'...")
+    print(f"✅ Finished downloading playlist tracks for playlist '{playlist_name}' ({success_count} successful, {skip_count} skipped, {fail_count} failed).")
+
+    print(f"Creating playlist file for playlist '{playlist_name}'...")
     p = Playlist(
       name=playlist_name,
       directory=Playlist.DESKTOP_PL_DIR
@@ -117,6 +129,12 @@ def main():
     p.path = p.build_path()
     p.write(playlist_items)
     print("✅ Playlist file created.")
-    print("ℹ️ Finished downloading playlist")
+    print("✅ Finished downloading playlist.")
+    
+  print("✅ Finished downloading all playlists.")
+
+  print("Tracks that failed:")
+  for artist_name, track_name in failed_tracks:
+    print(f"- {artist_name} - {track_name}")
     
 main()

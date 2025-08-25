@@ -12,7 +12,7 @@ def spotify_callback():
     auth_code = request.args.get("code")
     print("✅ Successfully received authorization code.")
 
-    print("🔄 Exchanging authorization code for an access token...")
+    print("Exchanging authorization code for an access token...")
     SpotifyApiClient.request_access_token(auth_code)
     print("✅ Successfully obtained access token.")
 
