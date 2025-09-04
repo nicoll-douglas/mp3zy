@@ -1,7 +1,7 @@
 from __future__ import annotations
 from .store_playlist import store_playlist
 from .download_all_playlist_items import download_all_playlist_items
-from disk import Codec
+from media import Codec
 
 def download_playlist(pl, pl_index, total_pl, codec: Codec):
   pl_name = pl["name"]

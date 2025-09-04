@@ -3,9 +3,10 @@ import os, glob, mimetypes
 from platformdirs import user_data_dir
 from pathvalidate import sanitize_filename
 from .codec import Codec
+from utils import File
 
 class Track:  
-  PARENT_DIR = os.path.join(user_data_dir(os.getenv("VITE_APP_NAME")), "tracks")
+  PARENT_DIR = os.path.join(File.save_path(), "tracks")
 
   number = None
   artists = None

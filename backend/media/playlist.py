@@ -3,10 +3,11 @@ import os
 from pathlib import Path
 from platformdirs import user_data_dir
 from pathvalidate import sanitize_filename
+from utils import File
 
 class Playlist:
   EXT = ".m3u"
-  DESKTOP_PL_DIR = os.path.join(user_data_dir(os.getenv("VITE_APP_NAME")), "playlists", "desktop")
+  DESKTOP_PL_DIR = os.path.join(File.save_path(), "playlists", "desktop")
 
   path = None
   name = None

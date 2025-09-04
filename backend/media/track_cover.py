@@ -1,8 +1,9 @@
 from platformdirs import user_cache_dir
 import os, mimetypes, glob
+from utils import File
 
 class TrackCover:
-  SAVE_DIR = os.path.join(user_cache_dir(os.getenv("VITE_APP_NAME")), "covers")
+  SAVE_DIR = os.path.join(File.CACHE_DIR, "covers")
 
   album_id = None
   path = None

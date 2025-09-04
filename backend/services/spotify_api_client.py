@@ -1,5 +1,5 @@
 import os, requests, mimetypes, string, secrets, base64, hashlib, threading, time
-import disk
+import media
 from urllib.parse import urlencode
 
 class SpotifyApiClient:
@@ -173,7 +173,7 @@ class SpotifyApiClient:
   
   @staticmethod
   def download_cdn_track_cover(url: str, album_id: str):
-    cover = disk.TrackCover(album_id=album_id)
+    cover = media.TrackCover(album_id=album_id)
 
     # check if the cover is already downloaded
     path = cover.search_and_get_path()

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from services import SpotifyApiClient
 from .download_playlist_item import download_playlist_item
-from disk import Codec
+from media import Codec
 
 def download_all_playlist_items(pl, codec: Codec):
   # extract info from api data

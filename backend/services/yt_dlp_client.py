@@ -1,5 +1,5 @@
 from __future__ import annotations
-import disk
+import media
 import yt_dlp
 
 class YtDlpClient:
@@ -7,7 +7,7 @@ class YtDlpClient:
   
   def __init__(
     self, 
-    codec: disk.Codec
+    codec: media.Codec
   ):
     self.codec = codec
 
@@ -20,7 +20,7 @@ class YtDlpClient:
     disc_number = None,
     duration_ms = None
   ):
-    track = disk.Track(number, artists, name, album, disc_number)
+    track = media.Track(number, artists, name, album, disc_number)
 
     # check if track is already downloaded
     path = track.search_and_get_path()
