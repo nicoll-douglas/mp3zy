@@ -1,6 +1,22 @@
 import { Field, Card, Heading, Stack, Button, Text } from "@chakra-ui/react";
+import useSettings from "@/hooks/useSettings";
+import { useEffect } from "react";
 
 export default function Settings() {
+  const { data, isLoading, error } = useSettings();
+  let text;
+  if (data) {
+    text = data.savePath;
+  } else if (isLoading) {
+    text = "Loading...";
+  } else if (error) {
+    text = error.message;
+  }
+
+  useEffect(() => {
+    console.log(window.electronAPI);
+  }, []);
+
   return (
     <main>
       <Stack gap={"4"}>
@@ -20,7 +36,7 @@ export default function Settings() {
                 The directory on disk where music files downloaded and created
                 are saved.
               </Field.HelperText>
-              <Text></Text>
+              <Text>{text}</Text>
               <Button variant={"outline"} size={"sm"}>
                 Browse
               </Button>

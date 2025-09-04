@@ -17,7 +17,7 @@ function createMainWindow() {
 
     mainWindow.loadURL("http://127.0.0.1:5173");
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../../dist/frontend/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../../frontend/index.html"));
   }
 }
 

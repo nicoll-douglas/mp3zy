@@ -9,6 +9,7 @@ import {
   killBackend,
   watchBackend,
 } from "./processes/backend.js";
+import registerSettingsHandlers from "./ipc/settings.js";
 
 app.whenReady().then(() => {
   startBackend();
@@ -16,6 +17,7 @@ app.whenReady().then(() => {
     watchBackend();
   }
   createMainWindow();
+  registerSettingsHandlers();
 });
 
 app.on("will-quit", () => {

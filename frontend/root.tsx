@@ -3,8 +3,11 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
 import Header from "@/components/header/Header";
-import { Provider } from "@/components/chakra/provider";
+import { Provider as ChProvider } from "@/components/chakra/provider";
 import { Box, Container } from "@chakra-ui/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -29,14 +32,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <Provider>
-          <Container>
-            <Header />
-            <Box my={"4"}>{children}</Box>
-          </Container>
-          <ScrollRestoration />
-          <Scripts />
-        </Provider>
+        <QueryClientProvider client={queryClient}>
+          <ChProvider>
+            <Container>
+              <Header />
+              <Box my={"4"}>{children}</Box>
+            </Container>
+            <ScrollRestoration />
+            <Scripts />
+          </ChProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );
