@@ -1,8 +1,8 @@
 import { app } from "electron";
 import path from "path";
 import fs from "fs";
-import defaultSettings from "../config/defaultSettings";
-import type { UserSettings } from "../../types/shared";
+import defaultSettings from "../config/defaultSettings.js";
+import type { UserSettings } from "../../types/shared.ts";
 
 function getSettingsPath() {
   const userDataPath = app.getPath("userData");
@@ -16,8 +16,10 @@ function loadSettings(): UserSettings {
     return JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
   }
 
-  saveSettings(defaultSettings);
-  return defaultSettings;
+  const defaults = defaultSettings();
+  saveSettings(defaults);
+
+  return defaults;
 }
 
 function saveSettings(data: UserSettings) {

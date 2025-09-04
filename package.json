@@ -2,10 +2,15 @@
   "name": "mp3zy",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "main": "electron/main.ts",
   "scripts": {
     "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:electron\"",
     "dev:frontend": "react-router dev",
-    "dev:electron": "wait-on http://localhost:5173 && nodemon"
+    "watch:electron": "tsc -w -p tsconfig.electron.json",
+    "dev:electron": "concurrently -k \"npm:watch:electron\" \"wait-on http://localhost:5173 && nodemon\"",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "start:electron": "electron dist/electron/main.js"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.26.0",
@@ -22,7 +27,6 @@
   },
   "devDependencies": {
     "@react-router/dev": "^7.7.1",
-    "@types/electron": "^1.4.38",
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",

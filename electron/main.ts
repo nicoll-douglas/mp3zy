@@ -3,9 +3,12 @@ dotenv.config();
 
 import { app, BrowserWindow } from "electron";
 
-import { createMainWindow } from "./windows/mainWindow";
-
-import { startBackend, killBackend, watchBackend } from "./processes/backend";
+import { createMainWindow } from "./windows/mainWindow.js";
+import {
+  startBackend,
+  killBackend,
+  watchBackend,
+} from "./processes/backend.js";
 
 app.whenReady().then(() => {
   startBackend();

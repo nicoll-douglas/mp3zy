@@ -1,5 +1,7 @@
 {
-  "watch": ["electron"],
-  "ext": "ts",
-  "exec": "ts-node ./electron/main.ts"
+  "watch": ["dist/electron"],
+  "ext": "js",
+  "exec": "electron dist/electron/main.js",
+  "delay": "100",
+  "ignore": ["dist/electron/**/*.map"]
 }

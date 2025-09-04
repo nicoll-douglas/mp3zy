@@ -1,14 +1,19 @@
 import fs from "fs";
 import { app } from "electron";
-import type { UserSettings } from "../../types/shared";
-let savePath = app.getPath("music");
+import type { UserSettings } from "../../types/shared.ts";
 
-if (!fs.existsSync(savePath)) {
-  savePath = app.getPath("home");
+function defaultSettings() {
+  let savePath = app.getPath("music");
+
+  if (!fs.existsSync(savePath)) {
+    savePath = app.getPath("home");
+  }
+
+  const value: UserSettings = {
+    savePath,
+  };
+
+  return value;
 }
-
-const defaultSettings: UserSettings = {
-  savePath,
-};
 
 export default defaultSettings;

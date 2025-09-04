@@ -6,7 +6,7 @@
     "**/.client/**/*",
     ".react-router/types/**/*"
   ],
-  "exclude": ["electron", "node_modules"],
+  "exclude": ["electron", "node_modules", "dist"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "types": ["node", "vite/client"],

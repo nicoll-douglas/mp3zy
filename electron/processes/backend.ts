@@ -1,10 +1,14 @@
-import { loadSettings } from "../utils/settings";
+import { loadSettings } from "../utils/settings.js";
 import { app } from "electron";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import chokidar from "chokidar";
 import path from "path";
+import { fileURLToPath } from "url";
 
-const backendSrcFolder = path.join(__dirname, "../../backend");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const backendSrcFolder = path.join(__dirname, "../../../backend");
 let backendProcess: ChildProcessWithoutNullStreams | null = null;
 
 function killBackend() {
@@ -16,12 +20,12 @@ function killBackend() {
 function startBackend() {
   killBackend();
 
-  const pyPath = path.join(__dirname, "../../.venv/bin/python");
+  const pyPath = path.join(__dirname, "../../../.venv/bin/python");
   const script = path.join(backendSrcFolder, "server.py");
   const settings = loadSettings();
 
   backendProcess = spawn(pyPath, [script], {
-    cwd: path.join(__dirname, "../../backend"),
+    cwd: backendSrcFolder,
     env: {
       ...process.env,
       SAVE_PATH: settings.savePath,
