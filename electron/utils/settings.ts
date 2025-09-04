@@ -9,6 +9,16 @@ function getSettingsPath() {
   return path.join(userDataPath, "settings.json");
 }
 
+function setSettings(settings: UserSettings) {
+  const settingsPath = getSettingsPath();
+  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
+  console.log(`Settings saved (${settingsPath}).`);
+}
+
+function restoreSettings() {
+  setSettings(defaultSettings());
+}
+
 function loadSettings(): UserSettings {
   const settingsPath = getSettingsPath();
 
@@ -17,15 +27,15 @@ function loadSettings(): UserSettings {
   }
 
   const defaults = defaultSettings();
-  saveSettings(defaults);
+  setSettings(defaults);
 
   return defaults;
 }
 
-function saveSettings(data: UserSettings) {
-  const settingsPath = getSettingsPath();
-  fs.writeFileSync(settingsPath, JSON.stringify(data, null, 2), "utf-8");
-  console.log(`Settings saved.`);
+function updateSettings(updatedSettings: Partial<UserSettings>) {
+  const currentSettings = loadSettings();
+  const newSettings = { ...currentSettings, ...updatedSettings };
+  setSettings(newSettings);
 }
 
-export { loadSettings, saveSettings };
+export { loadSettings, updateSettings, restoreSettings };

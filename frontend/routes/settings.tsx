@@ -1,16 +1,27 @@
-import { Field, Card, Heading, Stack, Button, Text } from "@chakra-ui/react";
+import {
+  Field,
+  Card,
+  Heading,
+  Stack,
+  Button,
+  Text,
+  Group,
+  Input,
+} from "@chakra-ui/react";
 import useSettings from "@/hooks/useSettings";
-import { useEffect } from "react";
+import { LuFolder } from "react-icons/lu";
 
 export default function Settings() {
-  const { data, isLoading, error } = useSettings();
-  let text;
-  if (data) {
-    text = data.savePath;
-  } else if (isLoading) {
-    text = "Loading...";
-  } else if (error) {
-    text = error.message;
+  const { getSettingsQuery, updateSavePathMutation, restoreSettingsMutation } =
+    useSettings();
+
+  let savePath = "";
+  if (getSettingsQuery.data) {
+    savePath = getSettingsQuery.data.savePath;
+  } else if (getSettingsQuery.isLoading) {
+    savePath = "Loading...";
+  } else if (getSettingsQuery.error) {
+    savePath = getSettingsQuery.error.message;
   }
 
   return (
@@ -26,18 +37,48 @@ export default function Settings() {
             </Heading>
           </Card.Header>
           <Card.Body>
-            <Field.Root>
+            <Field.Root maxW={"lg"}>
               <Field.Label>Save Directory</Field.Label>
+              <Group attached w="full">
+                <Input
+                  value={savePath}
+                  disabled
+                  cursor={"default"}
+                  title={savePath}
+                  textOverflow={"ellipsis"}
+                />
+                <Button
+                  variant={"outline"}
+                  onClick={() => updateSavePathMutation.mutate()}
+                  disabled={updateSavePathMutation.isPending}
+                >
+                  <LuFolder /> Change
+                </Button>
+              </Group>
               <Field.HelperText>
                 The directory on disk where music files downloaded and created
                 are saved.
               </Field.HelperText>
-              <Text>{text}</Text>
-              <Button variant={"outline"} size={"sm"}>
-                Browse
+            </Field.Root>
+          </Card.Body>
+        </Card.Root>
+        <Card.Root>
+          <Card.Header>
+            <Heading as="h2" size={"lg"}>
+              General
+            </Heading>
+          </Card.Header>
+          <Card.Body>
+            <Field.Root>
+              <Field.Label>Restore Defaults</Field.Label>
+              <Field.HelperText>Restore the default settings.</Field.HelperText>
+              <Button
+                size={"xs"}
+                colorPalette={"red"}
+                onClick={() => restoreSettingsMutation.mutate()}
+              >
+                Restore
               </Button>
-
-              <Field.ErrorText></Field.ErrorText>
             </Field.Root>
           </Card.Body>
         </Card.Root>
