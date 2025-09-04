@@ -2,16 +2,10 @@
   "name": "mp3zy",
   "version": "1.0.0",
   "private": true,
-  "main": "electron/main.js",
-  "type": "commonjs",
   "scripts": {
-    "typecheck": "react-router typegen && tsc",
     "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:electron\"",
     "dev:frontend": "react-router dev",
-    "dev:electron": "wait-on http://localhost:5173 && nodemon",
-    "build": "NODE_ENV=production react-router build",
-    "start": "NODE_ENV=production electron .",
-    "pyvenv": "python -m venv .venv"
+    "dev:electron": "wait-on http://localhost:5173 && nodemon"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.26.0",
@@ -28,12 +22,14 @@
   },
   "devDependencies": {
     "@react-router/dev": "^7.7.1",
+    "@types/electron": "^1.4.38",
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "chokidar": "^4.0.3",
     "concurrently": "^9.2.1",
     "electron": "^37.3.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "vite": "^6.3.3",
     "vite-tsconfig-paths": "^5.1.4",

@@ -1,13 +1,4 @@
-import {
-  Field,
-  Card,
-  Heading,
-  Stack,
-  Input,
-  Box,
-  HStack,
-  Button,
-} from "@chakra-ui/react";
+import { Field, Card, Heading, Stack, Button, Text } from "@chakra-ui/react";
 
 export default function Settings() {
   return (
@@ -23,23 +14,19 @@ export default function Settings() {
             </Heading>
           </Card.Header>
           <Card.Body>
-            <Box as={"form"} maxW={"xl"}>
-              <Field.Root>
-                <Field.Label>
-                  Save Directory
-                  <Field.RequiredIndicator />
-                </Field.Label>
-                <HStack w={"full"}>
-                  <Input />
-                  <Button>Browse</Button>
-                </HStack>
-                <Field.HelperText>
-                  The directory on disk where music files downloaded and created
-                  are saved.
-                </Field.HelperText>
-                <Field.ErrorText></Field.ErrorText>
-              </Field.Root>
-            </Box>
+            <Field.Root>
+              <Field.Label>Save Directory</Field.Label>
+              <Field.HelperText>
+                The directory on disk where music files downloaded and created
+                are saved.
+              </Field.HelperText>
+              <Text></Text>
+              <Button variant={"outline"} size={"sm"}>
+                Browse
+              </Button>
+
+              <Field.ErrorText></Field.ErrorText>
+            </Field.Root>
           </Card.Body>
         </Card.Root>
       </Stack>

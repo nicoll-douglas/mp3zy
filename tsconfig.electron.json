@@ -1,0 +1,13 @@
+{
+  "include": ["electron/**/*", "types/**/*"],
+  "exclude": ["frontend", "node_modules"],
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node", "electron"]
+  }
+}

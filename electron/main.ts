@@ -1,13 +1,11 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
-const { app, BrowserWindow } = require("electron");
+import { app, BrowserWindow } from "electron";
 
-const { createMainWindow } = require("./windows/mainWindow.js");
-const {
-  startBackend,
-  killBackend,
-  watchBackend,
-} = require("./processes/backend.js");
+import { createMainWindow } from "./windows/mainWindow";
+
+import { startBackend, killBackend, watchBackend } from "./processes/backend";
 
 app.whenReady().then(() => {
   startBackend();

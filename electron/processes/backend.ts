@@ -1,11 +1,11 @@
-const { loadSettings } = require("../utils/settings.js");
-const { app } = require("electron");
-const { spawn } = require("child_process");
-const chokidar = require("chokidar");
-const path = require("path");
+import { loadSettings } from "../utils/settings";
+import { app } from "electron";
+import { ChildProcessWithoutNullStreams, spawn } from "child_process";
+import chokidar from "chokidar";
+import path from "path";
 
 const backendSrcFolder = path.join(__dirname, "../../backend");
-let backendProcess;
+let backendProcess: ChildProcessWithoutNullStreams | null = null;
 
 function killBackend() {
   if (backendProcess) {
@@ -25,7 +25,7 @@ function startBackend() {
     env: {
       ...process.env,
       SAVE_PATH: settings.savePath,
-      DATA_DIR: app.getAppPath("userData"),
+      DATA_DIR: app.getPath("userData"),
     },
   });
 
@@ -44,7 +44,7 @@ function startBackend() {
 
 function watchBackend() {
   const watcher = chokidar.watch(backendSrcFolder, {
-    ignored: (path, stats) => stats?.isFile() && !path.endsWith(".py"),
+    ignored: (path, stats) => !!stats?.isFile() && !path.endsWith(".py"),
     ignoreInitial: true,
   });
 
@@ -59,4 +59,4 @@ function watchBackend() {
   });
 }
 
-module.exports = { killBackend, startBackend, watchBackend };
+export { killBackend, startBackend, watchBackend };

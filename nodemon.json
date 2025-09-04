@@ -1,5 +1,5 @@
 {
   "watch": ["electron"],
-  "ext": "js,ts",
-  "exec": "electron ."
+  "ext": "ts",
+  "exec": "ts-node ./electron/main.ts"
 }

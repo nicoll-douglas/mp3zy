@@ -1,4 +1,4 @@
-const path = require("path");
+import path from "path";
 
 const mainWindowConfig = {
   width: 1000,
@@ -11,4 +11,4 @@ const mainWindowConfig = {
   },
 };
 
-module.exports = mainWindowConfig;
+export default mainWindowConfig;

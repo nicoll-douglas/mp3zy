@@ -1,5 +1,6 @@
-const { BrowserWindow } = require("electron");
-const mainWindowConfig = require("../config/mainWindow.js");
+import { BrowserWindow } from "electron";
+import mainWindowConfig from "../config/mainWindow";
+import path from "path";
 
 function createMainWindow() {
   const mainWindow = new BrowserWindow(mainWindowConfig);
@@ -16,4 +17,4 @@ function createMainWindow() {
   }
 }
 
-module.exports = { createMainWindow };
+export { createMainWindow };
