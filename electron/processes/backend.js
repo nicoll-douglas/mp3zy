@@ -2,6 +2,7 @@ const { loadSettings } = require("../utils/settings.js");
 const { app } = require("electron");
 const { spawn } = require("child_process");
 const chokidar = require("chokidar");
+const path = require("path");
 
 const backendSrcFolder = path.join(__dirname, "../../backend");
 let backendProcess;
