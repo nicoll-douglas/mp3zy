@@ -1,7 +1,7 @@
 from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TRCK, TPOS, TDRC, TLEN
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC, Picture
-from . import TrackCover
+from .track_cover import TrackCover
 
 class Metadata:
   cover_path = None

@@ -12,7 +12,7 @@ class SpotifyApiClient:
   WANTED_SCOPES = "playlist-read-private user-library-read playlist-read-collaborative"
 
   auth_event = threading.Event()
-  user_id = None
+  user_profile = None
   _code_verifier = None
   _access_token = None
   _refresh_token = None
@@ -106,7 +106,10 @@ class SpotifyApiClient:
       refresh()
 
   @classmethod
-  def fetch_user_id(cls):
+  def fetch_user_profile(cls):
+    if cls.user_profile:
+      return cls.user_profile
+    
     me_url = f"{cls.API_URL}/me"
     r = requests.get(
       url=me_url,
@@ -115,7 +118,7 @@ class SpotifyApiClient:
     r.raise_for_status()
     body = r.json()
 
-    return body["id"]
+    return body
 
   @classmethod
   def _auth_headers(cls):
@@ -146,12 +149,12 @@ class SpotifyApiClient:
   def fetch_user_playlists(cls):
     limit = 50
     offset = 0
-    initial = f"{cls.API_URL}/users/{cls.user_id}/playlists?limit={limit}&offset={offset}"
+    initial = f"{cls.API_URL}/users/{cls.user_profile["id"]}/playlists?limit={limit}&offset={offset}"
     return cls._fetch_all_pages(initial)
 
   @classmethod
   def fetch_playlist_items(cls, url: str):
-    fields="next,items(is_local,track(name,duration_ms,type,track_number,disc_number,artists(name),album(images(url),release_date,id,name)))"
+    fields="next,items(is_local,track(id,name,duration_ms,type,track_number,disc_number,artists(name),album(images(url),release_date,id,name)))"
     limit = 50
     offset = 0
     initial = f"{url}?limit={limit}&offset={offset}&fields={fields}"

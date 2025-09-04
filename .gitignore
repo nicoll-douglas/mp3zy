@@ -8,4 +8,13 @@
 # python
 __pycache__
 *.egg-info
-.pyvenv
+.venv
+
+# js
+node_modules
+
+.DS_Store
+
+# React Router
+/.react-router/
+/build/

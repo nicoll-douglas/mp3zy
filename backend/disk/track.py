@@ -1,9 +1,11 @@
+from __future__  import annotations
 import os, glob, mimetypes
 from platformdirs import user_data_dir
 from pathvalidate import sanitize_filename
+from .codec import Codec
 
 class Track:  
-  SAVE_DIR = os.path.join(user_data_dir(os.getenv("APP_NAME")), "tracks")
+  PARENT_DIR = os.path.join(user_data_dir(os.getenv("VITE_APP_NAME")), "tracks")
 
   number = None
   artists = None
@@ -11,7 +13,7 @@ class Track:
   album = None
   disc_number = None
   path = None
-  ext = None
+  codec: Codec = None
 
   def __init__(
     self, 
@@ -21,20 +23,20 @@ class Track:
     album = None, 
     disc_number = None,
     path = None,
-    ext = None
+    codec: Codec = None
   ):
-    self.safe_create_dir()
     self.number = number
     self.artists = artists
     self.name = name
     self.album = album
     self.disc_number = disc_number
     self.path = path
-    self.ext = ext
+    self.codec = codec
+    self._safe_create_dir()
   
-  @classmethod
-  def safe_create_dir(cls):
-    os.makedirs(cls.SAVE_DIR, exist_ok=True)
+  def _safe_create_dir(self):
+    if self.codec:
+      os.makedirs(os.path.join(self.PARENT_DIR, self.codec.value), exist_ok=True)
   
   def get_output_template(self) -> str:
     stem = self.build_stem()
@@ -48,19 +50,26 @@ class Track:
     
     return sanitize_filename(raw_filename)
 
+  def get_ext(self):
+    return "." + self.codec.value
+  
+  def get_save_dir(self):
+    return os.path.join(self.PARENT_DIR, self.codec.value)
+
   def build_path(self):
-    return os.path.join(self.SAVE_DIR, self.build_stem() + self.ext)
+    return os.path.join(self.SAVE_DIR, self.codec.value, self.build_stem() + self.get_ext())
 
   def exists(self):
     return os.path.exists(self.path)
   
   def search(self):
     stem = self.build_stem()
-    return glob.glob(f"{self.SAVE_DIR}/{glob.escape(stem)}.*")
+    file_path = os.path.join(f"{self.SAVE_DIR}", self.codec.value, glob.escape(stem)) + self.get_ext()
+    return glob.glob(file_path)
   
   # search for and get the path of a track on disk based on track info (if it exists)
-  def search_and_get_path(self):
-    results = self.search()
+  def search_and_get_path(self, codec: Codec):
+    results = self.search(codec)
     path = results[0] if results else None
     return path
 

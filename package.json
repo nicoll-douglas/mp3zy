@@ -1,0 +1,42 @@
+{
+  "name": "mp3zy",
+  "version": "1.0.0",
+  "private": true,
+  "main": "electron/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "typecheck": "react-router typegen && tsc",
+    "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:electron\"",
+    "dev:frontend": "react-router dev",
+    "dev:electron": "wait-on http://localhost:5173 && nodemon",
+    "build": "NODE_ENV=production react-router build",
+    "start": "NODE_ENV=production electron .",
+    "pyvenv": "python -m venv .venv"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^3.26.0",
+    "@emotion/react": "^11.14.0",
+    "@react-router/node": "^7.7.1",
+    "@react-router/serve": "^7.7.1",
+    "dotenv": "^17.2.2",
+    "isbot": "^5.1.27",
+    "next-themes": "^0.4.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-icons": "^5.5.0",
+    "react-router": "^7.7.1"
+  },
+  "devDependencies": {
+    "@react-router/dev": "^7.7.1",
+    "@types/node": "^20",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "chokidar": "^4.0.3",
+    "concurrently": "^9.2.1",
+    "electron": "^37.3.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.3",
+    "vite-tsconfig-paths": "^5.1.4",
+    "wait-on": "^8.0.4"
+  }
+}
