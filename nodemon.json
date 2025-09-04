@@ -1,7 +1,7 @@
 {
   "watch": ["dist/electron"],
   "ext": "js",
-  "exec": "electron dist/electron/main.js",
+  "exec": "electron .",
   "delay": "100",
   "ignore": ["dist/electron/**/*.map"]
 }

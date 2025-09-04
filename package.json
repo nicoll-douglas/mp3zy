@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "commonjs",
-  "main": "electron/main.ts",
+  "main": "dist/electron/main.js",
   "scripts": {
     "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:electron\"",
     "dev:frontend": "react-router dev",
