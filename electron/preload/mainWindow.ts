@@ -6,5 +6,3 @@ const electronAPI: ElectronAPI = {
 };
 
 contextBridge.exposeInMainWorld("electronAPI", electronAPI);
-
-console.log("Preload executed");

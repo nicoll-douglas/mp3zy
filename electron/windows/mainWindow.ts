@@ -1,10 +1,6 @@
 import { BrowserWindow } from "electron";
 import mainWindowConfig from "../config/mainWindow.js";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 function createMainWindow() {
   const mainWindow = new BrowserWindow(mainWindowConfig);

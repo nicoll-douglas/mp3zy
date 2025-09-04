@@ -3,10 +3,6 @@ import { app } from "electron";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import chokidar from "chokidar";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const backendSrcFolder = path.join(__dirname, "../../../backend");
 let backendProcess: ChildProcessWithoutNullStreams | null = null;

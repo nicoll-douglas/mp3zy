@@ -13,10 +13,6 @@ export default function Settings() {
     text = error.message;
   }
 
-  useEffect(() => {
-    console.log(window.electronAPI);
-  }, []);
-
   return (
     <main>
       <Stack gap={"4"}>

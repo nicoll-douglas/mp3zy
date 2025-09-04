@@ -2,7 +2,7 @@
   "name": "mp3zy",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "main": "electron/main.ts",
   "scripts": {
     "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:electron\"",

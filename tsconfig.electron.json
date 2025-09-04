@@ -4,8 +4,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "ES2020",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "commonjs",
+    "moduleResolution": "Node",
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
