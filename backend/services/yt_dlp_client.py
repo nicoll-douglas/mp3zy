@@ -17,59 +17,44 @@ class YtDlpClient:
       track_artists=[artist_name]
     )
 
-  def download_track(
-    self, 
-    number = None, 
-    artists: list = None, 
-    name = None, 
-    album = None, 
-    disc_number = None,
-    duration_ms = None
-  ):
-    track = media.Track(number, artists, name, album, disc_number)
+  def download_track(self, track_data):
+    artists = track_data["artists"]
+    track_name = track_data["track"]
+    codec = track_data["codec"]
 
-    # check if track is already downloaded
+    track = media.Track(
+      artist=artists[0], 
+      name=track_name,
+      codec=media.Codec(codec)
+    )
+
     path = track.search_and_get_path()
     if path:
       return path, False
     
+    bitrate = track_data["bitrate"]
+    
     output_template = track.get_output_template()
-    ydl_opts = self._get_dl_opts(output_template)
+    ydl_opts = self._get_dl_opts(output_template, codec, bitrate)
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-      # find download link
-      link = self._get_download_link(ydl, name, artists, duration_ms)
-
-      # check for link
-      if not link:
-        return None, None
-      
-      # download
+      link = track_data["download_url"]
       ydl.download([link])
     
-    # build and return path
-    track.ext = "." + self.codec.value
     return track.build_path(), True
 
-  def _get_dl_opts(
-    self, 
-    output_template,
-  ):
+  def _get_dl_opts(self, output_template, codec, bitrate):
     return {
       "format": "bestaudio/best",
-      "noplaylist": True,
       "quiet": True,
       "no_warnings": True,
       "postprocessors": [{
         "key": "FFmpegExtractAudio",
-        "preferredcodec": self.codec.value,
-        "preferredquality": "320",
+        "preferredcodec": codec,
+        "preferredquality": bitrate,
       }],
       "outtmpl": output_template
     }
-
-  def _get_download_link(self, entry):
-    return entry["url"]
         
   def order_entries(self, entries, track_name, track_artists: list, track_duration_s = None):
     def score(entry):
