@@ -1,4 +1,8 @@
-import { Controller, type Control } from "react-hook-form";
+import {
+  Controller,
+  type Control,
+  type RegisterOptions,
+} from "react-hook-form";
 import { NumberInput } from "@chakra-ui/react";
 import type { DownloadOptionsFormValues } from "../types";
 
@@ -8,17 +12,23 @@ export default function ControlledNumberInput({
   placeholder,
   min,
   max,
+  rules,
 }: {
   control: Control<DownloadOptionsFormValues, any, DownloadOptionsFormValues>;
   name: keyof DownloadOptionsFormValues;
   placeholder?: string;
   min?: number;
   max?: number;
+  rules?: Omit<
+    RegisterOptions<DownloadOptionsFormValues, keyof DownloadOptionsFormValues>,
+    "valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled"
+  >;
 }) {
   return (
     <Controller
       name={name}
       control={control}
+      rules={rules}
       render={({ field }) => (
         <NumberInput.Root
           disabled={field.disabled}

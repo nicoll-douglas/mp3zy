@@ -12,7 +12,7 @@ export default function useSettings() {
     mutationFn: async () => {
       const newSaveDir = await window.electronAPI.pickSaveDirectory();
       if (!newSaveDir) return;
-      window.electronAPI.setSettings({ savePath: newSaveDir });
+      await window.electronAPI.setSettings({ savePath: newSaveDir });
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["settings", "savePath"] }),

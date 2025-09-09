@@ -1,10 +1,42 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify, Response, json
-from services import SpotifyApiClient
-import threading
+from services import SpotifyApiClient, YtDlpClient
+import threading, os
 from helpers import download_all_playlists
-from disk import Codec
+from media import Codec
 
-app = Flask(__name__)
+app = Flask(os.getenv("VITE_APP_NAME") + " Backend")
+
+def auth(f):
+  def wrapper(*args, **kwargs):
+    token = request.headers.get("X-Electron-Auth")
+    if token != os.getenv("ELECTRON_AUTH_KEY"):
+      return jsonify({ "error": "Unauthorized" }), 401
+    return f(*args, **kwargs)
+  
+  wrapper.__name__ = f.__name__
+  return wrapper
+
+@app.route("/ping")
+@auth
+def ping():
+  return jsonify({ "message": "Pong from Python" })
+
+
+@app.route("/audio-search/yt-dlp", methods=["GET"])
+@auth
+def audio_search():
+  artist = request.args.get("artist")
+  track = request.args.get("track")
+  results = YtDlpClient().query_youtube(artist, track)
+
+  return jsonify(results)
+
+@app.route("/download", methods=["POST"])
+@auth
+def download():
+  data = request.get_json()
+  if not data:
+    return jsonify({ "error": "Invalid or missing JSON request body." }), 400
 
 @app.route("/spotify/callback")
 def spotify_callback():
@@ -38,7 +70,3 @@ def spotify_sync():
 
   threading.Thread(target=download_all_playlists, args=(Codec.FLAC,)).start()
   return "Downloading all playlists, check the CLI..."
-
-@app.route("/ping")
-def ping():
-  return jsonify({ "message": "Pong from Python" })

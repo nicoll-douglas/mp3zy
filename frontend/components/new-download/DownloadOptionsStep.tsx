@@ -20,17 +20,23 @@ import type { DownloadOptionsFormValues } from "./types";
 import { LuCircleMinus, LuCirclePlus } from "react-icons/lu";
 import ControlledNumberInput from "./fields/ControlledNumberInput";
 import ReleaseDateFieldset from "./fields/ReleaseDateFieldset";
+import { controlRules } from "./validation";
+import { useEffect } from "react";
+import useBackend from "@/hooks/useBackend";
 
 export default function DownloadOptionsStep({
   audioUrl,
 }: {
   audioUrl: string | null;
 }) {
+  const { headers } = useBackend();
+
   const {
     register,
     control,
     watch,
     setError,
+    resetField,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<DownloadOptionsFormValues>({
@@ -55,14 +61,31 @@ export default function DownloadOptionsStep({
   const year = watch("year");
   const month = watch("month");
 
+  useEffect(() => {
+    if (!year) {
+      resetField("month");
+    }
+  }, [year]);
+
+  useEffect(() => {
+    if (!month) {
+      resetField("day");
+    }
+  }, [month]);
+
   const onSubmit = handleSubmit(async (data) => {
     const url = `${import.meta.env.VITE_BACKEND_URL}/download`;
     const res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...headers,
       },
-      body: JSON.stringify({ url: audioUrl, ...data }),
+      body: JSON.stringify({
+        url: audioUrl,
+        ...data,
+        artists: data.artists.map((a) => a.value),
+      }),
     });
     const body = await res.json();
   });
@@ -75,7 +98,7 @@ export default function DownloadOptionsStep({
             <Card.Title>Download Options</Card.Title>
             <Card.Description>Set download options.</Card.Description>
           </Card.Header>
-          <Card.Body as={"form"}>
+          <Card.Body as={"form"} onSubmit={onSubmit}>
             <Stack gap={"5"}>
               <Box>
                 <Heading as={"h3"} size={"md"} mb={"4"}>
@@ -198,6 +221,7 @@ export default function DownloadOptionsStep({
                       control={control}
                       name="trackNumber"
                       placeholder="1"
+                      rules={controlRules["trackNumber"]}
                     />
                     <Field.ErrorText>
                       {errors.trackNumber?.message}
@@ -213,6 +237,7 @@ export default function DownloadOptionsStep({
                       control={control}
                       name="discNumber"
                       placeholder="1"
+                      rules={controlRules["discNumber"]}
                     />
                     <Field.ErrorText>
                       {errors.discNumber?.message}

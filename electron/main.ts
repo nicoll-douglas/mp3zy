@@ -10,13 +10,16 @@ import {
   watchBackend,
 } from "./processes/backend.js";
 import registerSettingsHandlers from "./ipc/settings.js";
+import generateAuthKey from "./utils/generateAuthKey.js";
+
+const backendAuthKey = generateAuthKey();
 
 app.whenReady().then(() => {
-  startBackend();
+  startBackend(backendAuthKey);
   if (process.env.APP_ENV === "development") {
-    watchBackend();
+    watchBackend(backendAuthKey);
   }
-  createMainWindow();
+  createMainWindow(backendAuthKey);
   registerSettingsHandlers();
 });
 
@@ -30,6 +33,6 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createMainWindow();
+    createMainWindow(backendAuthKey);
   }
 });

@@ -1,8 +1,9 @@
 from routes import app
 from flask_cors import CORS
+import os
 
 allowed_origins = [
-  "http://127.0.0.1:5173",
+  os.getenv("VITE_APP_URL"),
   "file://*",
   "app://*"
 ]

@@ -2,7 +2,7 @@ import { BrowserWindow } from "electron";
 import mainWindowConfig from "../config/mainWindow.js";
 import path from "path";
 
-function createMainWindow() {
+function createMainWindow(backendAuthKey: string) {
   const mainWindow = new BrowserWindow(mainWindowConfig);
 
   if (process.env.APP_ENV === "development") {
@@ -15,6 +15,10 @@ function createMainWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, "../../frontend/index.html"));
   }
+
+  mainWindow.webContents.on("did-finish-load", () => {
+    mainWindow.webContents.send("set-backend-auth-key", backendAuthKey);
+  });
 }
 
 export { createMainWindow };

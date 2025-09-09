@@ -21,6 +21,7 @@ import { LuChevronRight, LuSearch, LuSearchX } from "react-icons/lu";
 import { useForm } from "react-hook-form";
 import type { SearchAudioFormValues, YtDlpAudioSearchResult } from "./types";
 import { useState, type Dispatch, type SetStateAction } from "react";
+import useBackend from "@/hooks/useBackend";
 
 export default function SearchAudioStep({
   audioUrlSelected,
@@ -37,11 +38,13 @@ export default function SearchAudioStep({
   const [searchResults, setSearchResults] = useState<YtDlpAudioSearchResult[]>(
     []
   );
+  const { headers } = useBackend();
 
   const onSubmit = handleSubmit(async (data) => {
     const queryString = new URLSearchParams({ ...data }).toString();
     const res = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/audio-search/yt-dlp?${queryString}`
+      `${import.meta.env.VITE_BACKEND_URL}/audio-search/yt-dlp?${queryString}`,
+      { headers }
     );
     const body = await res.json();
     setSearchResults(body);

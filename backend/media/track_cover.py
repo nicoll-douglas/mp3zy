@@ -1,4 +1,3 @@
-from platformdirs import user_cache_dir
 import os, mimetypes, glob
 from utils import File
 

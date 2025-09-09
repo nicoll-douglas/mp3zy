@@ -3,13 +3,19 @@ import media
 import yt_dlp
 
 class YtDlpClient:
-  codec = None
-  
-  def __init__(
-    self, 
-    codec: media.Codec
-  ):
-    self.codec = codec
+  def query_youtube(self, artist_name, track_name):
+    search_query = f"ytsearch10:{artist_name} {track_name}"
+    
+    info = yt_dlp.YoutubeDL({
+      "noplaylist": True,
+      "extract_flat": True
+    }).extract_info(search_query, download=False)
+
+    return self.order_entries(
+      entries=info["entries"] or [],
+      track_name=track_name,
+      track_artists=[artist_name]
+    )
 
   def download_track(
     self, 
@@ -62,40 +68,16 @@ class YtDlpClient:
       "outtmpl": output_template
     }
 
-  # queries youtube and gets the download link
-  def _get_download_link(
-    self, 
-    ydl: yt_dlp.YoutubeDL, 
-    track_name,
-    track_artists: list,
-    track_duration_ms
-  ):
-    search_query = f"ytsearch10:{", ".join(track_artists)} - {track_name}"
-
-    try:
-      info = ydl.extract_info(search_query, download=False)
-      
-      entry = self._get_best_track_candidate(
-        info.get("entries", []) if info else [], 
-        track_name,
-        track_artists,
-        round(track_duration_ms / 1000)
-      )
-
-      return entry["webpage_url"]
-    except Exception as e:
-      return None
-    
-  def _get_best_track_candidate(self, entries, track_name, track_artists: list, track_duration_s):
-    if not entries:
-      return None
-
+  def _get_download_link(self, entry):
+    return entry["url"]
+        
+  def order_entries(self, entries, track_name, track_artists: list, track_duration_s = None):
     def score(entry):
       video_title = entry.get("title", "").lower()
       video_channel = entry.get("channel", "").lower()
       video_duration_s = entry.get("duration", 0)
       view_count = entry.get("view_count", 0)
-      duration_diff = abs(video_duration_s - track_duration_s)
+      duration_diff = abs(video_duration_s - track_duration_s) if track_duration_s != None else None
 
       score_value = 0
 
@@ -107,7 +89,7 @@ class YtDlpClient:
         score_value += 100
       if any(artist == video_channel for artist in track_artists):
         score_value += 5
-      if duration_diff <= 15:
+      if duration_diff != None and duration_diff <= 15:
         score_value += 5
       if any(artist in video_title for artist in track_artists):
         score_value += 5
@@ -116,5 +98,5 @@ class YtDlpClient:
 
       return score_value
 
-    return sorted(entries, key=score, reverse=True)[0]
+    return sorted(entries, key=score, reverse=True)
 

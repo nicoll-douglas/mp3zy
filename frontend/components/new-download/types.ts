@@ -1,3 +1,5 @@
+import type { Validate, RegisterOptions } from "react-hook-form";
+
 export interface SearchAudioFormValues {
   artist: string;
   track: string;
@@ -22,3 +24,13 @@ export interface DownloadOptionsFormValues {
   month: string;
   day: string;
 }
+
+export type DownloadOptionsValidator = Validate<
+  string | { value: string }[],
+  DownloadOptionsFormValues
+>;
+
+export type DownloadOptionsControlRules = Omit<
+  RegisterOptions<DownloadOptionsFormValues, keyof DownloadOptionsFormValues>,
+  "setValueAs" | "disabled" | "valueAsNumber" | "valueAsDate"
+>;

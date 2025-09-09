@@ -2,6 +2,7 @@ import { app } from "electron";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import chokidar from "chokidar";
 import path from "path";
+import crypto from "crypto";
 
 const backendSrcFolder = path.join(__dirname, "../../../backend");
 let backendProcess: ChildProcessWithoutNullStreams | null = null;
@@ -12,7 +13,7 @@ function killBackend() {
   }
 }
 
-function startBackend() {
+function startBackend(authKey: string) {
   killBackend();
 
   const pyPath = path.join(__dirname, "../../../.venv/bin/python");
@@ -23,6 +24,7 @@ function startBackend() {
     env: {
       ...process.env,
       DATA_DIR: app.getPath("userData"),
+      ELECTRON_AUTH_KEY: authKey,
     },
   });
 
@@ -39,7 +41,7 @@ function startBackend() {
   });
 }
 
-function watchBackend() {
+function watchBackend(authKey: string) {
   const watcher = chokidar.watch(backendSrcFolder, {
     ignored: (path, stats) => !!stats?.isFile() && !path.endsWith(".py"),
     ignoreInitial: true,
@@ -48,7 +50,7 @@ function watchBackend() {
   watcher.on("all", (event, filePath) => {
     console.log(`Backend source file changed: ${filePath} (${event})`);
     console.log("Restarting backend...");
-    startBackend();
+    startBackend(authKey);
   });
 
   watcher.on("ready", () => {
