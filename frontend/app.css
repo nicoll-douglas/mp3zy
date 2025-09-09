@@ -13,3 +13,7 @@ html {
     "Helvetica Neue",
     sans-serif;
 }
+
+body {
+  overflow-y: scroll;
+}

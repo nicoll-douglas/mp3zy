@@ -34,10 +34,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <QueryClientProvider client={queryClient}>
           <ChProvider>
-            <Container>
-              <Header />
-              <Box my={"4"}>{children}</Box>
-            </Container>
+            <Header />
+            <Container py={"4"}>{children}</Container>
             <ScrollRestoration />
             <Scripts />
           </ChProvider>

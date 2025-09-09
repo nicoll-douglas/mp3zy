@@ -4,7 +4,6 @@ import {
   Heading,
   Stack,
   Button,
-  Text,
   Group,
   Input,
 } from "@chakra-ui/react";
@@ -62,7 +61,7 @@ export default function Settings() {
             </Field.Root>
           </Card.Body>
         </Card.Root>
-        <Card.Root>
+        <Card.Root size={"sm"}>
           <Card.Header>
             <Heading as="h2" size={"lg"}>
               General

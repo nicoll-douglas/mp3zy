@@ -1,4 +1,4 @@
-import { Button } from "@chakra-ui/react";
+import { Button, Heading, Stack, Text } from "@chakra-ui/react";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -8,7 +8,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   async function pingPython() {
     try {
-      const res = await fetch("http://127.0.0.1:8888/ping");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/ping`);
       const json = await res.json();
       console.log(json);
     } catch (err) {
@@ -18,9 +18,9 @@ export default function Home() {
 
   return (
     <main>
-      <Button onClick={pingPython} variant={"subtle"}>
-        Ping Backend
-      </Button>
+      <Stack gap={"4"}>
+        <Heading size={"2xl"}>Home</Heading>
+      </Stack>
     </main>
   );
 }

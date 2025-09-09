@@ -11,7 +11,7 @@ function createMainWindow() {
       mainWindow.minimize();
     });
 
-    mainWindow.loadURL("http://127.0.0.1:5173");
+    mainWindow.loadURL(String(process.env.VITE_APP_URL));
   } else {
     mainWindow.loadFile(path.join(__dirname, "../../frontend/index.html"));
   }

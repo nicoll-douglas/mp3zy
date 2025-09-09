@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { app, BrowserWindow } from "electron";
-import path from "path";
 
 import { createMainWindow } from "./windows/mainWindow.js";
 import {

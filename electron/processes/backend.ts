@@ -1,4 +1,3 @@
-import { loadSettings } from "../utils/settings.js";
 import { app } from "electron";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import chokidar from "chokidar";
@@ -18,13 +17,11 @@ function startBackend() {
 
   const pyPath = path.join(__dirname, "../../../.venv/bin/python");
   const script = path.join(backendSrcFolder, "server.py");
-  const settings = loadSettings();
 
   backendProcess = spawn(pyPath, [script], {
     cwd: backendSrcFolder,
     env: {
       ...process.env,
-      SAVE_PATH: settings.savePath,
       DATA_DIR: app.getPath("userData"),
     },
   });
