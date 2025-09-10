@@ -1,4 +1,4 @@
-from media import Playlist
+from models.disk import Playlist
 
 def store_playlist(pl_name, pl_items):
   print(f"Creating playlist file for playlist '{pl_name}'...")

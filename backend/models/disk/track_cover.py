@@ -14,13 +14,13 @@ class TrackCover:
     path = None,
     ext = None
   ):
-    self.safe_create_dir()
     self.album_id = album_id
     self.path = path
     self.ext = ext
+    self._safe_create_dir()
 
   @classmethod
-  def safe_create_dir(cls):
+  def _safe_create_dir(cls):
     os.makedirs(cls.SAVE_DIR, exist_ok=True)
   
   def write(self, buffer):    
@@ -40,7 +40,7 @@ class TrackCover:
   
   # search for a track cover on disk based on the album id
   def search(self):
-    return glob.glob(f"{self.SAVE_DIR}/{self.album_id}.*")
+    return glob.glob(os.path.join(self.SAVE_DIR, f"{self.album_id}.*"))
   
   # search for and get the path of a track cover on disk based on album id (if it exists)
   def search_and_get_path(self):

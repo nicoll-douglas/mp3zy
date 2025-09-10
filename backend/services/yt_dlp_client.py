@@ -1,5 +1,5 @@
 from __future__ import annotations
-import media
+import models.disk as disk
 import yt_dlp
 
 class YtDlpClient:
@@ -22,10 +22,10 @@ class YtDlpClient:
     track_name = track_data["track"]
     codec = track_data["codec"]
 
-    track = media.Track(
+    track = disk.Track(
       artist=artists[0], 
       name=track_name,
-      codec=media.Codec(codec)
+      codec=disk.Codec(codec)
     )
 
     path = track.search_and_get_path()

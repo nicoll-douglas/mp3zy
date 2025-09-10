@@ -1,6 +1,6 @@
 from __future__ import annotations
 from services import SpotifyApiClient, YtDlpClient
-from media import Codec, Metadata
+from models.disk import Codec, Metadata
 
 def download_playlist_item(item, item_index, total_items, codec: Codec):
   # extract info from api data

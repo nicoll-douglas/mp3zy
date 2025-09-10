@@ -1,5 +1,5 @@
 import os, requests, mimetypes, string, secrets, base64, hashlib, threading, time
-import media
+import models.disk as disk
 from urllib.parse import urlencode
 
 class SpotifyApiClient:
@@ -7,7 +7,6 @@ class SpotifyApiClient:
   TOKEN_URL = "https://accounts.spotify.com/api/token"
   AUTH_URL = "https://accounts.spotify.com/authorize"
   CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-  CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
   REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
   WANTED_SCOPES = "playlist-read-private user-library-read playlist-read-collaborative"
 
@@ -48,6 +47,10 @@ class SpotifyApiClient:
 
     auth_url = cls.AUTH_URL + "?" + urlencode(params)
     return auth_url
+
+  @classmethod
+  def search_for_track(cls, track_name: str, artist_name: str):
+    pass
 
   @classmethod
   def request_access_token(cls, auth_code: str):
@@ -173,7 +176,7 @@ class SpotifyApiClient:
   
   @staticmethod
   def download_cdn_track_cover(url: str, album_id: str):
-    cover = media.TrackCover(album_id=album_id)
+    cover = disk.TrackCover(album_id=album_id)
 
     # check if the cover is already downloaded
     path = cover.search_and_get_path()
