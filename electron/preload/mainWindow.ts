@@ -1,6 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { ElectronAPI } from "../../types/shared.js";
-import type { UserSettings } from "../../types/shared.js";
+import type { ElectronAPI, UserSettings } from "../../types/shared.js";
 
 let backendAuthKey: string = "";
 

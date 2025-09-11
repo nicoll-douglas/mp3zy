@@ -13,9 +13,7 @@ export default function OptionsGroup({
       <Ch.Heading as={"h3"} size={"md"} mb={"4"}>
         {heading}
       </Ch.Heading>
-      <Ch.Stack maxW={"lg"} gap="5">
-        {children}
-      </Ch.Stack>
+      <Ch.Stack gap="5">{children}</Ch.Stack>
     </Ch.Box>
   );
 }

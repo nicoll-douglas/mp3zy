@@ -20,7 +20,7 @@ export default function MetadataOptions() {
         </Ch.Fieldset.ErrorText>
         <Ch.Fieldset.Content>
           <Ch.For each={artistFields}>
-            {(field, index) => <ArtistField field={field} index={index} />}
+            {(field, index) => <ArtistField key={field.id} index={index} />}
           </Ch.For>
           <Ch.Button maxW={"fit"} onClick={handleAddArtist} variant={"subtle"}>
             Add <LuCirclePlus />
@@ -77,10 +77,6 @@ export default function MetadataOptions() {
       </Ch.Field.Root>
 
       <ReleaseDateFieldset />
-
-      <Ch.Button loading={form.formState.isSubmitting} type="submit">
-        Submit
-      </Ch.Button>
     </OptionsGroup>
   );
 }

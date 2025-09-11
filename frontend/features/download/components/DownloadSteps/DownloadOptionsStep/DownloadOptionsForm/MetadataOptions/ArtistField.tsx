@@ -4,17 +4,11 @@ import type { DownloadOptionsFormValues } from "../../../../../forms/downloadOpt
 import { useDownloadOptionsFormContext } from "../../../../../context/DownloadOptionsFormContext";
 import { LuCircleMinus } from "react-icons/lu";
 
-export default function ArtistField({
-  field,
-  index,
-}: {
-  field: FieldArrayWithId<DownloadOptionsFormValues, "artists", "id">;
-  index: number;
-}) {
+export default function ArtistField({ index }: { index: number }) {
   const { form, handleRemoveArtist } = useDownloadOptionsFormContext();
 
   return (
-    <Ch.Field.Root key={field.id} required={index === 0}>
+    <Ch.Field.Root required={index === 0}>
       <Ch.Field.Label>
         Artist {index + 1}
         <Ch.Show when={index === 0}>
