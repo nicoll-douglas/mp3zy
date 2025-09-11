@@ -1,4 +1,4 @@
-import getBackendAuthHeaders from "@/utils/getBackendAuthHeaders";
+import getBackendAuthHeaders from "@/services/getBackendAuthHeaders";
 import type { YtDlpAudioSearchResult } from "../types";
 
 export default async function ytDlpAudioSearch(

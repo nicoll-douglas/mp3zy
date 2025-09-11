@@ -1,5 +1,5 @@
 import type { DownloadOptionsFormValues } from "../forms/downloadOptions";
-import getBackendAuthHeaders from "@/utils/getBackendAuthHeaders";
+import getBackendAuthHeaders from "@/services/getBackendAuthHeaders";
 
 export default async function triggerDownload(
   audioUrl: string | null,

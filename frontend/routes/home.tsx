@@ -1,6 +1,6 @@
 import * as Ch from "@chakra-ui/react";
 import type { Route } from "./+types/home";
-import getBackendAuthHeaders from "@/utils/getBackendAuthHeaders";
+import getBackendAuthHeaders from "@/services/getBackendAuthHeaders";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: import.meta.env.VITE_APP_NAME }];
