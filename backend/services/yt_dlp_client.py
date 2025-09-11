@@ -16,38 +16,13 @@ class YtDlpClient:
       track_name=track_name,
       track_artists=[artist_name]
     )
-
-  def download_track(self, track_data):
-    artists = track_data["artists"]
-    track_name = track_data["track"]
-    codec = track_data["codec"]
-
-    track = disk.Track(
-      artist=artists[0], 
-      name=track_name,
-      codec=disk.Codec(codec)
-    )
-
-    path = track.search_and_get_path()
-    if path:
-      return path, False
-    
-    bitrate = track_data["bitrate"]
-    
-    output_template = track.get_output_template()
-    ydl_opts = self._get_dl_opts(output_template, codec, bitrate)
-
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-      link = track_data["download_url"]
-      ydl.download([link])
-    
-    return track.build_path(), True
-
-  def _get_dl_opts(self, output_template, codec, bitrate):
-    return {
+  
+  def download_track(self, url, task_id, codec, bitrate, progress_hook):
+    track = disk.Track(codec=disk.Codec(codec))
+    output_template = track.get_output_template(task_id)
+    ydl_opts = {
       "format": "bestaudio/best",
-      "quiet": True,
-      "no_warnings": True,
+      "progress_hooks": [progress_hook],
       "postprocessors": [{
         "key": "FFmpegExtractAudio",
         "preferredcodec": codec,
@@ -55,7 +30,12 @@ class YtDlpClient:
       }],
       "outtmpl": output_template
     }
-        
+    
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+      ydl.download([url])
+
+    return track
+            
   def order_entries(self, entries, track_name, track_artists: list, track_duration_s = None):
     def score(entry):
       video_title = entry.get("title", "").lower()

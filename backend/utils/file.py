@@ -14,3 +14,15 @@ class File:
   def save_path(cls):
     settings = cls.load_settings()
     return settings["savePath"]
+
+  @classmethod
+  def collections_parent_dir(cls):
+    return os.path.join(cls.save_path(), "collections")
+  
+  @classmethod
+  def collection_dir(cls, codec):
+    return os.path.join(cls.collections_parent_dir(), codec)
+  
+  @classmethod
+  def covers_dir(cls):
+    return os.path.join(cls.CACHE_DIR, "covers")
