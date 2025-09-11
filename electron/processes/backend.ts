@@ -2,7 +2,6 @@ import { app } from "electron";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import chokidar from "chokidar";
 import path from "path";
-import crypto from "crypto";
 
 const backendSrcFolder = path.join(__dirname, "../../../backend");
 let backendProcess: ChildProcessWithoutNullStreams | null = null;
@@ -17,7 +16,7 @@ function startBackend(authKey: string) {
   killBackend();
 
   const pyPath = path.join(__dirname, "../../../.venv/bin/python");
-  const script = path.join(backendSrcFolder, "server.py");
+  const script = path.join(backendSrcFolder, "app.py");
 
   backendProcess = spawn(pyPath, [script], {
     cwd: backendSrcFolder,

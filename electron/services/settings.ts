@@ -2,7 +2,7 @@ import { app } from "electron";
 import path from "path";
 import fs from "fs";
 import defaultSettings from "../config/defaultSettings.js";
-import type { UserSettings } from "../../types/shared.ts";
+import type { UserSettings } from "../../types/shared.js";
 
 function getSettingsPath() {
   const userDataPath = app.getPath("userData");

@@ -9,7 +9,7 @@ import {
   killBackend,
   watchBackend,
 } from "./processes/backend.js";
-import registerSettingsHandlers from "./ipc/settings.js";
+import { registerHandlers as registerSettingsIpcHandlers } from "./ipc/settings.js";
 import generateAuthKey from "./utils/generateAuthKey.js";
 
 const backendAuthKey = generateAuthKey();
@@ -20,7 +20,7 @@ app.whenReady().then(() => {
     watchBackend(backendAuthKey);
   }
   createMainWindow(backendAuthKey);
-  registerSettingsHandlers();
+  registerSettingsIpcHandlers();
 });
 
 app.on("will-quit", () => {
