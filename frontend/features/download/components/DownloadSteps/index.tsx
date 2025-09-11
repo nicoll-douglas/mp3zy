@@ -6,6 +6,7 @@ import {
   AudioSearchProvider,
 } from "../../context/AudioSearchContext";
 import SearchAudioStep from "./SearchAudioStep";
+import DownloadOptionsStep from "./DownloadOptionsStep";
 
 function DownloadStepsChild() {
   const [step, setStep] = useState(0);
@@ -29,9 +30,7 @@ function DownloadStepsChild() {
 
       <SearchAudioStep />
 
-      <Steps.Content index={1}>
-        {/* Download options step content */}
-      </Steps.Content>
+      <DownloadOptionsStep />
 
       <Steps.CompletedContent>All steps are complete!</Steps.CompletedContent>
 
