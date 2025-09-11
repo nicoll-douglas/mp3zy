@@ -2,9 +2,9 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import Header from "@/components/header/Header";
-import { Provider as ChProvider } from "@/components/chakra/provider";
-import { Box, Container } from "@chakra-ui/react";
+import Header from "@/components/Header";
+import { Provider as ChProvider } from "@/components/chakra-ui/provider";
+import * as Ch from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
@@ -35,7 +35,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <QueryClientProvider client={queryClient}>
           <ChProvider>
             <Header />
-            <Container py={"4"}>{children}</Container>
+            <Ch.Container py={"4"} as={"main"}>
+              <Ch.Stack gap={"4"}>{children}</Ch.Stack>
+            </Ch.Container>
             <ScrollRestoration />
             <Scripts />
           </ChProvider>

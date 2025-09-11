@@ -1,13 +1,13 @@
-import { Button, Heading, Stack, Text } from "@chakra-ui/react";
+import * as Ch from "@chakra-ui/react";
 import type { Route } from "./+types/home";
-import useBackend from "@/hooks/useBackend";
+import getBackendAuthHeaders from "@/utils/getBackendAuthHeaders";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: import.meta.env.VITE_APP_NAME }];
 }
 
 export default function Home() {
-  const { headers } = useBackend();
+  const headers = getBackendAuthHeaders();
 
   async function pingPython() {
     try {
@@ -22,11 +22,9 @@ export default function Home() {
   }
 
   return (
-    <main>
-      <Stack gap={"4"}>
-        <Heading size={"2xl"}>Home</Heading>
-      </Stack>
-      <Button onClick={pingPython}>Ping Backend</Button>
-    </main>
+    <>
+      <Ch.Heading size={"2xl"}>Home</Ch.Heading>
+      <Ch.Button onClick={pingPython}>Ping Backend</Ch.Button>
+    </>
   );
 }

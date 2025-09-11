@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import HeaderLink from "./HeaderLink";
 import { LuDownload, LuList, LuSettings } from "react-icons/lu";
 import { FaSpotify } from "react-icons/fa";
-import { ColorModeButton } from "../chakra/color-mode";
+import { ColorModeButton } from "../chakra-ui/color-mode";
 
 export default function Header() {
   return (
@@ -16,7 +16,7 @@ export default function Header() {
           <HeaderLink Icon={LuList} href="/downloads">
             Downloads
           </HeaderLink>
-          <HeaderLink Icon={LuDownload} href="/new-download">
+          <HeaderLink Icon={LuDownload} href="/download">
             New Download
           </HeaderLink>
           <HeaderLink Icon={FaSpotify} href="/spotify-sync">
