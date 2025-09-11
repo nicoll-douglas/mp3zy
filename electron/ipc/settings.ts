@@ -40,4 +40,4 @@ const targets = {
   restoreSettings: () => ipcRenderer.invoke("restore-settings"),
 };
 
-export { registerHandlers, targets };
+export { registerHandlers };
