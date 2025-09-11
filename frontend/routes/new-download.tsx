@@ -1,5 +1,5 @@
 import { Heading, Stack } from "@chakra-ui/react";
-import NewDownloadSteps from "@/components/new-download/NewDownloadSteps";
+import { DownloadSteps } from "@/features/download";
 
 export default function NewDownload() {
   return (
@@ -8,7 +8,7 @@ export default function NewDownload() {
         <Heading as={"h1"} size={"2xl"}>
           New Download
         </Heading>
-        <NewDownloadSteps />
+        <DownloadSteps />
       </Stack>
     </main>
   );

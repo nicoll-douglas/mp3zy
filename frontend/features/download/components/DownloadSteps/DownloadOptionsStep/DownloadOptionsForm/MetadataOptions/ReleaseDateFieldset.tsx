@@ -1,20 +1,12 @@
 import { Fieldset, Field, Show, Group } from "@chakra-ui/react";
-import { type Control, type FieldErrors } from "react-hook-form";
-import { type DownloadOptionsFormValues } from "../types";
-import ControlledNumberInput from "./ControlledNumberInput";
-import { controlRules } from "../validation";
+import { downloadOptionsControlRules as rules } from "../../../../../forms/downloadOptions";
+import ControlledNumberInput from "../shared/ControlledNumberInput";
+import { useDownloadOptionsFormContext } from "../../../../../context/DownloadOptionsFormContext";
 
-export default function ReleaseDateFieldset({
-  year,
-  month,
-  control,
-  errors,
-}: {
-  control: Control<DownloadOptionsFormValues, any, DownloadOptionsFormValues>;
-  year: string;
-  month: string;
-  errors: FieldErrors<DownloadOptionsFormValues>;
-}) {
+export default function ReleaseDateFieldset() {
+  const { showMonthField, showDayField, form } =
+    useDownloadOptionsFormContext();
+  const errors = form.formState.errors;
   let error;
 
   if (errors.year) {
@@ -34,31 +26,28 @@ export default function ReleaseDateFieldset({
           <Field.Root maxW={"fit"}>
             <Field.Label>Year</Field.Label>
             <ControlledNumberInput
-              control={control}
               name="year"
               placeholder="2001"
-              rules={controlRules["year"]}
+              rules={rules["year"]}
             />
           </Field.Root>
-          <Show when={!!year}>
+          <Show when={showMonthField}>
             <Field.Root maxW={"fit"}>
               <Field.Label>Month</Field.Label>
               <ControlledNumberInput
-                control={control}
                 name="month"
                 placeholder="3"
-                rules={controlRules["month"]}
+                rules={rules["month"]}
               />
             </Field.Root>
           </Show>
-          <Show when={!!year && !!month}>
+          <Show when={showDayField}>
             <Field.Root maxW={"fit"}>
               <Field.Label>Day</Field.Label>
               <ControlledNumberInput
-                control={control}
                 name="day"
                 placeholder="12"
-                rules={controlRules["day"]}
+                rules={rules["day"]}
               />
             </Field.Root>
           </Show>

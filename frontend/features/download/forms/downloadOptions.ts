@@ -1,4 +1,22 @@
-import type { DownloadOptionsControlRules } from "./types";
+import type { RegisterOptions } from "react-hook-form";
+
+interface DownloadOptionsFormValues {
+  artists: Array<{ value: string }>;
+  track: string;
+  album: string;
+  codec: "mp3" | "flac";
+  trackNumber: string;
+  discNumber: string;
+  bitrate: "128" | "192" | "320";
+  year: string;
+  month: string;
+  day: string;
+}
+
+type DownloadOptionsFieldControlRules = Omit<
+  RegisterOptions<DownloadOptionsFormValues, keyof DownloadOptionsFormValues>,
+  "setValueAs" | "disabled" | "valueAsNumber" | "valueAsDate"
+>;
 
 const isPositive = (v: string | { value: string }[], label: string) =>
   parseFloat(v as string) > 0 || `${label} must be greater than 0`;
@@ -6,8 +24,8 @@ const isPositive = (v: string | { value: string }[], label: string) =>
 const isInteger = (v: string | { value: string }[], label: string) =>
   /^[0-9]*$/.test(v as string) || `${label} must be an integer`;
 
-const controlRules: {
-  [key: string]: DownloadOptionsControlRules;
+const downloadOptionsControlRules: {
+  [key: string]: DownloadOptionsFieldControlRules;
 } = {
   trackNumber: {
     required: false,
@@ -96,4 +114,4 @@ const controlRules: {
   },
 };
 
-export { controlRules };
+export { downloadOptionsControlRules, type DownloadOptionsFormValues };

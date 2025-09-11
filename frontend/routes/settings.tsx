@@ -74,6 +74,7 @@ export default function Settings() {
               <Button
                 size={"xs"}
                 colorPalette={"red"}
+                marginTop={"2"}
                 onClick={() => restoreSettingsMutation.mutate()}
               >
                 Restore
