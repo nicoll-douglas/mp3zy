@@ -1,10 +1,10 @@
 import getBackendAuthHeaders from "@/services/getBackendAuthHeaders";
-import type { YtDlpAudioSearchResult } from "../types";
+import type { YtDlpAudioSearchResponse } from "../types";
 
 export default async function ytDlpAudioSearch(
   track: string,
   artist: string
-): Promise<YtDlpAudioSearchResult[]> {
+): Promise<YtDlpAudioSearchResponse> {
   const headers = getBackendAuthHeaders();
 
   const queryString = new URLSearchParams({ track, artist }).toString();

@@ -39,8 +39,15 @@ def ping():
 def audio_search():
   artist = request.args.get("artist")
   track = request.args.get("track")
-  results = YtDlpClient().query_youtube(artist, track)
-  return jsonify(results)
+
+  try:
+    status = "success"
+    results = YtDlpClient().query_youtube(artist, track)
+  except Exception as e:
+    status = "error"
+    results = []
+      
+  return jsonify({ "status": status, "results": results })
 
 @app.route("/download", methods=["POST"])
 @auth

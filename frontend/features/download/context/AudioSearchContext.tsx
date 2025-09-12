@@ -1,12 +1,13 @@
 import { createContext, useContext, type ReactNode } from "react";
 import useAudioSearch from "../hooks/useAudioSearch";
 import ytDlpAudioSearch from "../services/ytDlpAudioSearch";
-import type { YtDlpAudioSearchResult } from "../types";
+import type { YtDlpAudioSearchResult, YtDlpSearchStatus } from "../types";
 import type { SearchAudioFormValues } from "../forms/searchAudio";
 import type { UseFormReturn } from "react-hook-form";
 import type { RadioCardValueChangeDetails } from "@chakra-ui/react";
 
 type AudioSearchContextValue = {
+  searchStatus: YtDlpSearchStatus | null;
   searchResults: YtDlpAudioSearchResult[];
   audioUrlSelected: string | null;
   onAudioSelectionChange: (e: RadioCardValueChangeDetails) => void;
