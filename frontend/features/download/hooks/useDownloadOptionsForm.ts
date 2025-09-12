@@ -2,9 +2,11 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useEffect, useState } from "react";
 import type { DownloadOptionsFormValues } from "../forms/downloadOptions";
 import triggerDownload from "../services/triggerDownload";
+import type { TriggerDownloadStatus } from "../types";
 
 export default function useDownloadOptionsForm(audioUrl: string) {
-  const [taskId, setTaskId] = useState<string | null>(null);
+  const [downloadStatus, setDownloadStatus] =
+    useState<TriggerDownloadStatus | null>(null);
 
   const form = useForm<DownloadOptionsFormValues>({
     defaultValues: {
@@ -47,11 +49,11 @@ export default function useDownloadOptionsForm(audioUrl: string) {
 
   const onFormSubmit = form.handleSubmit(async (data) => {
     const result = await triggerDownload(audioUrl, data);
-    setTaskId(result.taskId);
+    setDownloadStatus(result.status);
   });
 
   return {
-    taskId,
+    downloadStatus,
     showBitrateField: codec === "mp3",
     showMonthField: !!year,
     showDayField: !!year && !!month,

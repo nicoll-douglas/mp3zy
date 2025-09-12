@@ -57,62 +57,59 @@ def extract_data(data: dict):
   }
   return fields
 
-def start_track_download(socket: SocketIO, data: dict):
-  task_id = create_task_id()
+def start_track_download(socket: SocketIO, data: dict):  
   data = extract_data(data)
+  conn = db.connect()
 
-  progress_hook = get_progress_hook(socket, task_id)
+  artist = models.db.Artist(conn)
+  artist_ids = artist.insert_many(data["artists"])
+  
+  mdata = models.db.Metadata(conn)
+  mdata_id = mdata.insert({
+    "track": data["track"],
+    "album": data["album"],
+    "release_date": data["release_date"],
+    "disc_number": data["disc_number"],
+    "track_number": data["track_number"]
+  })
+
+  mdata_artist = models.db.MetadataArtist(conn)
+  mdata_artist.insert_many(mdata_id, artist_ids)
+
+  dl = models.db.Download(conn)
+  dl.queue({
+    "bitrate": data["bitrate"],
+    "codec": data["codec"],
+    "url": data["download_url"],
+    "metadata_id": mdata_id,
+  })
+
+  conn.commit()
+
+  if dl.is_in_progress():
+    return { "status": "queued" }
 
   def thread_target():
-    conn = db.connect()
+    progress_hook = get_progress_hook(socket)
+    track = YtDlpClient().download_track(
+      url=data["download_url"],
+      artist=data["artists"][0],
+      name=data["track"],
+      codec=data["codec"],
+      bitrate=data["bitrate"],
+      progress_hook=progress_hook
+    )
+    # fetch details about track from spotify (emit status to socket)
+    # extract album id
+    # download cover art (emit status to socket)
+    # set file metadata here (emit status to socket)
+    # download complete (emit status to socket)
+  
+  try:
+    t = threading.Thread(target=thread_target, daemon=True)
+    t.start()
+  except Exception as e:
+    return { "status": "error" }
+  
+  return { "status": "downloading" }
 
-    artist = models.db.Artist(conn)
-    artist_ids = artist.insert_many(data["artists"])
-    
-    mdata = models.db.Metadata(conn)
-    mdata_id = mdata.insert({
-      "track": data["track"],
-      "album": data["album"],
-      "release_date": data["release_date"],
-      "disc_number": data["disc_number"],
-      "track_number": data["track_number"]
-    })
-
-    mdata_artist = models.db.MetadataArtist(conn)
-    mdata_artist.insert_many(mdata_id, artist_ids)
-
-    dl = models.db.Download(conn)
-    dl.queue({
-      "id": task_id,
-      "bitrate": data["bitrate"],
-      "codec": data["codec"],
-      "url": data["download_url"],
-      "metadata_id": mdata_id,
-    })
-
-    conn.commit()
-    
-    if not dl.is_in_progress():
-      track = YtDlpClient().download_track(
-        url=data["download_url"],
-        task_id=task_id,
-        codec=data["codec"],
-        bitrate=data["bitrate"],
-        progress_hook=progress_hook
-      )
-
-      # fetch details about track from spotify (emit status to socket)
-      # extract album id
-      # download cover art (emit status to socket)
-      # set file metadata here (emit status to socket)
-
-      # track.artist = data["artists"][0]
-      # track.name = data["track"]
-      # track.set_name(task_id)
-
-      # download complete (emit status to socket)
-
-  t = threading.Thread(target=thread_target, daemon=True)
-  t.start()
-
-  return task_id

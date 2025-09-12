@@ -2,9 +2,10 @@ import { createContext, useContext, type ReactNode } from "react";
 import useDownloadOptionsForm from "../hooks/useDownloadOptionsForm";
 import type { UseFormReturn, FieldArrayWithId } from "react-hook-form";
 import type { DownloadOptionsFormValues } from "../forms/downloadOptions";
+import type { TriggerDownloadStatus } from "../types";
 
 type DownloadOptionsFormContextValue = {
-  taskId: string | null;
+  downloadStatus: TriggerDownloadStatus | null;
   showBitrateField: boolean;
   showMonthField: boolean;
   showDayField: boolean;

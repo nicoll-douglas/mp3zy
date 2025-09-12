@@ -27,8 +27,8 @@ class Track:
     if self.codec:
       os.makedirs(self.get_collection_dir(), exist_ok=True)
   
-  def get_output_template(self, task_id) -> str:
-    template = f"{task_id}.%(ext)s"
+  def get_output_template(self) -> str:
+    template = f"{self.build_stem()}.%(ext)s"
     return os.path.join(self.get_collection_dir(), template)
 
   def build_stem(self):
@@ -41,10 +41,6 @@ class Track:
   def get_collection_dir(self):
     return File.collection_dir(self.codec.value)
 
-  def set_name(self, task_id):
-    download_path = os.path.join(self.get_collection_dir(), task_id + self.get_ext())
-    os.rename(download_path, self.build_path())
-  
   def build_path(self):
     return os.path.join(self.get_collection_dir(), self.build_stem() + self.get_ext())
 

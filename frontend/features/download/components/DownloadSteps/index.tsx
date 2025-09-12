@@ -51,7 +51,7 @@ export default function DownloadSteps() {
 
         <Ch.ButtonGroup size="sm" variant="outline">
           <Ch.Steps.PrevTrigger asChild>
-            <Ch.Button disabled={step === 2}>
+            <Ch.Button disabled={step === 2 || step === 0}>
               <LuChevronLeft />
               Prev
             </Ch.Button>

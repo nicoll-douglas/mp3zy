@@ -11,3 +11,9 @@ export interface YtDlpAudioSearchResponse {
   status: YtDlpSearchStatus;
   results: YtDlpAudioSearchResult[];
 }
+
+export type TriggerDownloadStatus = "error" | "queued" | "downloading";
+
+export interface TriggerDownloadResponse {
+  status: TriggerDownloadStatus;
+}

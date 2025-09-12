@@ -1,5 +1,5 @@
 CREATE TABLE downloads (
-  id TEXT PRIMARY KEY,           -- UUID or unique task ID
+  id INTEGER PRIMARY KEY,           -- UUID or unique task ID
   url TEXT NOT NULL,             -- Source URL
   codec TEXT NOT NULL,
   bitrate TEXT NOT NULL,

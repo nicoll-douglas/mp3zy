@@ -1,10 +1,11 @@
 import type { DownloadOptionsFormValues } from "../forms/downloadOptions";
 import getBackendAuthHeaders from "@/services/getBackendAuthHeaders";
+import type { TriggerDownloadResponse } from "../types";
 
 export default async function triggerDownload(
   audioUrl: string | null,
   data: DownloadOptionsFormValues
-): Promise<{ taskId: string }> {
+): Promise<TriggerDownloadResponse> {
   const headers = getBackendAuthHeaders();
   const requestUrl = `${import.meta.env.VITE_BACKEND_URL}/download`;
 

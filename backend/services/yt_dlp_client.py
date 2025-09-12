@@ -1,5 +1,5 @@
 from __future__ import annotations
-import models.disk as disk
+import models
 import yt_dlp
 
 class YtDlpClient:
@@ -11,15 +11,19 @@ class YtDlpClient:
       "extract_flat": True
     }).extract_info(search_query, download=False)
 
-    return self.order_entries(
+    return self._order_entries(
       entries=info["entries"] or [],
       track_name=track_name,
       track_artists=[artist_name]
     )
   
-  def download_track(self, url, task_id, codec, bitrate, progress_hook):
-    track = disk.Track(codec=disk.Codec(codec))
-    output_template = track.get_output_template(task_id)
+  def download_track(self, url, artist, name, codec, bitrate, progress_hook):
+    track = models.disk.Track(
+      codec=models.disk.Codec(codec),
+      artist=artist,
+      name=name
+    )
+    output_template = track.get_output_template()
     ydl_opts = {
       "format": "bestaudio/best",
       "progress_hooks": [progress_hook],
@@ -36,7 +40,7 @@ class YtDlpClient:
 
     return track
             
-  def order_entries(self, entries, track_name, track_artists: list, track_duration_s = None):
+  def _order_entries(self, entries, track_name, track_artists: list, track_duration_s = None):
     def score(entry):
       video_title = entry.get("title", "").lower()
       video_channel = entry.get("channel", "").lower()

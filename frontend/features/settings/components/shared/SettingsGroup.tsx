@@ -11,9 +11,7 @@ export default function SettingsGroup({
   return (
     <Ch.Card.Root size={"sm"}>
       <Ch.Card.Header>
-        <Ch.Heading as={"h2"} size={"lg"}>
-          {heading}
-        </Ch.Heading>
+        <Ch.Card.Title>{heading}</Ch.Card.Title>
       </Ch.Card.Header>
       <Ch.Card.Body>
         <Ch.Stack maxW={"lg"} gap="5">
