@@ -1,10 +1,10 @@
-CREATE TABLE downloads (
+CREATE TABLE IF NOT EXISTS downloads (
   id INTEGER PRIMARY KEY,           -- UUID or unique task ID
   url TEXT NOT NULL,             -- Source URL
   codec TEXT NOT NULL,
   bitrate TEXT NOT NULL,
-  metadata_id INTEGER NOT NULL,  -- Metadata ID           
-  status TEXT NOT NULL,          -- queued | downloading | postprocessing | completed | failed
+  metadata_id INTEGER,  -- Metadata ID           
+  status TEXT NOT NULL,          -- queued | downloading | completed | failed
   
   error TEXT,                    -- Error message if failed
   
@@ -18,15 +18,15 @@ CREATE TABLE downloads (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   completed_at TIMESTAMP,        -- Filled when status = completed
 
-  FOREIGN KEY (metadata_id) REFERENCES metadata(id)
+  FOREIGN KEY (metadata_id) REFERENCES metadata(id) ON DELETE SET NULL
 );
 
-CREATE TABLE artists (
+CREATE TABLE IF NOT EXISTS artists (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL
 );
 
-CREATE TABLE metadata (
+CREATE TABLE IF NOT EXISTS metadata (
   id INTEGER PRIMARY KEY,
   track TEXT NOT NULL,
   album TEXT,
@@ -35,10 +35,10 @@ CREATE TABLE metadata (
   release_date TEXT
 );
 
-CREATE TABLE metadata_artists (
+CREATE TABLE IF NOT EXISTS metadata_artists (
   metadata_id INTEGER NOT NULL,
   artist_id INTEGER NOT NULL,
-  FOREIGN KEY (metadata_id) REFERENCES metadata(id),
+  FOREIGN KEY (metadata_id) REFERENCES metadata(id) ON DELETE CASCADE,
   FOREIGN KEY (artist_id) REFERENCES artists(id),
   PRIMARY KEY (metadata_id, artist_id)
 );

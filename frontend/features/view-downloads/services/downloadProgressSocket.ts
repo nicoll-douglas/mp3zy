@@ -1,16 +1,21 @@
 import backendSocket from "@/services/backendSocket";
 
 export default function downloadProgressSocket(
-  taskId: string,
   onProgress?: (...args: any[]) => void,
   onSubscribed?: (...args: any[]) => void
 ) {
   const socket = backendSocket();
 
+  let socketId: string | undefined;
+
   socket.on("connect", () => {
-    console.log("Connected to backend via ws://");
-    console.log("Socket ID:", socket.id);
-    socket.emit("subscribe", { task_id: taskId });
+    socketId = socket.id;
+    console.log("Socket connected, ID:", socketId);
+    socket.emit("subscribe", { room_id: "download" });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected, ID:", socketId);
   });
 
   if (onSubscribed) {

@@ -6,3 +6,9 @@ class Metadata(Model):
   
   def __init__(self, conn = db.connect()):
     super().__init__(conn)
+  
+  def delete(self, id):
+    super().delete({ "id": id })
+
+  def select(self, id):
+    return super().select(where={ "id": id })

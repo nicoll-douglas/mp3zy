@@ -1,13 +1,14 @@
 import type { RegisterOptions } from "react-hook-form";
+import type { Codec, Bitrate } from "@/types";
 
 interface DownloadOptionsFormValues {
   artists: Array<{ value: string }>;
   track: string;
   album: string;
-  codec: "mp3" | "flac";
+  codec: Codec;
   trackNumber: string;
   discNumber: string;
-  bitrate: "128" | "192" | "320";
+  bitrate: Bitrate;
   year: string;
   month: string;
   day: string;

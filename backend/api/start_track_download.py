@@ -1,30 +1,40 @@
 from __future__ import annotations
-from utils import create_task_id
+from utils import format_eta, format_download_speed, get_download_progress, get_track_string
 from flask_socketio import SocketIO
 from services import YtDlpClient
 import threading
 import db, models
 
-def get_progress_hook(socket: SocketIO, task_id):
+def get_progress_hook(socket: SocketIO, dl_id, track_data: dict):
   def hook(d: dict):
-    dl = models.db.Download()
-    dl.update_progress(task_id, {
-      "downloaded_bytes": d.get("downloaded_bytes"),
-      "total_bytes": d.get("total_bytes"),
-      "eta": d.get("total_bytes"),
-      "speed": d.get("speed"),
-      "elapsed": d.get("elapsed"),
+    conn = db.connect()
+    dl = models.db.Download(conn)
+
+    downloaded_bytes = d.get("downloaded_bytes")
+    total_bytes = d.get("total_bytes")
+    eta = d.get("eta")
+    speed = d.get("speed")
+    elapsed = d.get("elapsed")
+    
+    dl.update_progress(dl_id, {
+      "downloaded_bytes": downloaded_bytes,
+      "total_bytes": total_bytes,
+      "eta": eta,
+      "speed": speed,
+      "elapsed": elapsed,
     })
+    conn.commit()
+    conn.close()
 
     socket.emit("progress", {
-      "taskId": task_id,
-      "status": d.get("status"),
-      "downloaded_bytes": d.get("downloaded_bytes"),
-      "total_bytes": d.get("total_bytes"),
-      "eta": d.get("total_bytes"),
-      "speed": d.get("speed"),
-      "elapsed": d.get("elapsed"),
-    })
+      "phase": "downloading",
+      "progress": get_download_progress(downloaded_bytes, total_bytes),
+      "eta": format_eta(eta),
+      "speed": format_download_speed(speed),
+      "trackStr": get_track_string(track_data["artists"], track_data["track"]),
+      "codec": track_data["codec"],
+      "bitrate": track_data["bitrate"]
+    }, to="download")
 
   return hook
 
@@ -63,6 +73,7 @@ def start_track_download(socket: SocketIO, data: dict):
 
   artist = models.db.Artist(conn)
   artist_ids = artist.insert_many(data["artists"])
+  conn.commit()
   
   mdata = models.db.Metadata(conn)
   mdata_id = mdata.insert({
@@ -72,25 +83,31 @@ def start_track_download(socket: SocketIO, data: dict):
     "disc_number": data["disc_number"],
     "track_number": data["track_number"]
   })
+  conn.commit()
 
   mdata_artist = models.db.MetadataArtist(conn)
   mdata_artist.insert_many(mdata_id, artist_ids)
+  conn.commit()
 
   dl = models.db.Download(conn)
-  dl.queue({
+  dl_id = dl.queue({
     "bitrate": data["bitrate"],
     "codec": data["codec"],
     "url": data["download_url"],
     "metadata_id": mdata_id,
   })
-
   conn.commit()
 
   if dl.is_in_progress():
     return { "status": "queued" }
 
   def thread_target():
-    progress_hook = get_progress_hook(socket)
+    progress_hook = get_progress_hook(socket, dl_id, {
+      "track": data["track"],
+      "artists": data["artists"],
+      "codec": data["codec"],
+      "bitrate": data["bitrate"]
+    })
     track = YtDlpClient().download_track(
       url=data["download_url"],
       artist=data["artists"][0],
@@ -99,11 +116,17 @@ def start_track_download(socket: SocketIO, data: dict):
       bitrate=data["bitrate"],
       progress_hook=progress_hook
     )
+
     # fetch details about track from spotify (emit status to socket)
     # extract album id
     # download cover art (emit status to socket)
-    # set file metadata here (emit status to socket)
-    # download complete (emit status to socket)
+    # set file metadata here (emit updating_metadata to socket)
+    
+    dl.set_completed(dl_id)
+    conn.commit()
+    conn.close()
+
+    socket.emit("complete", to="download")
   
   try:
     t = threading.Thread(target=thread_target, daemon=True)

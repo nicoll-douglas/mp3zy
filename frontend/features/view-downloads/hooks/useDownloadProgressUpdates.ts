@@ -1,26 +1,38 @@
 import { useState, useEffect } from "react";
 import downloadProgressSocket from "../services/downloadProgressSocket";
+import type { DownloadProgressUpdate } from "../types";
 
-export default function useDownloadProgressUpdates(taskId: string | null) {
-  const [progress, setProgress] = useState(null);
-
-  const onProgress = (data: any) => {
-    if (data.taskId === taskId) {
-      setProgress(data);
-    }
-  };
-
-  const onSubscribed = () => console.log("Subscribed to task ID:", taskId);
+export default function useDownloadProgressUpdates(
+  connect: boolean,
+  onComplete: (...args: any[]) => void
+) {
+  const [progress, setProgress] = useState<DownloadProgressUpdate | null>(null);
+  const [recievingUpdates, setRecievingUpdtaes] = useState(false);
 
   useEffect(() => {
-    if (!taskId) return;
+    setRecievingUpdtaes(!!progress);
+  }, [progress]);
 
-    const socket = downloadProgressSocket(taskId, onProgress, onSubscribed);
+  const onProgress = (data: DownloadProgressUpdate) => {
+    setProgress(data);
+  };
+
+  const onSubscribed = () => console.log("Subscribed to room 'download'.");
+
+  useEffect(() => {
+    if (!connect) return;
+
+    const socket = downloadProgressSocket(onProgress, onSubscribed);
+
+    socket.on("complete", () => {
+      onComplete();
+      setProgress(null);
+    });
 
     return () => {
       socket.disconnect();
     };
-  }, [taskId]);
+  }, [connect]);
 
-  return progress;
+  return { progress, recievingUpdates };
 }

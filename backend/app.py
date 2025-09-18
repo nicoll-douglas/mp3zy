@@ -1,9 +1,11 @@
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room
 from flask import Flask, request, jsonify
-import os, threading
+import os
 from services import YtDlpClient
-from api import start_track_download
+import db, api
+
+db.setup()
 
 app = Flask(os.getenv("VITE_APP_NAME") + " Backend")
 
@@ -52,8 +54,15 @@ def audio_search():
 @auth
 def download():
   data = request.get_json()
-  result = start_track_download(socketio, data)
+  result = api.start_track_download(socketio, data)
   return jsonify(result)
+
+@app.route("/downloads", methods=["GET"])
+@auth
+def downloads():
+  status = request.args.get("status")
+  data = api.get_downloads(status)
+  return jsonify(data)
 
 @socketio.on("subscribe")
 def subscribe(data):
