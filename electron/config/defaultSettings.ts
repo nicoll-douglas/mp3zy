@@ -2,6 +2,11 @@ import fs from "fs";
 import { app } from "electron";
 import type { UserSettings } from "../../types/shared.ts";
 
+/**
+ * Produces the default settings configuration for the application.
+ *
+ * @returns The default configuration object.
+ */
 function defaultSettings() {
   let savePath = app.getPath("music");
 

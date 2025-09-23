@@ -3,6 +3,7 @@ import type { ElectronAPI, UserSettings } from "../../types/shared.js";
 
 let backendAuthKey: string = "";
 
+// The API object to be exposed on the window object in the renderer process
 const electronAPI: ElectronAPI = {
   getSettings: () => ipcRenderer.invoke("get-settings"),
   setSettings: (updatedSettings: Partial<UserSettings>) =>

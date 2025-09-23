@@ -1,10 +1,13 @@
 import { BrowserWindow } from "electron";
 import authWindowConfig from "../config/authWindow";
 
-async function createAuthWindow() {
+/**
+ * Create the authentication window using the respective configuration.
+ */
+function createAuthWindow() {
   const authWindow = new BrowserWindow(authWindowConfig);
 
-  authWindow.webContents.on("will-redirect", (event, url) => {
+  authWindow.webContents.on("will-redirect", (_, url) => {
     if (url.startsWith("")) {
       const searchParams = new URL(url).searchParams;
       const code = searchParams.get("code");

@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { app, BrowserWindow } from "electron";
-
 import { createMainWindow } from "./windows/mainWindow.js";
 import {
   startBackend,
@@ -16,9 +15,11 @@ const backendAuthKey = generateAuthKey();
 
 app.whenReady().then(() => {
   startBackend(backendAuthKey);
+
   if (process.env.APP_ENV === "development") {
     watchBackend(backendAuthKey);
   }
+
   createMainWindow(backendAuthKey);
   registerSettingsIpcHandlers();
 });

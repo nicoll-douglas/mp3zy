@@ -2,6 +2,11 @@ import { BrowserWindow } from "electron";
 import mainWindowConfig from "../config/mainWindow.js";
 import path from "path";
 
+/**
+ * Creates the main application window with the respective configuration.
+ *
+ * @param backendAuthKey The backend authentication key that the renderer will receive.
+ */
 function createMainWindow(backendAuthKey: string) {
   const mainWindow = new BrowserWindow(mainWindowConfig);
 

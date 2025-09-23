@@ -1,4 +1,4 @@
-import { ipcMain, ipcRenderer, dialog } from "electron";
+import { ipcMain, dialog } from "electron";
 import {
   loadSettings,
   updateSettings,
@@ -6,6 +6,9 @@ import {
 } from "../services/settings.js";
 import type { UserSettings } from "../../types/shared.js";
 
+/**
+ * Registers the settings-related IPC handlers for the main process.
+ */
 function registerHandlers() {
   ipcMain.handle("get-settings", async () => {
     return loadSettings();
@@ -31,13 +34,5 @@ function registerHandlers() {
     return restoreSettings();
   });
 }
-
-const targets = {
-  getSettings: () => ipcRenderer.invoke("get-settings"),
-  setSettings: (updatedSettings: Partial<UserSettings>) =>
-    ipcRenderer.invoke("set-settings", updatedSettings),
-  pickSaveDirectory: () => ipcRenderer.invoke("pick-save-directory"),
-  restoreSettings: () => ipcRenderer.invoke("restore-settings"),
-};
 
 export { registerHandlers };
