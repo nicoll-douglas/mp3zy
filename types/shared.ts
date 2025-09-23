@@ -3,9 +3,9 @@ export interface UserSettings {
 }
 
 export interface ElectronAPI {
-  getSettings: () => Promise<UserSettings>;
-  setSettings: (updatedSettings: Partial<UserSettings>) => Promise<void>;
+  getSettings: () => Promise<UserSettings | null>;
+  setSettings: (updatedSettings: Partial<UserSettings>) => Promise<boolean>;
   pickSaveDirectory: () => Promise<string | null>;
-  restoreSettings: () => Promise<void>;
+  restoreSettings: () => Promise<boolean>;
   getBackendAuthKey: () => string;
 }

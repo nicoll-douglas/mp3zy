@@ -7,7 +7,7 @@ import {
 import type { UserSettings } from "../../types/shared.js";
 
 /**
- * Registers the settings-related IPC handlers for the main process.
+ * Registers the settings-related IPC handlers.
  */
 function registerHandlers() {
   ipcMain.handle("get-settings", async () => {

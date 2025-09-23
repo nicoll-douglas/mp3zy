@@ -51,7 +51,7 @@ function restoreSettings(): boolean {
 /**
  * Retrieves the application's settings configuration object, or creates and returns if it doesn't exist yet.
  *
- * @returns The settings configuration object.
+ * @returns The settings configuration object or `null` if the file couldn't be read.
  */
 function loadSettings(): UserSettings | null {
   const settingsPath = getSettingsPath();
@@ -84,6 +84,7 @@ function updateSettings(updatedSettings: Partial<UserSettings>): boolean {
 
   if (!currentSettings) {
     logger.warn("Failed to update settings.");
+
     return false;
   }
 

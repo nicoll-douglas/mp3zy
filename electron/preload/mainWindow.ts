@@ -5,11 +5,11 @@ let backendAuthKey: string = "";
 
 // The API object to be exposed on the window object in the renderer process
 const electronAPI: ElectronAPI = {
-  getSettings: () => ipcRenderer.invoke("get-settings"),
-  setSettings: (updatedSettings: Partial<UserSettings>) =>
+  getSettings: async () => ipcRenderer.invoke("get-settings"),
+  setSettings: async (updatedSettings: Partial<UserSettings>) =>
     ipcRenderer.invoke("set-settings", updatedSettings),
-  pickSaveDirectory: () => ipcRenderer.invoke("pick-save-directory"),
-  restoreSettings: () => ipcRenderer.invoke("restore-settings"),
+  pickSaveDirectory: async () => ipcRenderer.invoke("pick-save-directory"),
+  restoreSettings: async () => ipcRenderer.invoke("restore-settings"),
   getBackendAuthKey: () => backendAuthKey,
 };
 
