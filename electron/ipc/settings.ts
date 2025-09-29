@@ -15,7 +15,7 @@ function registerHandlers() {
   });
 
   ipcMain.handle(
-    "set-settings",
+    "update-settings",
     async (_event, settings: Partial<UserSettings>) => {
       return updateSettings(settings);
     }

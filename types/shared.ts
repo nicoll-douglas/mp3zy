@@ -4,7 +4,7 @@ export interface UserSettings {
 
 export interface ElectronAPI {
   getSettings: () => Promise<UserSettings | null>;
-  setSettings: (updatedSettings: Partial<UserSettings>) => Promise<boolean>;
+  updateSettings: (updatedSettings: Partial<UserSettings>) => Promise<boolean>;
   pickSaveDirectory: () => Promise<string | null>;
   restoreSettings: () => Promise<boolean>;
   getBackendAuthKey: () => string;
