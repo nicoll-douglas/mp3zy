@@ -73,7 +73,7 @@ class TrackReleaseDate(UserDict):
       return False
         
     return True
-  # END _validate_is_object
+  # END _validate_object
 
 
   def _validate_year(self, year) -> bool:

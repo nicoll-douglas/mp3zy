@@ -15,3 +15,6 @@ class TrackBitrate(Enum):
     message = None if has_value else f"`{field_name}` is invalid."
 
     return has_value, message
+  # END validate
+
+# END class TrackBitrate
