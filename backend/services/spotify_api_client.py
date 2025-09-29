@@ -10,50 +10,64 @@ class SpotifyApiClient:
   REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
   WANTED_SCOPES = "playlist-read-private user-library-read playlist-read-collaborative"
 
-  auth_event = threading.Event()
-  user_profile = None
   _code_verifier = None
-  _access_token = None
-  _refresh_token = None
-  _access_token_duration = None
+
+  access_token = None
+  refresh_token = None
+  access_token_duration = None
+
 
   @classmethod
-  def _get_code_challenge(cls):
-    # create code verifier according to PKCE standard
+  def _get_code_challenge(cls) -> str:
+    """
+    Generate a code challenge for the PKCE OAuth flow and saves the code verifier.
+
+    Returns:
+      str: The code challenge.
+    """
+
+    # create code verifier according to PKCE standard and save it
     possible = string.ascii_letters + string.digits + "_.-~"
     cls._code_verifier = ''.join(secrets.choice(possible) for _ in range(64))
 
-    # hash the code verifier use sha256
+    # hash the code verifier using sha256
     digest = hashlib.sha256(cls._code_verifier.encode("ascii")).digest()
 
     # calculate base64 representation of the digest (code challenge)
     base64url = base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
 
     return base64url
+  # END _get_code_challenge
+
   
   @classmethod
-  def build_auth_url(cls):
-    code_challenge = cls._get_code_challenge()
+  def build_auth_url(cls) -> str:
+    """
+    Build the Spotify authorization URL for the PKCE OAuth flow.
 
-    # query parameters for the auth_url
+    Returns:
+      str: The authorization URL.
+    """
+    
     params = {
       "client_id": cls.CLIENT_ID,
       "response_type": "code",
       "redirect_uri": cls.REDIRECT_URI,
       "scope": cls.WANTED_SCOPES,
       "code_challenge_method": "S256",
-      "code_challenge": code_challenge
+      "code_challenge": cls._get_code_challenge()
     }
 
-    auth_url = cls.AUTH_URL + "?" + urlencode(params)
-    return auth_url
+    return cls.AUTH_URL + "?" + urlencode(params)
+  # END build_auth_url
 
-  @classmethod
-  def search_for_track(cls, track_name: str, artist_name: str):
-    pass
 
   @classmethod
   def request_access_token(cls, auth_code: str):
+    """
+    Request access and refresh tokens from Spotify using the provided authorization code and save them.
+    """
+    
     # data to send as url encoded
     data = {
       "grant_type": "authorization_code",
@@ -68,13 +82,20 @@ class SpotifyApiClient:
     r.raise_for_status()
     body = r.json()
 
-    # store tokens
-    cls._access_token = body["access_token"]
-    cls._refresh_token = body["refresh_token"]
-    cls._access_token_duration = body["expires_in"]
+    cls.access_token = body["access_token"]
+    cls.access_token_duration = body["expires_in"]
+
+    if body.get("refresh_token") is not None:
+      cls.refresh_token = body["refresh_token"]
+    # END request_access_token
+
 
   @classmethod
   def refresh_access_token(cls):
+    """
+    Refresh the access token using the saved refresh token and save the new access token.
+    """
+    
     data = {
       "grant_type": "refresh_token",
       "refresh_token": cls._refresh_token,
@@ -85,28 +106,30 @@ class SpotifyApiClient:
     r.raise_for_status()
     body = r.json()
 
-    cls._access_token = body["access_token"]
-    cls._access_token_duration = body["expires_in"]
+    cls.access_token = body["access_token"]
+    cls.access_token_duration = body["expires_in"]
 
-    if "refresh_token" in body:
-      cls._refresh_token = body["refresh_token"]
+    if body.get("refresh_token") is not None:
+      cls.refresh_token = body["refresh_token"]
+    # END refresh_access_token
+
 
   @classmethod 
-  def auto_refresh_access_token(cls, initial_refresh = False):
-    def refresh():
-      print("Refreshing access token...")
-      cls.refresh_access_token()
-      print("✅ Successfully refreshed access token.")
+  def start_access_token_refreshing(cls, initial_refresh = False):
+    def thread_target():
+      if initial_refresh:
+        cls.refresh_access_token()
+
+      while True:
+        next_refresh_s = 0.9 * cls._access_token_duration
+        time.sleep(next_refresh_s)
+        cls.refresh_access_token()
+    # END thread_target
     
-    if initial_refresh:
-      refresh()
-      
-    while True:
-      next_refresh_s = 0.9 * cls._access_token_duration
-      next_refresh_m = round(next_refresh_s / 60)
-      print(f"{next_refresh_m} minutes until next refresh.")
-      time.sleep(next_refresh_s)
-      refresh()
+    thread = threading.Thread(target=thread_target, daemon=True)
+    thread.start()
+    return thread
+  # END start_access_token_refreshing
 
   @classmethod
   def fetch_user_profile(cls):
