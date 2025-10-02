@@ -1,44 +1,34 @@
-from collections import UserDict
-from .DownloadStatus import DownloadStatus
-from .ArtistNamesMetadata import ArtistNamesMetadata
-from .TrackCodec import TrackCodec
-from .TrackBitrate import TrackBitrate
+from .download_status import DownloadStatus
+from .track_artist_names import TrackArtistNames
+from .track_codec import TrackCodec
+from .track_bitrate import TrackBitrate
 
-class DownloadUpdate(UserDict):
-  def __init__(
-    self,
-    download_id: int,
-    status: DownloadStatus,
-    downloaded_bytes: int,
-    total_bytes: int,
-    speed: int | float,
-    artist_names: ArtistNamesMetadata,
-    track_name: str,
-    codec: TrackCodec,
-    bitrate: TrackBitrate,
-    url: str,
-    created_at: str,
-    completed_at: str | None = None,
-    failed_at: str | None = None,
-    eta: int | float | None = None,
-    old_status: DownloadStatus | None = None,
-  ):
-    super.__init__()
-    self["download_id"] = download_id
-    self["status"] = status.value
-    self["downloaded_bytes"] = downloaded_bytes
-    self["total_bytes"] = total_bytes
-    self["speed"] = speed
-    self["artist_names"] = artist_names.data
-    self["track_name"] = track_name
-    self["codec"] = codec.value
-    self["bitrate"] = bitrate.value
-    self["url"] = url
-    self["created_at"] = created_at
-    self["completed_at"] = completed_at
-    self["failed_at"] = failed_at
-    self["eta"] = eta
-    self["old_status"] = None if old_status is None else old_status.value
-  # END __init__
+class DownloadUpdate:
+  download_id: int
+  status: DownloadStatus
+  artist_names: TrackArtistNames
+  track_name: str
+  codec: TrackCodec
+  bitrate: TrackBitrate
+  url: str
+  created_at: str
+  total_bytes: int | None
+  speed: int | float | None
+  downloaded_bytes: int | None
+  completed_at: str | None
+  failed_at: str | None
+  eta: int | float | None
+  old_status: DownloadStatus | None
+
+  def get_serializable(self):
+    return {
+      **self.__dict__,
+      "status": self.status.value,
+      "artist_names": self.artist_names.data,
+      "codec": self.codec.value,
+      "bitrate": self.bitrate.value,
+      "old_status": None if self.old_status is None else self.old_status.value
+    }
+  # END get_serializable
 
 # END class DownloadUpdate

@@ -1,4 +1,4 @@
-from .artist_names_metadata import ArtistNamesMetadata
+from .track_artist_names import TrackArtistNames
 from .download_search_result import DownloadSearchResult
 from .download_status import DownloadStatus
 from .download_update import DownloadUpdate
