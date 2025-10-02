@@ -1,8 +1,14 @@
 import sqlite3, os
 
-PATH = os.path.join(os.getenv("DATA_DIR"), "db.sqlite")
+PATH = os.path.join(os.getenv("USER_DATA_DIR"), "db.sqlite")
 
-def connect(row_factory = sqlite3.Row):
-  conn = sqlite3.connect(PATH, check_same_thread=False)
-  conn.row_factory = row_factory
+def connect() -> sqlite3.Connection:
+  """Establishes a connection to the application's SQLite database.
+
+  Returns:
+    sqlite3.Connection: The database connection.
+  """
+  conn = sqlite3.connect(PATH)
+  conn.row_factory = sqlite3.Row
   return conn
+# END connect

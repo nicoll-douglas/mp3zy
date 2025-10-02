@@ -1,23 +1,18 @@
 CREATE TABLE IF NOT EXISTS downloads (
-  id INTEGER PRIMARY KEY,           -- UUID or unique task ID
-  url TEXT NOT NULL,             -- Source URL
+  id INTEGER PRIMARY KEY,
+  url TEXT NOT NULL,
   codec TEXT NOT NULL,
-  bitrate TEXT NOT NULL,
-  metadata_id INTEGER,  -- Metadata ID           
-  status TEXT NOT NULL,          -- queued | downloading | completed | failed
-  
-  error TEXT,                    -- Error message if failed
-  
-  downloaded_bytes INTEGER,      -- Progress so far
-  total_bytes INTEGER,           -- Final size if known
-  speed INTEGER,                 -- Bytes per second
-  eta INTEGER,                   -- Seconds remaining
-  elapsed REAL,                  -- Seconds since start
-  
+  bitrate INTEGER NOT NULL,
+  metadata_id INTEGER,
+  status TEXT NOT NULL,
+  downloaded_bytes INTEGER,
+  total_bytes INTEGER,
+  speed INTEGER,
+  eta INTEGER,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  completed_at TIMESTAMP,        -- Filled when status = completed
-
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  failed_at TIMESTAMP,
+  completed_at TIMESTAMP,
   FOREIGN KEY (metadata_id) REFERENCES metadata(id) ON DELETE SET NULL
 );
 
@@ -28,8 +23,8 @@ CREATE TABLE IF NOT EXISTS artists (
 
 CREATE TABLE IF NOT EXISTS metadata (
   id INTEGER PRIMARY KEY,
-  track TEXT NOT NULL,
-  album TEXT,
+  track_name TEXT NOT NULL,
+  album_name TEXT,
   track_number INTEGER,
   disc_number INTEGER,
   release_date TEXT
@@ -39,6 +34,6 @@ CREATE TABLE IF NOT EXISTS metadata_artists (
   metadata_id INTEGER NOT NULL,
   artist_id INTEGER NOT NULL,
   FOREIGN KEY (metadata_id) REFERENCES metadata(id) ON DELETE CASCADE,
-  FOREIGN KEY (artist_id) REFERENCES artists(id),
+  FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE CASCADE,
   PRIMARY KEY (metadata_id, artist_id)
 );
