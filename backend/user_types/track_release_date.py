@@ -1,34 +1,36 @@
-from collections import UserDict
 from typing import Any, cast
 
-class TrackReleaseDate(UserDict):
-  field_name: str
-  raw_data: Any
+class TrackReleaseDate:
+  _field_name: str
+  _raw_data: Any
   failed_field: str | None
   validation_passed: bool
   validation_message: str | None
+  year: int
+  month: int | None
+  day: int | None
 
 
-  def __init__(self, field_name, data):
-    super.__init__()
-    self.field_name = field_name
-    self.raw_data = data
+  def __init__(self, field_name: str, data: Any):
+    self._field_name = field_name
+    self._raw_data = data
 
     if not self._validate_object():
       return
     
-    raw_data = cast(dict, self.raw_data)
+    raw_data = cast(dict, self._raw_data)
     year = raw_data.get("year")
 
     if not self._validate_year(year):
       return
       
+    year = cast(int, year)
     month = raw_data.get("month")
 
     if month is None:
-      self["year"] = year
-      self["month"] = None
-      self["day"] = None
+      self.year = year
+      self.month = None
+      self.day = None
       self.failed_field = None
       self.validation_message = None
       self.validation_passed = True
@@ -36,13 +38,14 @@ class TrackReleaseDate(UserDict):
     
     if not self._validate_month(month):
       return
-  
+
+    month = cast(int, month)
     day = raw_data.get("day")
 
     if day is None:
-      self["year"] = year
-      self["month"] = month
-      self["day"] = None
+      self.year = year
+      self.month = month
+      self.day = None
       self.failed_field = None
       self.validation_message = None
       self.validation_passed = True
@@ -51,23 +54,26 @@ class TrackReleaseDate(UserDict):
     if not self._validate_day(day):
       return
     
-    self["year"] = year
-    self["month"] = month
-    self["day"] = day
+    day = cast(int, day)
+    
+    self.year = year
+    self.month = month
+    self.day = day
     self.failed_field = None
     self.validation_message = None
     self.validation_passed = True
   # END __init__
 
+
   def _validate_object(self) -> bool:
-    if self.raw_data is None:
-      self.failed_field = self.field_name
+    if self._raw_data is None:
+      self.failed_field = self._field_name
       self.validation_message = f"`{self.failed_field}` is required."
       self.validation_passed = False
       return False
 
-    if not isinstance(self.raw_data, dict):
-      self.failed_field = self.field_name
+    if not isinstance(self._raw_data, dict):
+      self.failed_field = self._field_name
       self.validation_message = f"`{self.failed_field}` must be an object."
       self.validation_passed = False
       return False
@@ -77,7 +83,7 @@ class TrackReleaseDate(UserDict):
 
 
   def _validate_year(self, year) -> bool:
-    field = f"{self.field_name}.year"
+    field = f"{self._field_name}.year"
     
     if year is None:
       self.failed_field = field
@@ -102,13 +108,13 @@ class TrackReleaseDate(UserDict):
       self.validation_message = f"`{self.failed_field}` must be no greater than 9999."
       self.validation_passed = False
       return False
-    
+        
     return True
   # END _validate_year
 
 
   def _validate_month(self, month) -> bool:
-    field = f"{self.field_name}.month"
+    field = f"{self._field_name}.month"
     
     if not isinstance(month, int):
       self.failed_field = field
@@ -133,7 +139,7 @@ class TrackReleaseDate(UserDict):
 
 
   def _validate_day(self, day) -> bool:
-    field = f"{self.field_name}.day"
+    field = f"{self._field_name}.day"
     
     if not isinstance(day, int):
       self.failed_field = field
@@ -162,13 +168,13 @@ class TrackReleaseDate(UserDict):
       return self.validation_message
 
     value = ""
-    value += str(self["year"]).zfill(4)
+    value += str(self.year).zfill(4)
 
-    if self["month"] is not None:
-      value += f"-{str(self["month"]).zfill(2)}"
+    if self.month is not None:
+      value += f"-{str(self.month).zfill(2)}"
 
       if self.day is not None:
-        value += f"-{str(self["day"]).zfill(2)}"
+        value += f"-{str(self.day).zfill(2)}"
 
     return value
   # END __str__
