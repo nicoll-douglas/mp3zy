@@ -1,17 +1,17 @@
 from collections import UserList
 from typing import Any
 
-class ArtistNamesMetadata(UserList):
+class TrackArtistNames(UserList):
+  _raw_data: Any
   field_name: str
-  raw_data: Any
   validation_passed: bool
   validation_message: str | None
 
 
-  def __init__(self, field_name, data):
+  def __init__(self, field_name: str, data: Any):
     super.__init__()
     self.field_name = field_name
-    self.raw_data = data
+    self._raw_data = data
 
     if not self._validate():
       return
@@ -23,7 +23,7 @@ class ArtistNamesMetadata(UserList):
 
 
   def _validate(self):
-    if self.raw_data is None:
+    if self._raw_data is None:
       self.validation_message = f"`{self.field_name}` is required."
       self.validation_passed = False
       return False
@@ -46,4 +46,14 @@ class ArtistNamesMetadata(UserList):
     return True
   # END _validate
 
-# END class ArtistNamesMetadata
+
+  def get_main_artist(self) -> str:
+    return self[0]
+  # END get_main_artist
+  
+
+  def get_other_artists(self) -> list[str]:
+    return list(self[1:])
+  # END get_other_artists
+
+# END class TrackArtistNames
