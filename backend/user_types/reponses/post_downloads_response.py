@@ -11,7 +11,7 @@ class PostDownloadsResponse:
 
   class Ok:
     download_id: int
-    message: str = "Your download has started"
+    message: str = "Your download has been queued and should start shortly."
 
     def __init__(self, download_id: int):
       self.download_id = download_id

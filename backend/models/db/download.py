@@ -1,84 +1,85 @@
 import db
-from ..Model import Model
-from .download_status import DownloadStatus
-from .queries import get_downloads
+from ..model import Model
 import json
+from user_types import DownloadStatus
 
 class Download(Model):
+  """A database model representing the downloads table.
+  """
+  
   _TABLE = "downloads"
+
 
   def __init__(self, conn = db.connect()):
     super().__init__(conn)
+  # END __init__
 
-  def queue(self, data: dict):
-    params = data.copy()
-    params["status"] = "queued"
-    return self.insert(params)
 
-  def is_in_progress(self):
-    self._cur.execute(f"SELECT EXISTS(SELECT 1 FROM {self._TABLE} WHERE status = ?)", ("downloading",))
-    return bool(self._cur.fetchone()[0])
+  def get_next_in_queue(self) -> dict | None:
+    """Selects the earliest created download where `status` is queued, aggregating all metadata.
 
-  def update_progress(self, id, data: dict):
-    params = data.copy()
-    params["status"] = "downloading"
-
-    return self.update(
-      { "id": id },
-      params
-    )
-
-  def get_downloading(self):
-    query = get_downloads(True)
-    self._cur.execute(query, (DownloadStatus.DOWNLOADING.value,))
-    rows = self._cur.fetchall()
-    return [{**row, "artists": json.loads(row["artists"]) } for row in rows]
-
-  def set_downloading(self, id):
-    self.update(
-      { "id": id },
-      { "status": DownloadStatus.DOWNLOADING.value }
-    )
-  
-  def get_queued(self):
-    query = get_downloads(True)
-    self._cur.execute(
-      f"{query} ORDER BY created_at ASC", 
-      (DownloadStatus.QUEUED.value,)
-    )
-    rows = self._cur.fetchall()
-    return [{**row, "artists": json.loads(row["artists"]) } for row in rows]
-
-  def get_completed(self):
-    query = get_downloads(True)
-    self._cur.execute(
-      f"{query} ORDER BY updated_at DESC", 
-      (DownloadStatus.COMPLETED.value,)
-    )
-    rows = self._cur.fetchall()
-    return [{**row, "artists": json.loads(row["artists"]) } for row in rows]
-  
-  def set_failed(self, id):
-    self.update(
-      { "id": id },
-      { "status": DownloadStatus.FAILED.value }
-    )
-
-  def get_failed(self):
-    query = get_downloads(True)
-    self._cur.execute(
-      f"{query} ORDER BY updated_at DESC", 
-      (DownloadStatus.FAILED.value,)
-    )
-    rows = self._cur.fetchall()
-    return [{**row, "artists": json.loads(row["artists"]) } for row in rows]
-
-  def set_completed(self, id):
-    set_clause, set_values = self._build_set({ "status": DownloadStatus.COMPLETED.value })
-    where_clause, where_values = self._build_where({ "id": id })
-    set_clause += f", completed_at = CURRENT_TIMESTAMP"
+    Returns:
+      dict | None: A dict with the row's data if a row was found, None otherwise.
+    """
     
-    self._cur.execute(
-      f"UPDATE {self._TABLE} {set_clause} {where_clause}",
-      set_values + where_values
-    )
+    query = """
+SELECT
+  d.id AS download_id,
+  d.url,
+  d.codec,
+  d.bitrate,
+  d.status,
+  d.downloaded_bytes,
+  d.total_bytes,
+  d.speed,
+  d.eta,
+  d.created_at,
+  d.updated_at,
+  d.failed_at,
+  d.completed_at,
+  m.id AS metadata_id,
+  m.track_name,
+  m.album_name,
+  m.track_number,
+  m.disc_number,
+  m.release_date,
+  json_group_array(a.name) AS artists_names
+FROM downloads d
+LEFT JOIN metadata m ON d.metadata_id = m.id
+LEFT JOIN metadata_artists ma ON m.id = ma.metadata_id
+LEFT JOIN artists a ON ma.artist_id = a.id
+WHERE d.status = "queued"
+  AND d.created_at = (
+    SELECT MIN(created_at) 
+    FROM downloads
+    WHERE status = "queued"
+  ) 
+GROUP BY d.id
+"""
+    self._cur.execute(query)
+    row = self._cur.fetchone()
+    
+    if not row:
+      return None
+    
+    result = dict(row)
+    result["artist_names"] = json.loads(result["artist_names"] if result["artist_names"] else [])
+
+    return result
+  # END get_next_in_queue
+
+
+  def insert_as_queued(self, data: dict) -> int:
+    """Inserts a row into the table with the `status` column set to queued.
+
+    Args:
+      data (dict): Key-value pairs representing the column names and values to insert for them.
+
+    Returns:
+      int: The integer ID of the row that was inserted.
+    """
+
+    return self.insert({ **data, "status": DownloadStatus.QUEUED.value })
+  # END insert_as_queued
+
+# END class Download

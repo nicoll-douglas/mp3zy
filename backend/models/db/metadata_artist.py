@@ -1,24 +1,37 @@
 import db
-from ..Model import Model
+from ..model import Model
+from typing import cast
 
 class MetadataArtist(Model):
+  """A database model representing the metadata_artists table.
+  """
+
   _TABLE = "metadata_artists"
+
 
   def __init__(self, conn = db.connect()):
     super().__init__(conn)
+  # END __init__
 
-  def insert_many(self, metadata_id, artist_ids: list[int]):
-    self._cur.executemany(
-      f"INSERT INTO {self._TABLE} (metadata_id, artist_id) VALUES (?, ?)", 
-      [(metadata_id, aid) for aid in artist_ids]
-    )
 
-  def get_artists(self, metadata_id):
-    sql = """
-SELECT a.name, a.id
-FROM metadata_artists ma
-JOIN artists a ON ma.artist_id = a.id
-WHERE ma.metadata_id = ?
-"""
-    self._cur.execute(sql, (metadata_id,))
-    return [dict(row) for row in self._cur.fetchall()]
+  def insert_many(self, data: list[dict]) -> list[int]:
+    """
+    Inserts several rows into the table.
+
+    Args:
+      data (list[dict]): A list of dicts (key-value pairs) representing the column names and values to insert for them.
+
+    Returns:
+      list[int]: A list of the integer IDs of the rows that were inserted.
+    """
+    
+    ids = []
+    
+    for d in data:
+      id = cast(int, self.insert(d))
+      ids.append(id)
+
+    return ids
+  # END insert_many
+
+# END class MetadataArtist

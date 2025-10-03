@@ -1,14 +1,16 @@
 import db
-from ..Model import Model
+from ..model import Model
+import sqlite3
 
 class Metadata(Model):
+  """A database model representing the metadata table.
+  """
+
   _TABLE = "metadata"
   
-  def __init__(self, conn = db.connect()):
-    super().__init__(conn)
   
-  def delete(self, id):
-    super().delete({ "id": id })
+  def __init__(self, conn: sqlite3.Connection = db.connect()):
+    super().__init__(conn)
+  # END __init__
 
-  def select(self, id):
-    return super().select(where={ "id": id })
+# END class Metadata
