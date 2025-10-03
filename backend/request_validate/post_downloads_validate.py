@@ -1,4 +1,4 @@
-from user_types import TrackArtistNames, TrackCodec, TrackBitrate, TrackReleaseDate
+from user_types import TrackArtistNames, TrackCodec, TrackBitrate, TrackReleaseDate, enum_validate
 from typing import Any, Literal
 from user_types.requests import PostDownloadsRequest
 from user_types.reponses import PostDownloadsResponse
@@ -47,7 +47,7 @@ def post_downloads_validate(body: Any) -> tuple[Literal[False], PostDownloadsRes
   
   res.field = "codec"
   codec = body.get(res.field)
-  codec_valid, codec_validation_message = TrackCodec.validate(res.field, codec)
+  codec_valid, codec_validation_message = enum_validate(TrackCodec, res.field, codec)
 
   if not codec_valid:
     res.message = codec_validation_message
@@ -56,7 +56,7 @@ def post_downloads_validate(body: Any) -> tuple[Literal[False], PostDownloadsRes
   codec = TrackCodec(codec)
   res.field = "bitrate"
   bitrate = body.get(res.field)
-  bitrate_valid, bitrate_validation_message = TrackBitrate.validate(res.field, bitrate)
+  bitrate_valid, bitrate_validation_message = enum_validate(TrackBitrate, res.field, bitrate)
 
   if not bitrate_valid:
     res.message = bitrate_validation_message

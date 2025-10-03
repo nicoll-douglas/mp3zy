@@ -1,71 +1,86 @@
-from __future__ import annotations
 import models
 import yt_dlp
+from user_types.requests import PostDownloadsRequest, GetDownloadsSearchRequest
 
 class YtDlpClient:
-  def query_youtube(self, artist_name, track_name):
-    search_query = f"ytsearch10:{artist_name} {track_name}"
+  
+  def query_youtube(self, query: GetDownloadsSearchRequest) -> list:
+    """Scrapes and aggregates search results based on the query for YouTube videos that may be downloaded as an audio source.
+
+    Args:
+      query (GetDownloadsSearchRequest): The search query containing the main artist and name of the track.
+
+    Returns:
+      list: The search results.
+    """
+    
+    search_query = f"ytsearch10:{query.main_artist} {query.track_name}"
     
     info = yt_dlp.YoutubeDL({
       "noplaylist": True,
       "extract_flat": True
     }).extract_info(search_query, download=False)
 
-    return self._order_entries(
-      entries=info["entries"] or [],
-      track_name=track_name,
-      track_artists=[artist_name]
-    )
+    return self._order_entries(info["entries"] or [], query)
+  # END query_youtube
+
   
-  def download_track(self, url, artist, name, codec, bitrate, progress_hook):
-    track = models.disk.Track(
-      codec=models.disk.Codec(codec),
-      artist=artist,
-      name=name
-    )
-    output_template = track.get_output_template()
+  def download_track(self,
+    track_info: PostDownloadsRequest,
+    progress_hook,
+    save_dir: str | None = None,
+    track_id: str | None = None
+  ) -> models.disk.Track:
+    track = models.disk.Track(track_info, save_dir, track_id)
     ydl_opts = {
       "format": "bestaudio/best",
       "progress_hooks": [progress_hook],
       "postprocessors": [{
         "key": "FFmpegExtractAudio",
-        "preferredcodec": codec,
-        "preferredquality": bitrate,
+        "preferredcodec": track_info.codec.value,
+        "preferredquality": track_info.bitrate.value,
       }],
-      "outtmpl": output_template
+      "outtmpl": track.build_output_template()
     }
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-      ydl.download([url])
+      ydl.download([track_info.url])
 
     return track
             
-  def _order_entries(self, entries, track_name, track_artists: list, track_duration_s = None):
-    def score(entry):
+  def _order_entries(self, entries: list, query: GetDownloadsSearchRequest) -> list:
+    """Orders search result entries based on how well they aligm with the search query.
+
+    Args:
+      entries (list): The search results entries.
+      query (GetDownloadsSearchRequest): The search query.
+
+    Returns:
+      list: The orderered list of entries.
+    """
+    
+    def score(entry: dict):
       video_title = entry.get("title", "").lower()
       video_channel = entry.get("channel", "").lower()
-      video_duration_s = entry.get("duration", 0)
       view_count = entry.get("view_count", 0)
-      duration_diff = abs(video_duration_s - track_duration_s) if track_duration_s != None else None
-
       score_value = 0
 
-      if track_name in video_title:
+      if query.track_name.lower() in video_title:
         score_value += 5
       if "official audio" in video_title:
         score_value += 20
       if " - topic" in video_channel:
         score_value += 100
-      if any(artist == video_channel for artist in track_artists):
+      if query.main_artist.lower() == video_channel:
         score_value += 5
-      if duration_diff != None and duration_diff <= 15:
-        score_value += 5
-      if any(artist in video_title for artist in track_artists):
+      if query.main_artist.lower() in video_title:
         score_value += 5
       
       score_value += min(view_count // 100_000, 10)
 
       return score_value
+    # END score
 
     return sorted(entries, key=score, reverse=True)
+  # END _order_entries
 
