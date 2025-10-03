@@ -1,19 +1,14 @@
 from enum import Enum
-from typing import Literal
 
 class TrackCodec(Enum):
+  """Represents the acceptable audio codecs for a track download.
+
+  Attributes:
+    MP3: Represents the MP3 (mpeg-3) codec.
+    FLAC: Represents the FLAC codec.
+  """
+  
   MP3 = "mp3"
   FLAC = "flac"
-
-  @classmethod
-  def validate(cls, field_name, data) -> tuple[Literal[False], str] | tuple[Literal[True], None]:
-    if data is None:
-      return False, f"`{field_name}` is required."
-    
-    has_value = any(data == member.value for member in cls)
-    message = None if has_value else f"`{field_name}` is invalid."
-
-    return has_value, message
-  # END validate
 
 # END class TrackCodec

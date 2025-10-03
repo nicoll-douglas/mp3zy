@@ -18,6 +18,7 @@ class PostDownloadsResponse:
       self.field = field
       self.message = message
     # END __init__
+
   # END class BadRequest
 
 
@@ -36,6 +37,7 @@ class PostDownloadsResponse:
     def __init__(self, download_id: int):
       self.download_id = download_id
     # END __init__
+    
   # END class Ok
 
 # END class PostDownloadsResponse

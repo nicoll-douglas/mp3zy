@@ -27,4 +27,5 @@ class PostDownloadsRequest:
   disc_number: int | None
   release_date: TrackReleaseDate | None
   url: str
+  
 # END class PostDownloadsRequest
