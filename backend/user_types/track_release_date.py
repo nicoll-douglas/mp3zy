@@ -1,7 +1,7 @@
 from typing import Any, cast
 
 class TrackReleaseDate:
-  """A class validates, contains, and works with track release date metadata associated with a track.
+  """A class that validates, contains, and works with track release date metadata associated with a track.
 
   Attributes:
     year (int): The year of the release date.
@@ -35,7 +35,7 @@ class TrackReleaseDate:
   # END __init__
 
 
-  def _build_field_name(root_field_name: str, property: str) -> str:
+  def _build_field_name(self, root_field_name: str, property: str) -> str:
     """Build the full field name for a property with respect to an incoming field name.
 
     Args:
@@ -66,7 +66,7 @@ class TrackReleaseDate:
 
     self._validate_object(data, field_name)
 
-    validated_data = cast(dict, validated_data)
+    validated_data = cast(dict, data)
     key = "year"
     year = validated_data.get(key)
 
@@ -105,17 +105,25 @@ class TrackReleaseDate:
       ValueError: If validation fails.
     """
     
+    args = []
+    
     if data is None:
-      raise ValueError(
-        f"Field `{field_name}` is required." if field_name else "Expected non-empty value, got None",
-        field_name
-      )
+      if field_name:
+        args.append(f"Field `{field_name}` is required.")
+        args.append(field_name)
+      else:
+        args.append("Expected non-empty value, got None")
+
+      raise ValueError(*args)
 
     if not isinstance(data, dict):
-      raise ValueError(
-        f"Field `{field_name}` must be an object." if field_name else f"Expected dict, got {data!r}",
-        field_name
-      )
+      if field_name:
+        args.append(f"Field `{field_name}` must be an object.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected dict, got {data!r}")
+      
+      raise ValueError(*args)
   # END _validate_object
 
 
