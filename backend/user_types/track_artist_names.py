@@ -2,74 +2,56 @@ from collections import UserList
 from typing import Any
 
 class TrackArtistNames(UserList):
-  """A class validates, contains, and works with track artist name metadata associated with a track.
-
-  Attributes:
-    _field_name (str): The name of an associated form field to raw data being validated.
-    _raw_data (Any): The raw artist name data to be validated.
-    validation_passed (bool): True if the raw data passed validation, False otherwise.
-    validation_message (str | None): Contains a validation message if validation failed, None otherwise.
+  """A that class validates, contains, and works with track artist name metadata associated with a track.
   """
-  
-  _raw_data: Any
-  field_name: str
-  validation_passed: bool
-  validation_message: str | None
 
-
-  def __init__(self, field_name: str, data: Any):
+  def __init__(self, data: Any, field_name: str | None = None):
     """Initializes TrackArtistNames, validating the data passed.
 
-    Copies over the raw data into the `data` attribute on successful validation or assigns validation attributes otherwise (`validation_passed`, `validation_message`).
-
     Args:
-      field_name (str): Assigned to `_field_name`.
-      data (Any): Assigned to `_raw_data`
+      field_name (str | None): The name of a field associated with the incoming data.
+      data (Any): The data to instantiate from.
+
+    Raises:
+      ValueError: If validation fails.
     """
     
     super.__init__()
-    self.field_name = field_name
-    self._raw_data = data
-
-    if not self._validate():
-      return
-    
-    self.data = list(self.raw_data)
-    self.validation_message = None
-    self.validation_passed = True
+    self._validate(data, field_name)
+    self.data = data
   # END __init__
 
 
-  def _validate(self):
-    """Validates the raw data against constraints.
+  def _validate(self, data: Any, field_name: str | None):
+    """Validates the incoming data against constraints.
 
-    Assigns validation class attributes on failure.
+    Args:
+      data (Any): The data being passed to the class to instantiate from.
+      field_name (str | None): The name of a field associated with the incoming data.
 
-    Returns:
-      bool: False if validation fails, True otherwise.
+    Raises:
+      ValueError: If validation fails.
     """
     
-    if self._raw_data is None:
-      self.validation_message = f"Field `{self.field_name}` is required."
-      self.validation_passed = False
-      return False
+    if data is None:
+      raise ValueError(
+        f"Field `{field_name}` is required." if field_name else "Expected non-empty value, got None"
+      )
 
-    if not isinstance(self.raw_data, list):
-      self.validation_message = f"Field `{self.field_name}` must be an array."
-      self.validation_passed = False
-      return False
+    if not isinstance(data, list):
+      raise ValueError(
+        f"Field `{self.field_name}` must be an array." if field_name else f"Expected list, got {data!r}"
+      )
     
-    if len(self.raw_data) == 0:
-      self.validation_message = f"Field `{self.field_name}` must be of at least length 1."
-      self.validation_passed = False
-      return False
+    if len(data) == 0:
+      raise ValueError(
+        f"Field `{self.field_name}` must be of at least length 1." if field_name else f"Expected list of at least 1, got list of length 0"
+      )
     
-    if not all(isinstance(item, str) for item in self.raw_data):
-      self.validation_message = f"Field `{self.field_name}` must be a string array."
-      self.validation_passed = False
-      return False
-        
-    return True
+    if not all(isinstance(item, str) for item in data):
+      raise ValueError(
+        f"Field `{field_name}` must be a string array." if field_name else f"Expected list of strings, got {data!r}"
+      )
   # END _validate
 
 

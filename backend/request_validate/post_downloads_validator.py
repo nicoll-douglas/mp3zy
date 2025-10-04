@@ -52,10 +52,11 @@ class PostDownloadsValidator:
     """
     
     self._response.field = "artist_names"
-    artist_names = TrackArtistNames(self._response.field, body.get(self._response.field))
     
-    if not artist_names.validation_passed:
-      self._response.message = artist_names.validation_message
+    try:
+      artist_names = TrackArtistNames(body.get(self._response.field), self._response.field)
+    except ValueError as e:
+      self._response.message = str(e)
       return False
     
     return artist_names
