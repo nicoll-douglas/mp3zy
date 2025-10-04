@@ -50,22 +50,22 @@ class TrackArtistNames(UserList):
     """
     
     if self._raw_data is None:
-      self.validation_message = f"`{self.field_name}` is required."
+      self.validation_message = f"Field `{self.field_name}` is required."
       self.validation_passed = False
       return False
 
     if not isinstance(self.raw_data, list):
-      self.validation_message = f"`{self.field_name}` must be an array."
+      self.validation_message = f"Field `{self.field_name}` must be an array."
       self.validation_passed = False
       return False
     
     if len(self.raw_data) == 0:
-      self.validation_message = f"`{self.field_name}` must be of at least length 1."
+      self.validation_message = f"Field `{self.field_name}` must be of at least length 1."
       self.validation_passed = False
       return False
     
     if not all(isinstance(item, str) for item in self.raw_data):
-      self.validation_message = f"`{self.field_name}` must be a string array."
+      self.validation_message = f"Field `{self.field_name}` must be a string array."
       self.validation_passed = False
       return False
         

@@ -31,18 +31,18 @@ def post_downloads_validate(body: Any) -> tuple[Literal[False], PostDownloadsRes
   track_name = body.get(res.field)
 
   if track_name is None:
-    res.message = f"`{res.field}` is required."
+    res.message = f"Field `{res.field}` is required."
     return False, res
   
   if not isinstance(track_name, str):
-    res.message = f"`{res.field}` must be a string."
+    res.message = f"Field `{res.field}` must be a string."
     return False, res
   
   res.field = "album_name"
   album_name = body.get(res.field)
 
   if album_name is not None and not isinstance(album_name, str):
-    res.message = f"`{res.field}` must be a string or null."
+    res.message = f"Field `{res.field}` must be a string or null."
     return False, res
   
   res.field = "codec"
@@ -68,11 +68,11 @@ def post_downloads_validate(body: Any) -> tuple[Literal[False], PostDownloadsRes
 
   if track_number is not None:
     if not isinstance(track_number, int):
-      res.message = f"`{res.field}` must be an integer."
+      res.message = f"Field `{res.field}` must be an integer."
       return False, res
 
     if track_number < 1:
-      res.message = f"`{res.field}` must be greater than 0."
+      res.message = f"Field `{res.field}` must be greater than 0."
       return False, res
   
   res.field = "disc_number"
@@ -80,11 +80,11 @@ def post_downloads_validate(body: Any) -> tuple[Literal[False], PostDownloadsRes
 
   if disc_number is not None:
     if not isinstance(disc_number, int):
-      res.message = f"`{res.field}` must be an integer."
+      res.message = f"Field `{res.field}` must be an integer."
       return False, res
     
     if disc_number < 1:
-      res.message = f"`{res.field}` must be greater than 0."
+      res.message = f"Field `{res.field}` must be greater than 0."
       return False, res
 
   res.field = "release_date"
@@ -101,11 +101,11 @@ def post_downloads_validate(body: Any) -> tuple[Literal[False], PostDownloadsRes
   url = body.get(res.field)
 
   if url is None:
-    res.message = f"`{res.field}` is required."
+    res.message = f"Field `{res.field}` is required."
     return False, res
   
   if not isinstance(url, str):
-    res.message = f"`{res.field}` must be a string."
+    res.message = f"Field `{res.field}` must be a string."
     return False, res
   
   req = PostDownloadsRequest()
