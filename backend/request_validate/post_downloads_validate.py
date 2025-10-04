@@ -10,7 +10,7 @@ def post_downloads_validate(body: Any) -> tuple[Literal[False], PostDownloadsRes
     body (Any): The body of the request.
 
   Returns:
-    tuple[Literal[False], PostDownloadsResponse.BadRequest] | tuple[Literal[True], PostDownloadsRequest]: A tuple where on successful validation the first element is True and the second is the sanitized request body, or on failure the first element is False and the second is the response body.
+    tuple[Literal[False], PostDownloadsResponse.BadRequest] | tuple[Literal[True], PostDownloadsRequest]: A tuple where on successful validation the first element is True and the second is the sanitized request body, or on failure the first element is False and the second is the response body to send.
   """
 
   res = PostDownloadsResponse.BadRequest()
