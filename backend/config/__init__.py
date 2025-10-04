@@ -1,0 +1,1 @@
+from .cors import CORS_ALLOWED_ORIGINS

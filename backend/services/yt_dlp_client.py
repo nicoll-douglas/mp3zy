@@ -1,27 +1,42 @@
 import models
 import yt_dlp
 from user_types.requests import PostDownloadsRequest, GetDownloadsSearchRequest
+from user_types import DownloadSearchResult
 
 class YtDlpClient:
+  """Service class that interfaces with yt-dlp.
+  """
   
-  def query_youtube(self, query: GetDownloadsSearchRequest) -> list:
-    """Scrapes and aggregates search results based on the query for YouTube videos that may be downloaded as an audio source.
+  def query_youtube(self, query: GetDownloadsSearchRequest) -> list[DownloadSearchResult]:
+    """Scrapes and aggregates search results of YouTube videos that may be downloaded as an audio source based on the query.
 
     Args:
       query (GetDownloadsSearchRequest): The search query containing the main artist and name of the track.
 
     Returns:
-      list: The search results.
+      list[DownloadSearchResult]: The search results.
     """
     
     search_query = f"ytsearch10:{query.main_artist} {query.track_name}"
     
     info = yt_dlp.YoutubeDL({
-      "noplaylist": True,
+      "skip_download": True,
       "extract_flat": True
     }).extract_info(search_query, download=False)
 
-    return self._order_entries(info["entries"] or [], query)
+    entries = info["entries"] if "entries" in info else info
+    ordered_entries = self._order_entries(entries, query)
+    search_results: list[DownloadSearchResult] = []
+
+    for entry in ordered_entries:
+      result = DownloadSearchResult()
+      result.title = entry["title"]
+      result.url = entry["url"]
+      result.channel = entry["channel"]
+      result.duration = entry["duration"]
+      search_results.append(result)
+
+    return search_results
   # END query_youtube
 
   
@@ -47,7 +62,9 @@ class YtDlpClient:
       ydl.download([track_info.url])
 
     return track
-            
+  # END download_track
+
+
   def _order_entries(self, entries: list, query: GetDownloadsSearchRequest) -> list:
     """Orders search result entries based on how well they aligm with the search query.
 
@@ -84,3 +101,4 @@ class YtDlpClient:
     return sorted(entries, key=score, reverse=True)
   # END _order_entries
 
+# END class YtDlpClient
