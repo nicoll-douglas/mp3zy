@@ -38,11 +38,11 @@ The other part of the mp3zy API consists of a real-time API for download progres
 
 ## Type Reference
 
-### ArtistNamesMetadata
+### TrackArtistNames
 
 _string[]_
 
-A string array of artist names associated with the metadata of a track. The array should be of at least length 1:
+A string array of artist names associated with the track. The array should be of at least length 1:
 
 ```
 [string, ...string[]]
@@ -143,11 +143,11 @@ An object containing information about a download update for a track being downl
   "download_id": number,
   "old_status": DownloadStatus | null,
   "status": DownloadStatus,
-  "downloaded_bytes": number,
-  "total_bytes": number,
-  "speed": number,
+  "downloaded_bytes": number | null,
+  "total_bytes": number | null,
+  "speed": number | null,
   "eta": number | null,
-  "artist_names": ArtistNamesMetadata,
+  "artist_names": TrackArtistNames,
   "track_name": string,
   "codec": TrackCodec,
   "bitrate": TrackBitrate,
@@ -161,10 +161,10 @@ An object containing information about a download update for a track being downl
 - `download_id` - The ID associated with a download record.
 - `old_status` - The status of the download on its last update.
 - `status` - The current status of the download.
-- `downloaded_bytes` - The number of bytes already downloaded.
-- `total_bytes` - The total number of bytes that is being downloaded.
-- `speed` - The current speed of the download in bytes per second.
-- `eta` - The ETA of the download (estimated time until it completes) in seconds.
+- `downloaded_bytes` - The number of bytes already downloaded if the download was started.
+- `total_bytes` - The total number of bytes that is being downloaded if the download was started.
+- `speed` - The current speed of the download in bytes per second if the download was started.
+- `eta` - The ETA of the download (estimated time until it completes) in seconds if the download was started.
 - `artist_names` - The names of the artists associated with the track being downloaded.
 - `track_name` - The name of the track being downloaded.
 - `codec` - The audio codec of the final file that will be output by the download.
@@ -186,7 +186,7 @@ This endpoint will trigger an audio file download of a song from the provided UR
 
 ```
 {
-  "artist_names": ArtistNamesMetadata,
+  "artist_names": TrackArtistNames,
   "track_name": string,
   "album_name": string | null,
   "codec": TrackCodec,
@@ -203,7 +203,7 @@ This endpoint will trigger an audio file download of a song from the provided UR
 - `album_name` - The name of the track's album.
 - `codec` - The audio codec to use when saving the file to disk.
 - `bitrate` - The bitrate to use when saving the audio file to disk.
-  `track_number` - The number of the track on its disc on the album.
+- `track_number` - The number of the track on its disc on the album.
 - `disc_number` - The disc number that the track is on on the album.
 - `release_date` - The release date of the track.
 - `url` - The URL source to use for download (should ideally be extracted from the response body of a request to GET /downloads/search).
@@ -247,13 +247,13 @@ This endpoint retrieves YouTube search results for tracks/songs that may be down
 ##### Parameters
 
 - `track_name` (required) - The name of the track you wish to search for.
-- `artist_name` (required) - The name of the primary artist of the track.
+- `main_artist` (required) - The name of the primary artist of the track.
 
 #### Responses
 
 ##### 400
 
-A 400 status will be returned if either the `track_name` or `artist_name` parameter is missing along with the following response body:
+A 400 status will be returned if either the `track_name` or `main_artist` parameter is missing along with the following response body:
 
 ```
 {
