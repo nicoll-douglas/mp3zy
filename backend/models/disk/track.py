@@ -62,7 +62,7 @@ class Track:
     artist_folder = sanitize_filename(self.track_info.artist_names.get_main_artist())
     segments.append(artist_folder)
 
-    if self.track_info.album_name is not None:
+    if self.track_info.album_name:
       album_folder = sanitize_filename(self.track_info.album_name)
       segments.append(album_folder)
 
@@ -91,7 +91,7 @@ class Track:
     if len(other_artists) > 0:
       stem += " - " + ", ".join(other_artists)
 
-    if self.track_id is not None:
+    if self.track_id:
       stem += " - " + self.track_id
 
     return sanitize_filename(stem)

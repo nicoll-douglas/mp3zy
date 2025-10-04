@@ -46,4 +46,7 @@ def test_enum_validate(enum_values_fixture, sample_enum):
   elif assertion_type is EnumValuesAssertion.IS_IN_ENUM:
     assert test_result[0] is True
     assert test_result[1] is None
+
+  else:
+    raise ValueError("Unknown assertion type")
 # END test_enum_validate

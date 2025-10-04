@@ -16,9 +16,8 @@ class TrackArtistNames(UserList):
       ValueError: If validation fails.
     """
     
-    super.__init__()
     self._validate(data, field_name)
-    self.data = data
+    super().__init__(data)
   # END __init__
 
 
@@ -40,17 +39,22 @@ class TrackArtistNames(UserList):
 
     if not isinstance(data, list):
       raise ValueError(
-        f"Field `{self.field_name}` must be an array." if field_name else f"Expected list, got {data!r}"
+        f"Field `{field_name}` must be an array." if field_name else f"Expected list, got {data!r}"
       )
     
     if len(data) == 0:
       raise ValueError(
-        f"Field `{self.field_name}` must be of at least length 1." if field_name else f"Expected list of at least 1, got list of length 0"
+        f"Field `{field_name}` must be of at least length 1." if field_name else f"Expected list of at least 1, got list of length 0"
       )
     
     if not all(isinstance(item, str) for item in data):
       raise ValueError(
         f"Field `{field_name}` must be a string array." if field_name else f"Expected list of strings, got {data!r}"
+      )
+    
+    if not all(len(item) > 0 for item in data):
+      raise ValueError(
+        f"Field `{field_name}` must be a string array of non-empty strings." if field_name else f"Expected list of non-empty strings, got {data!r}"
       )
   # END _validate
 

@@ -62,6 +62,9 @@ class TestGetDownloadsSearchValidator:
       assert hasattr(test_result[1], "track_name")
       assert test_result[1].main_artist == "Queen"
       assert test_result[1].track_name == "Radio Ga Ga"
+    
+    else:
+      raise ValueError("Unknown assertion type")
   # END test_validate
 
 # END class

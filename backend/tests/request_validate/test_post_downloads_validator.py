@@ -93,6 +93,9 @@ class TestPostDownloadsValidator:
 
     elif assertion_type is ValidateAssertion.VALID:
       assert isinstance(test_result, dict)
+          
+    else:
+      raise ValueError("Unknown assertion type")
   # END test__validate_body
 
 
@@ -108,7 +111,10 @@ class TestPostDownloadsValidator:
       assert hasattr(validator._response, "message")
 
     elif assertion_type is ValidateAssertion.VALID:
-      assert isinstance(test_result, str)
+      assert isinstance(test_result, str)    
+
+    else:
+      raise ValueError("Unknown assertion type")
   # test__validate_track_name
 
 
@@ -125,6 +131,9 @@ class TestPostDownloadsValidator:
 
     elif assertion_type is ValidateAssertion.VALID:
       assert isinstance(test_result, str)
+          
+    else:
+      raise ValueError("Unknown assertion type")
   # test__validate_url
 
 
@@ -140,7 +149,10 @@ class TestPostDownloadsValidator:
       assert hasattr(validator._response, "message")
 
     elif assertion_type is ValidateAssertion.VALID:
-      assert test_result is None or isinstance(test_result, str)
+      assert test_result is None or isinstance(test_result, str)          
+
+    else:
+      raise ValueError("Unknown assertion type")
   # test__validate_album_name
 
 
@@ -157,6 +169,9 @@ class TestPostDownloadsValidator:
 
     elif assertion_type is ValidateAssertion.VALID:
       assert test_result is None or isinstance(test_result, int)
+
+    else:
+      raise ValueError("Unknown assertion type")
   # test__validate_track_or_disc_number
 
 # END class TestPostDownloadsValidator

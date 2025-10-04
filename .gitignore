@@ -9,6 +9,7 @@
 __pycache__
 *.egg-info
 .venv
+.pytest_cache
 
 # js
 node_modules
