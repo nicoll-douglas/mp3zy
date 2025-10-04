@@ -22,11 +22,11 @@ class TrackArtistNames(UserList):
   # END __init__
 
 
-  def _validate(self, data: Any, field_name: str | None):
+  def _validate(self, data: Any, field_name: str | None = None):
     """Validates the incoming data against constraints.
 
     Args:
-      data (Any): The data being passed to the class to instantiate from.
+      data (Any): The data being passed to the class to validate.
       field_name (str | None): The name of a field associated with the incoming data.
 
     Raises:

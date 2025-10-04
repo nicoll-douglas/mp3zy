@@ -4,226 +4,267 @@ class TrackReleaseDate:
   """A class validates, contains, and works with track release date metadata associated with a track.
 
   Attributes:
-    _field_name (str): The name of an associated form field to raw data being validated.
-    _raw_data (Any): The raw release date data to be validated.
-    validation_passed (bool): True if the raw data passed validation, False otherwise.
-    validation_message (str | None): Contains a validation message if validation failed, None otherwise.
-    year (int): The effective `year` field in the raw data if successfully validated.
-    month (int | None): The effective `month` field in the raw data if successfully validated.
-    day (int | None): The effective `day` field in the raw data if successfully validated. 
+    year (int): The year of the release date.
+    month (int | None): The month of the release date.
+    day (int | None): The day of the release date.
   """
   
-  _field_name: str
-  _raw_data: Any
-  failed_field: str | None
-  validation_passed: bool
-  validation_message: str | None
   year: int
   month: int | None
   day: int | None
 
 
-  def __init__(self, field_name: str, data: Any):
+  def __init__(self, data: Any, field_name: str | None = None):
     """Initializes TrackReleaseDate, validating the data passed.
 
-    Constructs the effective values (`year`, `month`, `day`) of the data's fields on successful validation or validation attributes otherwise (`validation_passed`, `validation_message`).
+    Constructs the effective release date values (`year`, `month`, `day`) from the data.
 
     Args:
-      field_name (str): Assigned to `_field_name`.
-      data (Any): Assigned to `_raw_data`
+      data (Any): The data being passed to the class to validate.
+      field_name (str | None): The name of a field associated with the incoming data.
+
+    Raises:
+      ValueError: If validation fails.
     """
-    
-    self._field_name = field_name
-    self._raw_data = data
 
-    if not self._validate_object():
-      return
-    
-    raw_data = cast(dict, self._raw_data)
-    year = raw_data.get("year")
+    year, month, day = self._validate(data, field_name)
 
-    if not self._validate_year(year):
-      return
-      
-    year = cast(int, year)
-    month = raw_data.get("month")
-
-    if month is None:
-      self.year = year
-      self.month = None
-      self.day = None
-      self.failed_field = None
-      self.validation_message = None
-      self.validation_passed = True
-      return
-    
-    if not self._validate_month(month):
-      return
-
-    month = cast(int, month)
-    day = raw_data.get("day")
-
-    if day is None:
-      self.year = year
-      self.month = month
-      self.day = None
-      self.failed_field = None
-      self.validation_message = None
-      self.validation_passed = True
-      return
-    
-    if not self._validate_day(day):
-      return
-    
-    day = cast(int, day)
-    
     self.year = year
     self.month = month
     self.day = day
-    self.failed_field = None
-    self.validation_message = None
-    self.validation_passed = True
   # END __init__
 
 
-  def _validate_object(self) -> bool:
-    """Validates that the raw data is a dictionary.
+  def _build_field_name(root_field_name: str, property: str) -> str:
+    """Build the full field name for a property with respect to an incoming field name.
 
-    Assigns validation class attributes on failure.
+    Args:
+      root_field_name (str): The root field name (e.g `"release_date"`).
+      property (str): The property name (e.g `"year"`).
 
     Returns:
-      bool: False if validation fails, True otherwise.
+      str: The full field name.
     """
     
-    if self._raw_data is None:
-      self.failed_field = self._field_name
-      self.validation_message = f"Field `{self.failed_field}` is required."
-      self.validation_passed = False
-      return False
+    return f"{root_field_name}.{property}"
+  # END _build_field_name
 
-    if not isinstance(self._raw_data, dict):
-      self.failed_field = self._field_name
-      self.validation_message = f"Field `{self.failed_field}` must be an object."
-      self.validation_passed = False
-      return False
-        
-    return True
+
+  def _validate(self, data: Any, field_name: str | None = None) -> tuple[int, None, None] | tuple[int, int, int | None]:
+    """Validates the incoming data against constraints.
+
+    Args:
+      data (Any): The data being passed to the class to validate.
+      field_name (str | None): The name of a field associated with the incoming data.
+
+    Returns:
+      tuple[int, None, None] | tuple[int, int, int | None]: A tuple containing the effective year, month, and date values of the release date.
+
+    Raises:
+      ValueError: If validation fails.
+    """
+
+    self._validate_object(data, field_name)
+
+    validated_data = cast(dict, validated_data)
+    key = "year"
+    year = validated_data.get(key)
+
+    self._validate_year(year, self._build_field_name(field_name, key) if field_name else None)
+
+    validated_year = cast(int, year)
+    key = "month"
+    month = validated_data.get(key)
+
+    self._validate_month(month, self._build_field_name(field_name, key) if field_name else None)
+          
+    validated_month = cast(int | None, month)
+
+    if validated_month is None:
+      return validated_year, None, None
+
+    key = "day"
+    day = validated_data.get(key)
+
+    self._validate_day(day, self._build_field_name(field_name, key) if field_name else None)
+
+    validate_day = cast(int | None , day)
+
+    return validated_year, validated_month, validate_day
+  # END _validate
+
+
+  def _validate_object(self, data: Any, field_name: str | None = None):
+    """Validates that incoming data is a dictionary.
+
+    Args:
+      data (Any): The data to pass to the class to validate.
+      field_name (str | None): The name of a field associated with the incoming data.
+
+    Raises:
+      ValueError: If validation fails.
+    """
+    
+    if data is None:
+      raise ValueError(
+        f"Field `{field_name}` is required." if field_name else "Expected non-empty value, got None",
+        field_name
+      )
+
+    if not isinstance(data, dict):
+      raise ValueError(
+        f"Field `{field_name}` must be an object." if field_name else f"Expected dict, got {data!r}",
+        field_name
+      )
   # END _validate_object
 
 
-  def _validate_year(self, year) -> bool:
-    """Validates the `year` field in the raw data against constraints.
+  def _validate_year(self, year: Any, field_name: str | None = None):
+    """Validates the year against constraints.
 
-    Assigns validation class attributes on failure.
+    Args:
+      year (Any): The year property extracted from the incoming data.
+      field_name (str | None): The name of the year field associated with the incoming data.
 
-    Returns:
-      bool: False if validation fails, True otherwise.
+    Raises:
+      ValueError: If validation fails.
     """
     
-    field = f"{self._field_name}.year"
+    args = []
     
     if year is None:
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` is required."
-      self.validation_passed = False
-      return False
+      if field_name:
+        args.append(f"Field `{field_name}` is required.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected non-empty property `year`, got {year!r}")
+
+      raise ValueError(*args)
   
     if not isinstance(year, int):
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` must be an integer."
-      self.validation_passed = False
-      return False
+      if field_name:
+        args.append(f"Field `{field_name}` must be an integer.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected integer property `year`, got {year!r}")
+      
+      raise ValueError(*args)
     
     if year < 0:
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` must be greater than 0."
-      self.validation_passed = False
-      return False
+      if field_name:
+        args.append(f"Field `{field_name}` must be greater than 0.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected integer property `year` greater than 0, got {year!r}")
+
+      raise ValueError(*args)
     
     if year > 9999:
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` must be no greater than 9999."
-      self.validation_passed = False
-      return False
-        
-    return True
+      if field_name:
+        args.append(f"Field `{field_name}` must be no greater than 9999.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected integer property `year` no greater than 9999, got {year!r}")
+
+      raise ValueError(*args)
   # END _validate_year
 
 
-  def _validate_month(self, month) -> bool:
-    """Validates the `month` field in the raw data against constraints.
+  def _validate_month(self, month: Any, field_name: str | None = None):
+    """Validates the month against constraints.
 
-    Assigns validation class attributes on failure.
+    Args:
+      month (Any): The month property extracted from the incoming data.
+      field_name (str | None): The name of the month field associated with the incoming data.
 
-    Returns:
-      bool: False if validation fails, True otherwise.
+    Raises:
+      ValueError: If validation fails.
     """
+
+    if month is None:
+      return
     
-    field = f"{self._field_name}.month"
+    args = []
     
     if not isinstance(month, int):
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` must be an integer or null."
-      self.validation_passed = False
-      return False
+      if field_name:
+        args.append(f"Field `{field_name}` must be an integer or null.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected integer or empty property `month`, got {month!r}")
+
+      raise ValueError(*args)
     
     if month < 1:
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` must be greater than 0."
-      self.validation_passed = False
-      return False
+      if field_name:
+        args.append(f"Field `{field_name}` must be greater than 0.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected integer greater than 0 or empty property `month`, got {month!r}")
+
+      raise ValueError(*args)
     
     if month > 12:
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` must be no greater than 12."
-      self.validation_passed = False
-      return False
-    
-    return True
+      if field_name:
+        args.append(f"Field `{field_name}` must be no greater than 12.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected integer no greater than 12 or empty property `month`, got {month!r}")
+
+      raise ValueError(*args)
   # END _validate_month
 
 
-  def _validate_day(self, day) -> bool:
-    """Validates the `day` field in the raw data against constraints.
+  def _validate_day(self, day: Any, field_name: str | None = None):
+    """Validates the day against constraints.
 
-    Assigns validation class attributes on failure.
+    Args:
+      day (Any): The day property extracted from the incoming data.
+      field_name (str | None): The name of the day field associated with the incoming data.
 
-    Returns:
-      bool: False if validation fails, True otherwise.
+    Raises:
+      ValueError: If validation fails.
     """
-    
-    field = f"{self._field_name}.day"
+
+    if day is None:
+      return
+
+    args = []
     
     if not isinstance(day, int):
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` must be an integer or null."
-      self.validation_passed = False
-      return False
-    
+      if field_name:
+        args.append(f"Field `{field_name}` must be an integer or null.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected integer or empty property `day`, got {day!r}")
+
+      raise ValueError(*args)        
+
     if day < 1:
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` must be greater than 0."
-      self.validation_passed = False
-      return False
+      if field_name:
+        args.append(f"Field `{field_name}` must be greater than 0.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected integer greater than 0 or empty property `day`, got {day!r}")
+
+      raise ValueError(*args)
     
-    if (day > 31):
-      self.failed_field = field
-      self.validation_message = f"Field `{self.failed_field}` must be no greater than 31."
-      self.validation_passed = False
-      return False
-    
-    return True
+    if day > 31:
+      if field_name:
+        args.append(f"Field `{field_name}` must be no greater than 31.")
+        args.append(field_name)
+      else:
+        args.append(f"Expected integer no greater than 31 or empty property `day`, got {day!r}")
+
+      raise ValueError(*args)
   # END _validate_day
 
 
   def __str__(self) -> str:
     """
     Returns:
-      str: The validation message if validation failed, the string representation of the release date otherwise.
+      str: The string representation of the release date.
     """
-
-    if not self.validation_passed:
-      return self.validation_message
 
     value = ""
     value += str(self.year).zfill(4)
@@ -247,20 +288,24 @@ class TrackReleaseDate:
 
     Returns:
       TrackReleaseDate: The instance constructed.
+
+    Raises:
+      ValueError: If the year, month, or day in the release date string cannot be parsed as integers or if validation fails when instantiating the class.
     """
 
     segments = value.split("-")
-    data = {
-      "year": segments[0]
-    }
+    data = {}
+
+    if len(segments > 0):
+      data["year"] = int(segments[0])
 
     if len(segments) > 1:
-      data["month"] = segments[0]
+      data["month"] = int(segments[1])
 
     if len(segments) > 2:
-      data["day"] = segments[1]
+      data["day"] = segments[2]
 
-    return cls("", data)
+    return cls(data)
   # END from_string
 
 # END class TrackReleaseDate

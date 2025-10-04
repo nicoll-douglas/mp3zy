@@ -219,10 +219,12 @@ class PostDownloadsValidator:
     release_date = body.get(self._response.field)
 
     if release_date is not None:
-      release_date = TrackReleaseDate(self._response.field, release_date)
-
-      if not release_date.validation_passed:
-        self._response.message = release_date.validation_message
+      try:
+        release_date = TrackReleaseDate(release_date, self._response.field)
+      except ValueError as e:
+        message, field_name = e.args
+        self._response.field = field_name
+        self._response.message = message
         return False
       
     return release_date
