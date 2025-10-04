@@ -64,7 +64,7 @@ function startBackend(authKey: string) {
     cwd: backendSrcFolder,
     env: {
       ...process.env,
-      DATA_DIR: app.getPath("userData"),
+      USER_DATA_DIR: app.getPath("userData"),
       ELECTRON_AUTH_KEY: authKey,
     },
   };
