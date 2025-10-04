@@ -14,13 +14,7 @@ class GetDownloadsSearchResponse:
     
     parameter: str
     message: str
-
-
-    def __init__(self, parameter: str, message: str):
-      self.parameter = parameter
-      self.message = message
-    # END __init__
-
+    
   # END class BadRequest
 
 
@@ -32,11 +26,6 @@ class GetDownloadsSearchResponse:
     """
 
     results: list[DownloadSearchResult]
-
-
-    def __init__(self, results: list[DownloadSearchResult]):
-      self.results = results
-    # END __init__
 
 
     def get_serializable(self):

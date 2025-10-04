@@ -15,19 +15,21 @@ def post_downloads() -> tuple[Response, Literal[400, 200]]:
     tuple[Response, Literal[400, 200]]: The response and status code.
   """
 
-  data = request.get_json()
-  is_valid, validation_result_data = reqv.post_downloads_validate(data)
+  raw_body = request.get_json()
+  is_valid, validation_result_data = reqv.PostDownloadsValidator().validate(raw_body)
 
   if not is_valid:
     res_body = cast(PostDownloadsResponse.BadRequest, validation_result_data)
     return jsonify(res_body.__dict__), 400
   
   req_body = cast(PostDownloadsRequest, validation_result_data)
-  download_id = Downloader.queue(req_body)
+
+  res_body = PostDownloadsResponse.Ok()
+  res_body.download_id = Downloader.queue(req_body)
 
   Downloader.start()
   
-  return jsonify(PostDownloadsResponse.Ok(download_id).__dict__), 200
+  return jsonify(res_body.__dict__), 200
 # END post_downloads
 
 
@@ -39,14 +41,15 @@ def get_downloads_search():
     tuple[Response, Literal[400, 200]]: The response and status code.
   """
 
-  is_valid, validation_result_data = reqv.get_downloads_search_validate(request.args)
+  is_valid, validation_result_data = reqv.GetDownloadsSearchValidator().validate(request.args)
 
   if not is_valid:
     res_body = cast(GetDownloadsSearchResponse.BadRequest, validation_result_data)
     return jsonify(res_body.__dict__), 400
 
   req_body = cast(GetDownloadsSearchRequest, validation_result_data)
-  search_results = YtDlpClient().query_youtube(req_body)
-      
-  return jsonify(GetDownloadsSearchResponse.Ok(search_results).get_serializable()), 200
+  res_body = GetDownloadsSearchResponse.Ok()
+  res_body.results = YtDlpClient().query_youtube(req_body)
+  
+  return jsonify(res_body.get_serializable()), 200
 # END get_downloads_search

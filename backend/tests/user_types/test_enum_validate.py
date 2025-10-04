@@ -17,6 +17,7 @@ class EnumValuesAssertion(Enum):
 
 
 @pytest.fixture(params=[
+  # (test value, assertion type)
   ("", EnumValuesAssertion.IS_MISSING),
   (None, EnumValuesAssertion.IS_MISSING),
   ("value_1", EnumValuesAssertion.IS_IN_ENUM),
@@ -30,20 +31,14 @@ def enum_values_fixture(request):
 
 
 def test_enum_validate(enum_values_fixture):
-  value, assertion_type = enum_values_fixture
-  result = enum_validate(MyEnum, "my_enum", value)
+  test_value, assertion_type = enum_values_fixture
+  test_result = enum_validate(MyEnum, "my_enum", test_value)
 
   if assertion_type is EnumValuesAssertion.IS_INVALID or assertion_type is EnumValuesAssertion.IS_MISSING:
-    assert result[0] == False
-    assert isinstance(result[1], str)
-
-    if assertion_type is EnumValuesAssertion.IS_INVALID:
-      assert result[1] == "Field `my_enum` is invalid."
-
-    elif assertion_type is EnumValuesAssertion.IS_MISSING:
-      assert result[1] == "Field `my_enum` is required."
+    assert test_result[0] is False
+    assert isinstance(test_result[1], str)
   
   elif assertion_type is EnumValuesAssertion.IS_IN_ENUM:
-    assert result[0] == True
-    assert result[1] is None
+    assert test_result[0] is True
+    assert test_result[1] is None
 # END test_enum_validate

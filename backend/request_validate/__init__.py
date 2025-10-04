@@ -1,2 +1,2 @@
-from .post_downloads_validate import post_downloads_validate
-from .get_downloads_search_validate import get_downloads_search_validate
+from .post_downloads_validator import PostDownloadsValidator
+from .get_downloads_search_validator import GetDownloadsSearchValidator
