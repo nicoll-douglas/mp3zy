@@ -13,11 +13,11 @@ def enum_validate(enum: Enum, field_name: str, data: Any) -> tuple[Literal[False
     tuple[Literal[False], str] | tuple[Literal[True], None]: Returns a tuple with the first element being False if the value is not in the enum and the second being a string validation message, or True and None otherwise.
   """
   
-  if data is None:
-    return False, f"`{field_name}` is required."
+  if not data:
+    return False, f"Field `{field_name}` is required."
   
   has_value = any(data == member.value for member in enum)
-  message = None if has_value else f"`{field_name}` is invalid."
+  message = None if has_value else f"Field `{field_name}` is invalid."
 
   return has_value, message
 # END enum_validate
