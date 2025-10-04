@@ -21,7 +21,6 @@ class DownloadUpdate:
     completed_at (str | None): Timestamp of when the download was record was set to completed in the database.
     failed_at (str | None): Timestamp of when the download was set to failed in the database.
     eta (int | float | None): The amount of time in seconds left for the download.
-    old_status (DownloadStatus | None): The old status of the download in the last update.
   """
   
   download_id: int
@@ -38,7 +37,6 @@ class DownloadUpdate:
   completed_at: str | None
   failed_at: str | None
   eta: int | float | None
-  old_status: DownloadStatus | None
 
 
   def get_serializable(self) -> dict:
@@ -53,8 +51,7 @@ class DownloadUpdate:
       "status": self.status.value,
       "artist_names": self.artist_names.data,
       "codec": self.codec.value,
-      "bitrate": self.bitrate.value,
-      "old_status": None if self.old_status is None else self.old_status.value
+      "bitrate": self.bitrate.value
     }
   # END get_serializable
 

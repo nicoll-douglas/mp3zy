@@ -141,7 +141,6 @@ An object containing information about a download update for a track being downl
 ```
 {
   "download_id": number,
-  "old_status": DownloadStatus | null,
   "status": DownloadStatus,
   "downloaded_bytes": number | null,
   "total_bytes": number | null,
@@ -159,7 +158,6 @@ An object containing information about a download update for a track being downl
 ```
 
 - `download_id` - The ID associated with a download record.
-- `old_status` - The status of the download on its last update.
 - `status` - The current status of the download.
 - `downloaded_bytes` - The number of bytes already downloaded if the download was started.
 - `total_bytes` - The total number of bytes that is being downloaded if the download was started.
