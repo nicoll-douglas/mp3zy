@@ -2,18 +2,23 @@ from user_types import enum_validate
 from enum import Enum
 import pytest
 
-class MyEnum(Enum):
-  VALUE_1 = "value_1"
-  VALUE_2 = "value_2"
-  VALUE_3 = "value_3"
-# END class MyEnum
-
-
 class EnumValuesAssertion(Enum):
   IS_MISSING = 1
   IS_IN_ENUM = 2
   IS_INVALID = 3
 # END class EnumValuesAssertion
+
+
+@pytest.fixture
+def sample_enum():
+  class MyEnum(Enum):
+    VALUE_1 = "value_1"
+    VALUE_2 = "value_2"
+    VALUE_3 = "value_3"
+  # END class MyEnum
+
+  return MyEnum
+# END sample_enum
 
 
 @pytest.fixture(params=[
@@ -30,9 +35,9 @@ def enum_values_fixture(request):
 # END enum_values_fixture
 
 
-def test_enum_validate(enum_values_fixture):
+def test_enum_validate(enum_values_fixture, sample_enum):
   test_value, assertion_type = enum_values_fixture
-  test_result = enum_validate(MyEnum, "my_enum", test_value)
+  test_result = enum_validate(sample_enum, "my_enum", test_value)
 
   if assertion_type is EnumValuesAssertion.IS_INVALID or assertion_type is EnumValuesAssertion.IS_MISSING:
     assert test_result[0] is False
