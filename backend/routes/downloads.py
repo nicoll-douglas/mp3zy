@@ -33,6 +33,11 @@ def post_downloads() -> tuple[Response, Literal[400, 200]]:
 
 @downloads_bp.route("/downloads/search", methods=["GET"])
 def get_downloads_search():
+  """Interfaces with yt-dlp to query for search results of YouTube videos to be downloaded.
+  
+  Returns:
+    tuple[Response, Literal[400, 200]]: The response and status code.
+  """
 
   is_valid, validation_result_data = reqv.get_downloads_search_validate(request.args)
 
