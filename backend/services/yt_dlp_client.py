@@ -2,6 +2,7 @@ import models
 import yt_dlp
 from user_types.requests import PostDownloadsRequest, GetDownloadsSearchRequest
 from user_types import DownloadSearchResult
+from typing import Callable
 
 class YtDlpClient:
   """Service class that interfaces with yt-dlp.
@@ -42,10 +43,22 @@ class YtDlpClient:
   
   def download_track(self,
     track_info: PostDownloadsRequest,
-    progress_hook,
+    progress_hook: Callable[[dict], None],
     save_dir: str | None = None,
     track_id: str | None = None
   ) -> models.disk.Track:
+    """Uses the yt-dlp downloader to download the associated track.
+
+    Args:
+      track_info (PostDownloadsRequest): Contains all information about the track.
+      progress_hook (Callable[[dict], None]): The progress hook function to be passed to the downloader.
+      save_dir (str | None): The preferred root directory that the track will be saved under.
+      track_id (str | None): A unique identifier that will go in the downloaded track filename.
+
+    Returns:
+      models.disk.Track: A disk model track instance.
+    """
+
     track = models.disk.Track(track_info, save_dir, track_id)
     ydl_opts = {
       "format": "bestaudio/best",

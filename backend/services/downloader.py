@@ -1,9 +1,10 @@
 from services import YtDlpClient
 from user_types.requests import PostDownloadsRequest
-from user_types import TrackBitrate, TrackCodec, TrackReleaseDate
+from user_types import TrackBitrate, TrackCodec, TrackReleaseDate, DownloadUpdate, DownloadStatus, TrackArtistNames
 import models, db
 import threading
-from typing import cast
+from typing import cast, Callable
+from sockets import downloads_socket
 
 class Downloader:
   """A singleton class that acts as the controller for track downloads in the application.
@@ -15,13 +16,83 @@ class Downloader:
   _thread: threading.Thread | None = None
 
 
-  @classmethod
-  def _progress_hook():
-    pass
+  @staticmethod
+  def _create_progress_hook(update: DownloadUpdate) -> Callable[[dict], None]:
+    """Creates a progress hook function to be passed to the yt-dlp client instance when downloading.
+
+    Args:
+      update (DownloadUpdate): The download update to be emitted via web socket in the progress hook.
+
+    Returns:
+      Callable[[dict], None]: The progress hook function.
+    """
+    
+    def progress_hook(hook_data: dict):
+      update.total_bytes = hook_data["total_bytes"]
+      update.downloaded_bytes = hook_data["downloaded_bytes"]
+      update.speed = hook_data["speed"]
+      update.eta = hook_data["eta"]
+
+      # update database here
+
+      downloads_socket.send_download_update(update)
+    # END progress_hook
+
+    return progress_hook
+  # END _create_progress_hook
 
 
   @classmethod
-  def queue(cls, track_info: PostDownloadsRequest) -> int:
+  def _thread_target(cls):
+    """Defines the thread target to pass to the downloader thread when it is created.
+    """
+    
+    with db.connect() as conn:
+      next_download = models.db.Download(conn).get_next_in_queue()
+
+      while next_download:
+        artist_names = TrackArtistNames(next_download["artist_names"])
+        track_name = next_download["track_name"]
+        codec = TrackCodec(next_download["codec"])
+        bitrate = TrackBitrate(next_download["bitrate"])
+        
+        update = DownloadUpdate()
+        update.status = DownloadStatus.DOWNLOADING
+        update.download_id = next_download["download_id"]
+        update.artist_names = artist_names
+        update.track_name = track_name
+        update.codec = codec
+        update.bitrate = bitrate
+        update.url = next_download["url"]
+        update.completed_at = next_download["completed_at"]
+        update.failed_at = next_download["failed_at"]
+        update.created_at = next_download["created_at"]
+
+        progress_hook = cls._create_progress_hook(update)
+
+        track_info = PostDownloadsRequest()
+        track_info.album_name = next_download["album_name"]
+        track_info.track_name = track_name
+        track_info.artist_names = artist_names
+        track_info.bitrate = bitrate
+        track_info.codec = codec
+        track_info.disc_number = next_download["disc_number"]
+        track_info.track_number = next_download["track_number"]
+        track_info.release_date = TrackReleaseDate.from_string(next_download["release_date"])
+
+        # here when spotify sync is implemented, we will pass an associated save dir and track id retrieved from the database
+        # we will also have to implement a try catch here; on failure update the download in db to failed and emit this update to the socket
+        track_model = YtDlpClient().download_track(track_info, progress_hook)
+
+        # on success here we have to update the metadata of the track using the track model to get the path
+        # then we have to set the download to completed in the db then emit this update to the socket
+        
+        next_download = models.db.Download(conn).get_next_in_queue()
+  # END _thread_target
+
+
+  @staticmethod
+  def queue(track_info: PostDownloadsRequest) -> int:
     """Inserts the track info into the database and inserts a download row as queued.
 
     Args:
@@ -58,6 +129,22 @@ class Downloader:
         "metadata_id": metadata_id
       })
 
+      # need to query for created_at here
+
+    update = DownloadUpdate()
+    update.status = DownloadStatus.QUEUED
+    update.download_id = download_id
+    update.artist_names = track_info.artist_names
+    update.track_name = track_info.track_name
+    update.codec = track_info.codec
+    update.bitrate = track_info.bitrate
+    update.url = track_info.url
+    update.completed_at = None
+    update.failed_at = None
+    # assign created_at to the update here
+
+    downloads_socket.send_download_update(update)
+
     return download_id
   # END queue
 
@@ -72,28 +159,8 @@ class Downloader:
 
     if cls._thread is not None and cls._thread.is_alive():
       return False
-    
-    def target():
-      with db.connect() as conn:
-        yt_dlp_client = YtDlpClient()
-        next_download = models.db.Download(conn).get_next_in_queue()
 
-        while next_download:
-          track_info = PostDownloadsRequest()
-          track_info.album_name = next_download["album_name"]
-          track_info.track_name = next_download["track_name"]
-          track_info.artist_names = next_download["artist_names"]
-          track_info.bitrate = TrackBitrate(next_download["bitrate"])
-          track_info.codec = TrackCodec(next_download["codec"])
-          track_info.disc_number = next_download["disc_number"]
-          track_info.track_number = next_download["track_number"]
-          track_info.release_date = TrackReleaseDate.from_string(next_download["release_date"])
-
-          yt_dlp_client.download_track(track_info)
-          next_download = models.db.Download(conn).get_next_in_queue()
-    # END target
-
-    cls._thread = threading.Thread(target=target)
+    cls._thread = threading.Thread(target=cls._thread_target)
     cls._thread.start()
     return True
   # END start
