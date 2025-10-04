@@ -13,7 +13,7 @@ def get_downloads_search_validate(params: MultiDict[str, str]) -> tuple[Literal[
     tuple[Literal[False], PostDownloadsResponse.BadRequest] | tuple[Literal[True], PostDownloadsRequest]: A tuple where on successful validation the first element is True and the second are the sanitized params, or on failure the first element is False and the second is the response body to send.
   """
   
-  res = GetDownloadsSearchResponse.BadRequest()
+  res = GetDownloadsSearchResponse.BadRequest("", "")
   res.parameter = "main_artist"
   main_artist = params.get(res.parameter)
 
