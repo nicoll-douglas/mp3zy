@@ -139,8 +139,7 @@ class Downloader:
     update.codec = track_info.codec
     update.bitrate = track_info.bitrate
     update.url = track_info.url
-    update.completed_at = None
-    update.failed_at = None
+    update.terminated_at = None
     # assign created_at to the update here
 
     downloads_socket.send_download_update(update)
