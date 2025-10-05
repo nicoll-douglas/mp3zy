@@ -34,7 +34,6 @@ SELECT
   d.speed,
   d.eta,
   d.created_at,
-  d.updated_at,
   d.failed_at,
   d.completed_at,
   m.id AS metadata_id,

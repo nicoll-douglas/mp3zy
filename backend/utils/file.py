@@ -2,7 +2,7 @@ import os, json
 from platformdirs import user_cache_dir
 
 class File:
-  SETTINGS_LOCATION: str = os.path.join(os.getenv("DATA_DIR"), "settings.json")
+  SETTINGS_LOCATION: str = os.path.join(os.getenv("USER_DATA_DIR"), "settings.json")
   CACHE_DIR: str = user_cache_dir(os.getenv("VITE_APP_NAME"))
 
   @classmethod

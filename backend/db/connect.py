@@ -8,6 +8,7 @@ def connect() -> sqlite3.Connection:
   Returns:
     sqlite3.Connection: The database connection.
   """
+  
   conn = sqlite3.connect(PATH)
   conn.row_factory = sqlite3.Row
   return conn
