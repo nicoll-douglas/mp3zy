@@ -1,5 +1,5 @@
 from user_types import TrackArtistNames, TrackCodec, TrackBitrate, TrackReleaseDate, enum_validate
-from typing import Any, Literal
+from typing import Any, Literal, Callable
 from user_types.requests import PostDownloadsRequest
 from user_types.reponses import PostDownloadsResponse
 import copy
@@ -241,66 +241,32 @@ class PostDownloadsValidator:
       tuple[Literal[False], PostDownloadsResponse.BadRequest] | tuple[Literal[True], PostDownloadsRequest]: A tuple where on successful validation the first element is True and the second is the sanitized request body, or on failure the first element is False and the second is the response body to send.
     """
 
-    validated_body = self._validate_body(body)
     bad_request = (False, self._response)
+    validated_body = self._validate_body(body)
 
     if validated_body is False:
       return bad_request
     
-    artist_names = self._validate_artist_names(validated_body)
+    validators: list[tuple[Callable[[dict], Literal[False] | Any], str]] = [
+      # (validator function, attribute name on self._request)
+      (self._validate_artist_names, "artist_names"),
+      (self._validate_track_name, "track_name"),
+      (self._validate_url, "url"),
+      (self._validate_codec, "codec"),
+      (self._validate_bitrate, "bitrate"),
+      (self._validate_album_name, "album_name"),
+      (lambda: validated_body, self._validate_track_or_disc_number(validated_body, "track_number"), "track_number"),
+      (lambda: validated_body, self._validate_track_or_disc_number(validated_body, "disc_number"), "disc_number"),
+      (self._validate_release_date, "release_date")
+    ]
 
-    if artist_names is False:
-      return bad_request
-    
-    track_name = self._validate_track_name(validated_body)
+    for validator_func, request_attr_name in validators:
+      result = validator_func(validated_body)
 
-    if track_name is False:
-      return bad_request
-    
-    url = self._validate_url(validated_body)
-
-    if url is False: 
-      return bad_request
-    
-    codec = self._validate_codec(validated_body)
-
-    if codec is False:
-      return bad_request
-    
-    bitrate = self._validate_bitrate(validated_body)
-
-    if bitrate is False:
-      return bad_request
-
-    album_name = self._validate_album_name(validated_body)
-
-    if album_name is False:
-      return bad_request
-    
-    track_number = self._validate_track_or_disc_number(validated_body, "track_number")
-
-    if track_number is False:
-      return bad_request
-    
-    disc_number = self._validate_track_or_disc_number(validated_body, "disc_number")
-
-    if disc_number is False:
-      return bad_request
-
-    release_date = self._validate_release_date(validated_body)
-
-    if release_date is False:
-      return bad_request
-
-    self._request.artist_names = artist_names
-    self._request.track_name = track_name
-    self._request.url = url
-    self._request.album_name = album_name
-    self._request.codec = codec
-    self._request.bitrate = bitrate
-    self._request.track_number = track_number
-    self._request.disc_number = disc_number
-    self._request.release_date = release_date
+      if result is False:
+        return bad_request
+      
+      setattr(self._request, request_attr_name, result)
     
     return True, self._request
   # END validate
