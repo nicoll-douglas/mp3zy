@@ -18,8 +18,7 @@ class DownloadUpdate:
     total_bytes (int | None): The total number of bytes that will be downloaded.
     speed (int | float | None): The speed of the download.
     downloaded_bytes (int | None): THe number of bytes already downloaded.
-    completed_at (str | None): Timestamp of when the download was record was set to completed in the database.
-    failed_at (str | None): Timestamp of when the download was set to failed in the database.
+    terminated_at (str | None): Timestamp of when the download record was set to completed or failed in the database.
     eta (int | float | None): The amount of time in seconds left for the download.
   """
   
@@ -34,8 +33,7 @@ class DownloadUpdate:
   total_bytes: int | None
   speed: int | float | None
   downloaded_bytes: int | None
-  completed_at: str | None
-  failed_at: str | None
+  terminated_at: str | None
   eta: int | float | None
 
 

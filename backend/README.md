@@ -110,17 +110,19 @@ A search result containing basic metadata about a downloadable video from YouTub
 
 ```
 {
-  "title": string,
-  "channel": string,
-  "duration": number,
-  "url": string
+  "title": string | null,
+  "channel": string | null,
+  "url": string,
+  "duration": number | null,
+  "thumbnail: string | null
 }
 ```
 
 - `title` - The video title.
 - `channel` - The video's channel/uploader.
-- `duration` - The duration of the video in seconds.
 - `url` - The URL of the video which can and should be provided for when downloading.
+- `duration` - The duration of the video in seconds.
+- `thumbnail` - The URL of the video thumbnail.
 
 ### DownloadStatus
 
@@ -169,8 +171,7 @@ An object containing information about a download update for a track being downl
 - `bitrate` - The bitrate of the final file that will be output by the download if applicable.
 - `url` - The source URL of the file being downloaded.
 - `created_at` - A timestamp indicating when the download record was created.
-- `completed_at` - A timestamp indicating when the download completed if so.
-- `failed_at` - A timestamp indicating when the download failed if so.
+- `terminated_at` - A timestamp indicating when the download completed or failed if so.
 
 ## REST API
 

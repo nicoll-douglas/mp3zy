@@ -18,24 +18,35 @@ class YtDlpClient:
       list[DownloadSearchResult]: The search results.
     """
     
-    search_query = f"ytsearch10:{query.main_artist} {query.track_name}"
+    search_query = f"ytsearch5:{query.main_artist} {query.track_name}"
     
     info = yt_dlp.YoutubeDL({
       "skip_download": True,
       "extract_flat": True
     }).extract_info(search_query, download=False)
 
-    entries = info["entries"] if "entries" in info else info
+    entries = info.get("entries", [])
     ordered_entries = self._order_entries(entries, query)
     search_results: list[DownloadSearchResult] = []
 
     for entry in ordered_entries:
-      result = DownloadSearchResult()
-      result.title = entry["title"]
-      result.url = entry["url"]
-      result.channel = entry["channel"]
-      result.duration = entry["duration"]
-      search_results.append(result)
+      url = entry.get("url")
+
+      if url:
+        result = DownloadSearchResult()
+        result.title = entry.get("title")
+        result.url = url
+        result.channel = entry.get("uploader") or entry.get("channel")
+        result.duration = entry.get("duration")
+        thumbnails = entry.get("thumbnails")
+
+        if isinstance(thumbnails, list) and thumbnails and isinstance(thumbnails[0], dict) and thumbnails[0].get("url"):
+          result.thumbnail = thumbnails[0].get("url")
+        else:
+          id = entry.get("id")
+          result.thumbnail = f"https://i.ytimg.com/vi/{id}/hqdefault.jpg" if id else None
+
+        search_results.append(result)
 
     return search_results
   # END query_youtube
@@ -78,8 +89,8 @@ class YtDlpClient:
   # END download_track
 
 
-  def _order_entries(self, entries: list, query: GetDownloadsSearchRequest) -> list:
-    """Orders search result entries based on how well they aligm with the search query.
+  def _order_entries(self, entries: list, query: GetDownloadsSearchRequest) -> list[dict]:
+    """Orders search result entries based on how well they align with the search query.
 
     Args:
       entries (list): The search results entries.
@@ -90,24 +101,28 @@ class YtDlpClient:
     """
     
     def score(entry: dict):
-      video_title = entry.get("title", "").lower()
-      video_channel = entry.get("channel", "").lower()
-      view_count = entry.get("view_count", 0)
+      video_title = entry.get("title")
+      video_channel = entry.get("uploader") or entry.get("channel")
+      view_count = entry.get("view_count")
       score_value = 0
 
-      if query.track_name.lower() in video_title:
-        score_value += 5
-      if "official audio" in video_title:
-        score_value += 20
-      if " - topic" in video_channel:
-        score_value += 100
-      if query.main_artist.lower() == video_channel:
-        score_value += 5
-      if query.main_artist.lower() in video_title:
-        score_value += 5
-      
-      score_value += min(view_count // 100_000, 10)
+      if video_title:
+        if query.track_name.lower() in video_title.lower():
+          score_value += 5
+        if "official audio" in video_title:
+          score_value += 20
+        if query.main_artist.lower() in video_title.lower():
+          score_value += 5
 
+      if video_channel:
+        if " - topic" in video_channel.lower():
+          score_value += 100
+        if query.main_artist.lower() == video_channel.lower():
+          score_value += 5
+      
+      if view_count is not None:
+        score_value += min(view_count // 100_000, 10)
+      
       return score_value
     # END score
 

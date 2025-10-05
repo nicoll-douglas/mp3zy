@@ -67,4 +67,4 @@ class TestGetDownloadsSearchValidator:
       raise ValueError("Unknown assertion type")
   # END test_validate
 
-# END class
+# END class TestGetDownloadsSearchValidator

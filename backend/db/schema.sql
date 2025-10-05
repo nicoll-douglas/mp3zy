@@ -10,8 +10,7 @@ CREATE TABLE IF NOT EXISTS downloads (
   speed INTEGER,
   eta INTEGER,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  failed_at TIMESTAMP,
-  completed_at TIMESTAMP,
+  terminated_at TIMESTAMP,
   FOREIGN KEY (metadata_id) REFERENCES metadata(id) ON DELETE SET NULL
 );
 

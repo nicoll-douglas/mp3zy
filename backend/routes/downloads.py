@@ -23,7 +23,6 @@ def post_downloads() -> tuple[Response, Literal[400, 200]]:
     return jsonify(res_body.__dict__), 400
   
   req_body = cast(PostDownloadsRequest, validation_result_data)
-
   res_body = PostDownloadsResponse.Ok()
   res_body.download_id = Downloader.queue(req_body)
 
@@ -49,6 +48,7 @@ def get_downloads_search():
 
   req_body = cast(GetDownloadsSearchRequest, validation_result_data)
   res_body = GetDownloadsSearchResponse.Ok()
+  # do try catch
   res_body.results = YtDlpClient().query_youtube(req_body)
   
   return jsonify(res_body.get_serializable()), 200
