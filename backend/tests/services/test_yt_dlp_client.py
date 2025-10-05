@@ -22,20 +22,25 @@ class TestYtDlpClient:
 
   def test_query_youtube(self, query_fixture):
     query_test_value = query_fixture
-    search_results = YtDlpClient().query_youtube(query_test_value)
+    is_success, result = YtDlpClient().query_youtube(query_test_value)
 
-    assert isinstance(search_results, list)
-    assert all(isinstance(s, DownloadSearchResult) for s in search_results)
-    assert all(hasattr(s, "title") for s in search_results)
-    assert all(s.title is None or isinstance(s.title, str) for s in search_results)
-    assert all(hasattr(s, "channel") for s in search_results)
-    assert all(s.channel is None or isinstance(s.channel, str) for s in search_results)
-    assert all(hasattr(s, "duration") for s in search_results)
-    assert all(s.duration is None or isinstance(s.duration, int | float) for s in search_results)
-    assert all(hasattr(s, "thumbnail") for s in search_results)
-    assert all(s.thumbnail or isinstance(s.thumbnail, str) for s in search_results)
-    assert all(hasattr(s, "url") for s in search_results)
-    assert all(s.url is None or (isinstance(s.url, str) and s.url != "") for s in search_results)
+    assert(isinstance(is_success, bool))
+
+    if is_success:
+      assert isinstance(result, list)
+      assert all(isinstance(s, DownloadSearchResult) for s in result)
+      assert all(hasattr(s, "title") for s in result)
+      assert all(s.title is None or isinstance(s.title, str) for s in result)
+      assert all(hasattr(s, "channel") for s in result)
+      assert all(s.channel is None or isinstance(s.channel, str) for s in result)
+      assert all(hasattr(s, "duration") for s in result)
+      assert all(s.duration is None or isinstance(s.duration, int | float) for s in result)
+      assert all(hasattr(s, "thumbnail") for s in result)
+      assert all(s.thumbnail or isinstance(s.thumbnail, str) for s in result)
+      assert all(hasattr(s, "url") for s in result)
+      assert all(s.url is None or (isinstance(s.url, str) and s.url != "") for s in result)
+    else:
+      assert isinstance(result, str)
   # END test_query_youtube
 
 # END class TestYtDlpClient

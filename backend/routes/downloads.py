@@ -3,6 +3,7 @@ import request_validate as reqv
 from typing import cast, Literal
 from user_types.reponses import PostDownloadsResponse, GetDownloadsSearchResponse
 from user_types.requests import PostDownloadsRequest, GetDownloadsSearchRequest
+from user_types import DownloadSearchResult
 from services import Downloader, YtDlpClient
 
 downloads_bp = Blueprint("downloads", __name__)
@@ -47,9 +48,15 @@ def get_downloads_search():
     return jsonify(res_body.__dict__), 400
 
   req_body = cast(GetDownloadsSearchRequest, validation_result_data)
+  is_success, result = YtDlpClient().query_youtube(req_body)
+
+  if not is_success:
+    res_body = GetDownloadsSearchResponse.ServerError()
+    res_body.message = cast(str, result)
+    return jsonify(res_body.__dict__), 500
+
   res_body = GetDownloadsSearchResponse.Ok()
-  # do try catch
-  res_body.results = YtDlpClient().query_youtube(req_body)
+  res_body.results = cast(list[DownloadSearchResult], result)
   
   return jsonify(res_body.get_serializable()), 200
 # END get_downloads_search

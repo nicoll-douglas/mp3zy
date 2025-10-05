@@ -42,4 +42,16 @@ class GetDownloadsSearchResponse:
     
   # END class Ok
 
+
+  class ServerError:
+    """Represents the response body for a 500 status code request to a GET /downloads/search request.
+
+    Attributes:
+      message (str): A user-friendly error message.
+    """
+
+    message: str
+
+  # END class ServerError
+
 # END class GetDownloadsSearchResponse

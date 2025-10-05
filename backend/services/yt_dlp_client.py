@@ -2,28 +2,38 @@ import models
 import yt_dlp
 from user_types.requests import PostDownloadsRequest, GetDownloadsSearchRequest
 from user_types import DownloadSearchResult
-from typing import Callable
+from typing import Callable, Literal
+from yt_dlp.utils import DownloadError, ExtractorError, UnsupportedError
 
 class YtDlpClient:
   """Service class that interfaces with yt-dlp.
   """
   
-  def query_youtube(self, query: GetDownloadsSearchRequest) -> list[DownloadSearchResult]:
+  def query_youtube(self, query: GetDownloadsSearchRequest) -> tuple[Literal[False], str] | tuple[Literal[True], list[DownloadSearchResult]]:
     """Scrapes and aggregates search results of YouTube videos that may be downloaded as an audio source based on the query.
 
     Args:
       query (GetDownloadsSearchRequest): The search query containing the main artist and name of the track.
 
     Returns:
-      list[DownloadSearchResult]: The search results.
+      tuple[Literal[False], str] | tuple[Literal[True], list[DownloadSearchResult]]: On failure the first element is False and the second is a user-friendly error message, otherwise the first element is True and the second is the search results.
     """
     
     search_query = f"ytsearch5:{query.main_artist} {query.track_name}"
     
-    info = yt_dlp.YoutubeDL({
-      "skip_download": True,
-      "extract_flat": True
-    }).extract_info(search_query, download=False)
+    try:
+      info = yt_dlp.YoutubeDL({
+        "skip_download": True,
+        "extract_flat": True
+      }).extract_info(search_query, download=False)
+    except DownloadError as e:
+      return False, "Unable to fetch video data."
+    except ExtractorError as e:
+      return False, "Failed to extract video metadata."
+    except UnsupportedError as e:
+      return False, "Video search URL is not supported."
+    except Exception as e:
+      return False, "An unexpected error occurred."
 
     entries = info.get("entries", [])
     ordered_entries = self._order_entries(entries, query)
@@ -48,7 +58,7 @@ class YtDlpClient:
 
         search_results.append(result)
 
-    return search_results
+    return True, search_results
   # END query_youtube
 
   
