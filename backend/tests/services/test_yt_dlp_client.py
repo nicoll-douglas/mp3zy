@@ -2,6 +2,9 @@ import pytest
 from user_types.requests import GetDownloadsSearchRequest
 from user_types import DownloadSearchResult
 from services import YtDlpClient
+from yt_dlp.utils import DownloadError, ExtractorError, UnsupportedError
+from unittest.mock import patch
+
 
 @pytest.fixture(params=[
   # (main artist, track name)
@@ -16,6 +19,18 @@ def query_fixture(request):
   test_value.track_name = track_name
   return test_value
 # END query_fixture
+
+
+@pytest.fixture(params=[
+  DownloadError,
+  ExtractorError,
+  UnsupportedError,
+  ValueError,
+  Exception
+])
+def search_error_fixture(request):
+  return request.param
+# END search_error_fixture
 
 
 class TestYtDlpClient:
@@ -42,5 +57,20 @@ class TestYtDlpClient:
     else:
       assert isinstance(result, str)
   # END test_query_youtube
+
+
+  def test_query_youtube_with_error(self, search_error_fixture):
+    with patch("yt_dlp.YoutubeDL") as mock_ytdl_class:
+      mock_instance = mock_ytdl_class.return_value
+      mock_instance.extract_info.side_effect = search_error_fixture("error message")
+
+      query = GetDownloadsSearchRequest()
+      query.main_artist = "Queen"
+      query.track_name = "Radio Ga Ga"
+      is_success, result = YtDlpClient().query_youtube(query)
+
+      assert is_success is False
+      assert isinstance(result, str)
+  # END test_query_youtube_with_error
 
 # END class TestYtDlpClient

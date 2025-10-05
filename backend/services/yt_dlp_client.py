@@ -66,7 +66,7 @@ class YtDlpClient:
     track_info: PostDownloadsRequest,
     progress_hook: Callable[[dict], None],
     save_dir: str | None = None,
-    track_id: str | None = None
+    track_id: str | None = None 
   ) -> models.disk.Track:
     """Uses the yt-dlp downloader to download the associated track.
 
