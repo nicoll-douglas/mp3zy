@@ -84,15 +84,17 @@ class TestPostDownloadsValidator:
   def test__validate_body(self, validate_body_fixture):
     body_test_value, assertion_type = validate_body_fixture
     validator = PostDownloadsValidator()
-    test_result = validator._validate_body(body_test_value)
+    validation_result = validator._validate_body(body_test_value)
 
     if assertion_type is ValidateAssertion.INVALID:
-      assert test_result is False
+      assert validation_result is False
       assert hasattr(validator._response, "field")
       assert hasattr(validator._response, "message")
+      assert isinstance(validator._response.field, str)
+      assert isinstance(validator._response.message, str)
 
     elif assertion_type is ValidateAssertion.VALID:
-      assert isinstance(test_result, dict)
+      assert isinstance(validation_result, dict)
           
     else:
       raise ValueError("Unknown assertion type")
@@ -102,16 +104,17 @@ class TestPostDownloadsValidator:
   def test__validate_track_name(self, validate_track_name_fixture):
     body_test_value, assertion_type = validate_track_name_fixture
     validator = PostDownloadsValidator()
-    test_result = validator._validate_track_name(body_test_value)
+    validation_result = validator._validate_track_name(body_test_value)
 
     if assertion_type is ValidateAssertion.INVALID:
-      assert test_result is False
+      assert validation_result is False
       assert hasattr(validator._response, "field")
       assert validator._response.field == "track_name"
       assert hasattr(validator._response, "message")
+      assert isinstance(validator._response.message, str)
 
     elif assertion_type is ValidateAssertion.VALID:
-      assert isinstance(test_result, str)    
+      assert isinstance(validation_result, str)    
 
     else:
       raise ValueError("Unknown assertion type")
@@ -121,16 +124,17 @@ class TestPostDownloadsValidator:
   def test__validate_url(self, validate_url_fixture):
     body_test_value, assertion_type = validate_url_fixture
     validator = PostDownloadsValidator()
-    test_result = validator._validate_url(body_test_value)
+    validation_result = validator._validate_url(body_test_value)
 
     if assertion_type is ValidateAssertion.INVALID:
-      assert test_result is False
+      assert validation_result is False
       assert hasattr(validator._response, "field")
       assert validator._response.field == "url"
       assert hasattr(validator._response, "message")
+      assert isinstance(validator._response.message, str)
 
     elif assertion_type is ValidateAssertion.VALID:
-      assert isinstance(test_result, str)
+      assert isinstance(validation_result, str)
           
     else:
       raise ValueError("Unknown assertion type")
@@ -140,16 +144,17 @@ class TestPostDownloadsValidator:
   def test__validate_album_name(self, validate_album_name_fixture):
     body_test_value, assertion_type = validate_album_name_fixture
     validator = PostDownloadsValidator()
-    test_result = validator._validate_album_name(body_test_value)
+    validation_result = validator._validate_album_name(body_test_value)
 
     if assertion_type is ValidateAssertion.INVALID:
-      assert test_result is False
+      assert validation_result is False
       assert hasattr(validator._response, "field")
       assert validator._response.field == "album_name"
       assert hasattr(validator._response, "message")
+      assert isinstance(validator._response.message, str)
 
     elif assertion_type is ValidateAssertion.VALID:
-      assert test_result is None or isinstance(test_result, str)          
+      assert validation_result is None or isinstance(validation_result, str)          
 
     else:
       raise ValueError("Unknown assertion type")
@@ -159,16 +164,17 @@ class TestPostDownloadsValidator:
   def test__validate_track_or_disc_number(self, validate_track_or_disc_number_fixture):
     field_name_test_value, body_test_value, assertion_type = validate_track_or_disc_number_fixture
     validator = PostDownloadsValidator()
-    test_result = validator._validate_track_or_disc_number(body_test_value, field_name_test_value)
+    validation_result = validator._validate_track_or_disc_number(body_test_value, field_name_test_value)
 
     if assertion_type is ValidateAssertion.INVALID:
-      assert test_result is False
+      assert validation_result is False
       assert hasattr(validator._response, "field")
       assert validator._response.field == field_name_test_value
       assert hasattr(validator._response, "message")
+      assert isinstance(validator._response.message, str)
 
     elif assertion_type is ValidateAssertion.VALID:
-      assert test_result is None or isinstance(test_result, int)
+      assert validation_result is None or isinstance(validation_result, int)
 
     else:
       raise ValueError("Unknown assertion type")

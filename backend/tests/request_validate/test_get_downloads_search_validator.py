@@ -40,28 +40,34 @@ class TestGetDownloadsSearchValidator:
     params_test_value, assertion_type = validate_fixture
     test_result = GetDownloadsSearchValidator().validate(params_test_value)
 
+    assert isinstance(test_result, tuple)
+    assert len(test_result) == 2
+
+    is_valid_flag, validation_result_data = test_result
+    
     if isinstance(assertion_type, BadRequestParamsAssertion):
-      assert test_result[0] is False
-      assert isinstance(test_result[1], GetDownloadsSearchResponse.BadRequest)
-      assert hasattr(test_result[1], "message")
-      assert hasattr(test_result[1], "parameter")
+      assert is_valid_flag is False
+      assert isinstance(validation_result_data, GetDownloadsSearchResponse.BadRequest)
+      assert hasattr(validation_result_data, "message")
+      assert hasattr(validation_result_data, "parameter")
+      assert isinstance(validation_result_data.message, str)
 
       if assertion_type is BadRequestParamsAssertion.BOTH_MISSING:
-        assert test_result[1].parameter == "main_artist" or test_result[1].parameter == "track_name"
+        assert validation_result_data.parameter == "main_artist" or validation_result_data.parameter == "track_name"
 
       elif assertion_type is BadRequestParamsAssertion.MAIN_ARTIST_MISSING:
-        assert test_result[1].parameter == "main_artist"
+        assert validation_result_data.parameter == "main_artist"
 
       elif assertion_type is BadRequestParamsAssertion.TRACK_NAME_MISSING:
-        assert test_result[1].parameter == "track_name"
+        assert validation_result_data.parameter == "track_name"
         
     elif isinstance(assertion_type, GoodRequestParamsAssertion):
-      assert test_result[0] is True
-      assert isinstance(test_result[1], GetDownloadsSearchRequest)
-      assert hasattr(test_result[1], "main_artist")
-      assert hasattr(test_result[1], "track_name")
-      assert test_result[1].main_artist == "Queen"
-      assert test_result[1].track_name == "Radio Ga Ga"
+      assert is_valid_flag is True
+      assert isinstance(validation_result_data, GetDownloadsSearchRequest)
+      assert hasattr(validation_result_data, "main_artist")
+      assert hasattr(validation_result_data, "track_name")
+      assert validation_result_data.main_artist == "Queen"
+      assert validation_result_data.track_name == "Radio Ga Ga"
     
     else:
       raise ValueError("Unknown assertion type")
