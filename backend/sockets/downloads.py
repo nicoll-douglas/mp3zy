@@ -1,5 +1,6 @@
 from flask_socketio import Namespace
 from user_types import DownloadUpdate
+from typing import Literal
 
 DOWNLOADS_NAMESPACE = "/downloads"
 
