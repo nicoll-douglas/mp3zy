@@ -23,11 +23,11 @@ class Artist(Model):
       list[int]: A list of the integer IDs of the rows that were inserted.
     """
     
-    ids = []
+    ids: list[int] = []
     
     for d in data:
-      self.insert(d)
-      ids.append(self._cur.lastrowid)
+      id = self.insert(d)
+      ids.append()
 
     return ids
   # END insert_many

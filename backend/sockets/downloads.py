@@ -5,6 +5,9 @@ DOWNLOADS_NAMESPACE = "/downloads"
 
 class DownloadsSocket(Namespace):
 
+  DOWNLOAD_UPDATE_EVENT = "download_update"
+  DOWNLOAD_INIT_EVENT = "download_init"
+
   def on_connect(self):
     pass
   # END on_connect
@@ -14,6 +17,7 @@ class DownloadsSocket(Namespace):
     pass
   # END on_disconnect
 
+
   def send_all_downloads(self, downloads: list[DownloadUpdate]):
     """Emits the `downloads_init` event sending a list of downloads.
 
@@ -21,7 +25,7 @@ class DownloadsSocket(Namespace):
       downloads (list[DownloadUpdate]): The list of downloads to send.
     """
     
-    self.emit("downloads_init", {
+    self.emit(self.DOWNLOAD_INIT_EVENT, {
       "downloads": [d.get_serializable() for d in downloads]
     })
   # END send_all_downloads
@@ -34,7 +38,7 @@ class DownloadsSocket(Namespace):
       update (DownloadUpdate): The download update.
     """
 
-    self.emit("download_update", update.get_serializable())
+    self.emit(self.DOWNLOAD_UPDATE_EVENT, update.get_serializable())
   # END send_download_update
   
 # END class DownloadsSocket
