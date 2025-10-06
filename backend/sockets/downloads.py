@@ -1,12 +1,20 @@
 from flask_socketio import Namespace
 from user_types import DownloadUpdate
+from typing import Literal
 
 DOWNLOADS_NAMESPACE = "/downloads"
 
 class DownloadsSocket(Namespace):
+  """Socket namespace that deals with downloads.
+
+  Attributes:
+    DOWNLOAD_UPDATE_EVENT (str): The name of the event for download upates.
+    DOWNLOAD_INIT_EVENT (str): The name of the event for sending all downloads (downloads initialization).
+  """
 
   DOWNLOAD_UPDATE_EVENT = "download_update"
   DOWNLOAD_INIT_EVENT = "download_init"
+
 
   def on_connect(self):
     pass
