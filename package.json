@@ -10,8 +10,7 @@
     "watch:electron": "tsc -w -p tsconfig.electron.json",
     "dev:electron": "concurrently \"npm:watch:electron\" \"wait-on http://localhost:5173 && nodemon\"",
     "build:electron": "tsc -p tsconfig.electron.json",
-    "start:electron": "electron dist/electron/main.js",
-    "py:venv": "source .venv/bin/activate"
+    "start:electron": "electron dist/electron/main.js"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.26.0",
