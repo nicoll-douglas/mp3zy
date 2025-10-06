@@ -1,5 +1,13 @@
-def test_get_downloads_search_400(test_client_fixture):
-  res = test_client_fixture.get("/downloads/search?track_name=Radio+Ga+Ga")
+from flask.testing import FlaskClient
+
+def test_get_downloads_search_400(flask_app_test_client: FlaskClient):
+  """Integration test that tests that a bad request to the GET /downloads/search endpoint responds correctly.
+
+  Args:
+    flask_app_test_client (FlaskClient): The Flask test client provided by the respective fixture.
+  """
+  
+  res = flask_app_test_client.get("/downloads/search?track_name=Radio+Ga+Ga")
 
   assert res.status_code == 400
   assert "parameter" in res.json
@@ -9,8 +17,14 @@ def test_get_downloads_search_400(test_client_fixture):
 # END test_get_downloads_search_400
 
 
-def test_get_downloads_search_200(test_client_fixture):
-  res = test_client_fixture.get("/downloads/search?track_name=Radio+Ga+Ga&main_artist=Queen")
+def test_get_downloads_search_200(flask_app_test_client: FlaskClient):
+  """Integration test that tests that a good request to the GET /downloads/search endpoint responds correctly.
+
+  Args:
+    flask_app_test_client (FlaskClient): The Flask test client provided by the respective fixture.
+  """
+  
+  res = flask_app_test_client.get("/downloads/search?track_name=Radio+Ga+Ga&main_artist=Queen")
 
   assert res.status_code == 200
   assert "results" in res.json

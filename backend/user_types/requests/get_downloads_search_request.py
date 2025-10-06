@@ -1,5 +1,5 @@
 class GetDownloadsSearchRequest:
-  """Type that represents a validated request body to endpoint GET /downloads/search
+  """Type that represents validated request parameters sent with a request to endpoint GET /downloads/search
 
   Attributes:
     track_name (str): The name of a track.
