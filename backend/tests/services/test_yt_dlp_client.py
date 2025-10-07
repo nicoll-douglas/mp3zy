@@ -5,7 +5,6 @@ from services import YtDlpClient
 from yt_dlp.utils import DownloadError, ExtractorError, UnsupportedError
 from unittest.mock import patch
 
-
 @pytest.fixture(params=[
   # (main artist, track name)
   ("Queen", "Radio Ga Ga"),

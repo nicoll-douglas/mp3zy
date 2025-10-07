@@ -1,20 +1,7 @@
-from enum import Enum
 import pytest
 from request_validate import PostDownloadsValidator
 from typing import Any, Literal
-
-class ValidationCase(Enum):
-  """Represents test case assertions for validator function results.
-
-  Attributes:
-    VALID: Represents the case where validation passes for a validator.
-    INVALID: Represents the case where valdation does not pass for a validator.
-  """
-  
-  VALID = 1
-  INVALID = 2
-# END class ValidationCase
-
+from ..test_utils import ValidationCase
 
 @pytest.fixture(params=[
   # (body test value, assertion type)
