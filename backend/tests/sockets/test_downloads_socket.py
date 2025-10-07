@@ -1,11 +1,17 @@
 from sockets.downloads import DOWNLOADS_NAMESPACE, DownloadsSocket
 from flask_socketio import SocketIOTestClient
-from typing import cast, Callable
+from typing import Callable
 from user_types import DownloadUpdate, DownloadStatus, TrackArtistNames, TrackCodec, TrackBitrate
 import pytest
 
 @pytest.fixture
-def download_update_fixture():
+def download_update() -> DownloadUpdate:
+  """Fixture that provides a mock DownloadUpdate instance.
+
+  Returns:
+    DownloadUpdate: The download update instance.
+  """
+  
   update = DownloadUpdate()
   update.download_id = 1
   update.status = DownloadStatus.DOWNLOADING
@@ -22,20 +28,29 @@ def download_update_fixture():
   update.eta = 12
 
   return update
-# END download_update_fixture
+# END download_update
 
 
 class TestDownloadsSocket:
+  """Contains unit and/or integration tests for the DownloadsSocket class.
+  """
 
   def test_send_download_update(
     self,
-    socketio_test_client_fixture: Callable[[str], SocketIOTestClient], 
-    download_update_fixture: DownloadUpdate
+    socketio_test_client: Callable[[str], SocketIOTestClient], 
+    download_update: DownloadUpdate
   ):
-    client = socketio_test_client_fixture(DOWNLOADS_NAMESPACE)
+    """Validates that the send_download_update method emits the correct event and download update data to the socket.
+
+    Args:
+      socketio_test_client (Callable[[str], SocketIOTestClient]): Fixture which creates the SocketIO test client with a given namespace.
+      download_update (DownloadUpdate): A mock download update.
+    """
+  
+    client = socketio_test_client(DOWNLOADS_NAMESPACE)
     
     namespace: DownloadsSocket = client.socketio.server.namespace_handlers[DOWNLOADS_NAMESPACE]
-    namespace.send_download_update(download_update_fixture)
+    namespace.send_download_update(download_update)
 
     received = client.get_received(DOWNLOADS_NAMESPACE)
 
@@ -45,30 +60,37 @@ class TestDownloadsSocket:
     data = event["args"][0]
 
     assert isinstance(data, dict)
-    assert data["download_id"] == download_update_fixture.download_id
-    assert data["artist_names"] == download_update_fixture.artist_names.data
-    assert data["track_name"] == download_update_fixture.track_name
-    assert data["codec"] == download_update_fixture.codec.value
-    assert data["bitrate"] == download_update_fixture.bitrate.value
-    assert data["url"] == download_update_fixture.url
-    assert data["created_at"] == download_update_fixture.created_at
-    assert data["total_bytes"] == download_update_fixture.total_bytes
-    assert data["downloaded_bytes"] == download_update_fixture.downloaded_bytes
-    assert data["speed"] == download_update_fixture.speed
-    assert data["terminated_at"] == download_update_fixture.terminated_at
-    assert data["eta"] == download_update_fixture.eta
+    assert data["download_id"] == download_update.download_id
+    assert data["artist_names"] == download_update.artist_names.data
+    assert data["track_name"] == download_update.track_name
+    assert data["codec"] == download_update.codec.value
+    assert data["bitrate"] == download_update.bitrate.value
+    assert data["url"] == download_update.url
+    assert data["created_at"] == download_update.created_at
+    assert data["total_bytes"] == download_update.total_bytes
+    assert data["downloaded_bytes"] == download_update.downloaded_bytes
+    assert data["speed"] == download_update.speed
+    assert data["terminated_at"] == download_update.terminated_at
+    assert data["eta"] == download_update.eta
   # END test_send_download_update
 
 
   def test_send_all_downloads(
     self,
-    socketio_test_client_fixture: Callable[[str], SocketIOTestClient],
-    download_update_fixture: DownloadUpdate
+    socketio_test_client: Callable[[str], SocketIOTestClient],
+    download_update: DownloadUpdate
   ):
-    client = socketio_test_client_fixture(DOWNLOADS_NAMESPACE)
+    """Validates that the send_all_downloads method emits the correct event and downloads data to the socket.
+
+    Args:
+      socketio_test_client (Callable[[str], SocketIOTestClient]): Fixture which creates the SocketIO test client with a given namespace.
+      download_update (DownloadUpdate): A mock download update.
+    """
+  
+    client = socketio_test_client(DOWNLOADS_NAMESPACE)
     
     namespace: DownloadsSocket = client.socketio.server.namespace_handlers[DOWNLOADS_NAMESPACE]
-    namespace.send_all_downloads([download_update_fixture])
+    namespace.send_all_downloads([download_update])
 
     received = client.get_received(DOWNLOADS_NAMESPACE)
 
@@ -83,18 +105,18 @@ class TestDownloadsSocket:
 
     dl = data["downloads"][0]
 
-    assert dl["download_id"] == download_update_fixture.download_id
-    assert dl["artist_names"] == download_update_fixture.artist_names.data
-    assert dl["track_name"] == download_update_fixture.track_name
-    assert dl["codec"] == download_update_fixture.codec.value
-    assert dl["bitrate"] == download_update_fixture.bitrate.value
-    assert dl["url"] == download_update_fixture.url
-    assert dl["created_at"] == download_update_fixture.created_at
-    assert dl["total_bytes"] == download_update_fixture.total_bytes
-    assert dl["downloaded_bytes"] == download_update_fixture.downloaded_bytes
-    assert dl["speed"] == download_update_fixture.speed
-    assert dl["terminated_at"] == download_update_fixture.terminated_at
-    assert dl["eta"] == download_update_fixture.eta
+    assert dl["download_id"] == download_update.download_id
+    assert dl["artist_names"] == download_update.artist_names.data
+    assert dl["track_name"] == download_update.track_name
+    assert dl["codec"] == download_update.codec.value
+    assert dl["bitrate"] == download_update.bitrate.value
+    assert dl["url"] == download_update.url
+    assert dl["created_at"] == download_update.created_at
+    assert dl["total_bytes"] == download_update.total_bytes
+    assert dl["downloaded_bytes"] == download_update.downloaded_bytes
+    assert dl["speed"] == download_update.speed
+    assert dl["terminated_at"] == download_update.terminated_at
+    assert dl["eta"] == download_update.eta
   # END test_send_all_downloads
 
 # END class TestDownloadsSocket
