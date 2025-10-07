@@ -22,7 +22,7 @@ class Download(Model):
       dict | None: A dict with the row's data if a row was found, None otherwise.
     """
     
-    query = """
+    query = f"""
 SELECT
   d.id AS download_id,
   d.url,
@@ -34,8 +34,7 @@ SELECT
   d.speed,
   d.eta,
   d.created_at,
-  d.failed_at,
-  d.completed_at,
+  d.terminated_at,
   m.id AS metadata_id,
   m.track_name,
   m.album_name,
@@ -47,15 +46,15 @@ FROM downloads d
 LEFT JOIN metadata m ON d.metadata_id = m.id
 LEFT JOIN metadata_artists ma ON m.id = ma.metadata_id
 LEFT JOIN artists a ON ma.artist_id = a.id
-WHERE d.status = "queued"
+WHERE d.status = ?
   AND d.created_at = (
     SELECT MIN(created_at) 
-    FROM downloads
-    WHERE status = "queued"
+    FROM {self._TABLE}
+    WHERE status = ?
   ) 
 GROUP BY d.id
 """
-    self._cur.execute(query)
+    self._cur.execute(query, (DownloadStatus.QUEUED.value,))
     row = self._cur.fetchone()
     
     if not row:
@@ -80,5 +79,23 @@ GROUP BY d.id
 
     return self.insert({ **data, "status": DownloadStatus.QUEUED.value })
   # END insert_as_queued
+
+
+  def update(self, download_id: int, data: dict):
+    """Updates a row in the table based on ID with the given data.
+
+    Args:
+      data (dict): Key-value pairs representing the column names and values to update for them.
+    """
+    
+    sql = f"UPDATE {self._TABLE} SET "
+    set_clauses = ", ".join([f"{k} = ?" for k in data.keys()])
+
+    sql += f"{set_clauses} WHERE id = ?"
+    params = (*data.values(), download_id)
+
+    self._cur.execute(sql, params)
+    self._conn.commit()
+  # END update
 
 # END class Download

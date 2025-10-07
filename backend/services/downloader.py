@@ -28,12 +28,19 @@ class Downloader:
     """
     
     def progress_hook(hook_data: dict):
+      with db.connect() as conn:
+        models.db.Download(conn).update(update.download_id, {
+          "status": update.status.value,
+          "total_bytes": hook_data["total_bytes"],
+          "downloaded_bytes": hook_data["downloaded_bytes"],
+          "speed": hook_data["speed"],
+          "eta": hook_data["eta"]
+        })
+
       update.total_bytes = hook_data["total_bytes"]
       update.downloaded_bytes = hook_data["downloaded_bytes"]
       update.speed = hook_data["speed"]
       update.eta = hook_data["eta"]
-
-      # update database here
 
       downloads_socket.send_download_update(update)
     # END progress_hook

@@ -34,7 +34,7 @@ class DownloadUpdate:
   speed: int | float | None
   downloaded_bytes: int | None
   terminated_at: str | None
-  eta: int | float | None
+  eta: int | None
 
 
   def get_serializable(self) -> dict:
