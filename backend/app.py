@@ -1,19 +1,20 @@
 from flask_cors import CORS
 from flask import Flask
-import os
+import os, sqlite3
 from routes import register_routes
 from sockets import register_sockets
 import config, db
 from flask_socketio import SocketIO
 
-def create_app() -> tuple[Flask, SocketIO]:
+def create_app(db_conn: sqlite3.Connection = db.connect()) -> tuple[Flask, SocketIO]:
   """Sets up and creates the application and returns it.
 
   Returns:
     tuple[Flask, SocketIO]: A tuple containing the Flask application and the SocketIO instance.
   """
-  
-  db.setup()
+
+  db.setup(db_conn)
+  db_conn.close()
   
   app = Flask(os.getenv("VITE_APP_NAME") + " Backend")
   CORS(app, resources={ r"/*": { "origins": config.CORS_ALLOWED_ORIGINS } })
@@ -23,7 +24,7 @@ def create_app() -> tuple[Flask, SocketIO]:
   register_sockets(socketio)
 
   return app, socketio
-# END start_app
+# END create_app
 
 if __name__ == "__main__":
   app, socketio = create_app()

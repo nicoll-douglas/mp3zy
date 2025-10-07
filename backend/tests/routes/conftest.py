@@ -3,16 +3,21 @@ from app import create_app
 from flask import Flask
 from flask.testing import FlaskClient
 from typing import Generator
+import sqlite3
 
 @pytest.fixture(scope="session")
-def flask_app() -> Generator[Flask, None, None]:
+def flask_app(in_memory_db_conn: sqlite3.Connection) -> Generator[Flask, None, None]:
   """Fixture that provides the Flask application instance.
+
+  Args:
+    in_memory_db_conn (sqlite3.Connection): An in-memory database connection provided by the in_memory_db_conn fixture.
 
   Returns:
     Generator[Flask, None, None]: Yields a configured Flask application instance.
   """
 
-  app, _ = create_app()
+  app, _ = create_app(in_memory_db_conn)
+
   app.config.update({
     "TESTING": True,
     "DEBUG": False,
