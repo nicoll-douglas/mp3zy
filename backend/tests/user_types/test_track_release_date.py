@@ -1,6 +1,6 @@
 import pytest
 from user_types import TrackReleaseDate
-from ..test_utils import ValidationCase
+from tests.test_utils import ValidationCase
 from typing import Any
 
 @pytest.fixture(params=[
@@ -33,7 +33,7 @@ from typing import Any
   ({ "year": 2025, "month": None, "day": 31 }, "", ValidationCase.VALID, (2025, None, None)),
   ({ "year": 2025, "month": 3, "day": None }, "abcd", ValidationCase.VALID, (2025, 3, None)),
 ])
-def init_fixture(request: pytest.Fixture) -> tuple[
+def init_fixture(request: pytest.FixtureRequest) -> tuple[
   Any, 
   str | None, 
   ValidationCase, 

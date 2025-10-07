@@ -1,7 +1,7 @@
 import pytest
 from request_validate import PostDownloadsValidator
 from typing import Any, Literal
-from ..test_utils import ValidationCase
+from tests.test_utils import ValidationCase
 
 @pytest.fixture(params=[
   # (body test value, assertion type)

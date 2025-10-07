@@ -1,6 +1,6 @@
 import pytest
 from user_types import TrackArtistNames
-from ..test_utils import ValidationCase
+from tests.test_utils import ValidationCase
 from typing import Any
 
 @pytest.fixture(params=[
