@@ -119,6 +119,7 @@ class Downloader:
           metadata.track_number = track_info.track_number
           metadata.disc_number = track_info.disc_number
           metadata.release_date = track_info.release_date
+          metadata.album_cover_path = None
           # add cover path metadata here
 
           if track_info.codec is TrackCodec.MP3:

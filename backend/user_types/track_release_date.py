@@ -304,7 +304,7 @@ class TrackReleaseDate:
     segments = value.split("-")
     data = {}
 
-    if len(segments > 0):
+    if len(segments) > 0:
       data["year"] = int(segments[0])
 
     if len(segments) > 1:

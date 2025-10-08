@@ -43,10 +43,10 @@ class Metadata:
       audio.tags.add(TALB(encoding=3, text=self.album_name))
 
     if self.track_number is not None:
-      audio.tags.add(TRCK(encoding=3, text=self.track_number))
+      audio.tags.add(TRCK(encoding=3, text=str(self.track_number)))
 
     if self.disc_number is not None:
-      audio.tags.add(TPOS(encoding=3, text=self.disc_number))
+      audio.tags.add(TPOS(encoding=3, text=str(self.disc_number)))
 
     if self.release_date is not None:
       audio.tags.add(TDRC(encoding=3, text=str(self.release_date)))
