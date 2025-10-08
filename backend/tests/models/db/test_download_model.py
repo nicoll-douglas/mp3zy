@@ -21,7 +21,8 @@ from typing import Callable
       "disc_number": 1,
       "release_date": "1982",
       "other_artists": ["Paul McCartney"],
-      "download_dir": "/home/user/music"
+      "download_dir": "/home/user/music",
+      "album_cover_path": None
     }
   ),
   (
@@ -40,7 +41,8 @@ from typing import Callable
       "disc_number": None,
       "release_date": "20-02-1984",
       "other_artists": [],
-      "download_dir": "/home/user/music"
+      "download_dir": "/home/user/music",
+      "album_cover_path": "/home/user/pictures/cover.jpg"
     }
   ),
   (None, None)

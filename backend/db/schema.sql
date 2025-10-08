@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS metadata (
   album_name TEXT,
   track_number INTEGER,
   disc_number INTEGER,
-  release_date TEXT
+  release_date TEXT,
+  album_cover_path TEXT
 );
 
 CREATE TABLE IF NOT EXISTS metadata_artists (

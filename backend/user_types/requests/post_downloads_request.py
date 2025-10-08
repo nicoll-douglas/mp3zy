@@ -17,6 +17,7 @@ class PostDownloadsRequest:
     release_date (TrackReleaseDate | None): Track release date metadata.
     url (str): The URL to use as the audio source for the track download.
     download_dir (str): The directory where the associated audio file should be saved to.
+    album_cover_path (str | None): The path to an album cover image file.
   """
   
   artist_names: TrackArtistNames
@@ -29,5 +30,6 @@ class PostDownloadsRequest:
   release_date: TrackReleaseDate | None
   url: str
   download_dir: str
+  album_cover_path: str | None
   
 # END class PostDownloadsRequest

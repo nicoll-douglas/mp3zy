@@ -197,7 +197,8 @@ This endpoint will trigger an audio file download of a song from the provided UR
   "disc_number": number | null,
   "release_date": TrackReleaseDate | null,
   "url": string,
-  "download_dir": string
+  "download_dir": string,
+  "album_cover_path": string | null
 }
 ```
 
@@ -211,6 +212,7 @@ This endpoint will trigger an audio file download of a song from the provided UR
 - `release_date` - The release date of the track.
 - `url` - The URL source to use for download (should ideally be extracted from the response body of a request to GET /downloads/search).
 - `download_dir` - The directory where the associated audio file should be saved to.
+- `album_cover_path` - The path to an image file to be used as album cover metadata.
 
 #### Responses
 

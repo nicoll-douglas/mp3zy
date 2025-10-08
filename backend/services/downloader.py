@@ -96,6 +96,7 @@ class Downloader:
         track_info.url = update.url
         track_info.download_dir = update.download_dir
         track_info.release_date = TrackReleaseDate.from_string(next_download["release_date"]) if next_download["release_date"] else None
+        track_info.album_cover_path = next_download["album_cover_path"]
 
         # here when spotify sync is implemented, we will pass an associated track ID to go in the filename
         is_success, result = YtDlpClient().download_track(track_info, progress_hook)
@@ -163,7 +164,8 @@ class Downloader:
         "album_name": track_info.album_name,
         "track_number": track_info.track_number,
         "disc_number": track_info.disc_number,
-        "release_date": str(track_info.release_date) if track_info.release_date else None
+        "release_date": str(track_info.release_date) if track_info.release_date else None,
+        "album_cover_path": track_info.album_cover_path
       })
       metadata_id = cast(int, metadata_id)
 

@@ -55,15 +55,16 @@ class Metadata:
       cover = AlbumCover(self.album_cover_path)
       mimetype = cover.get_mimetype()
 
-      audio.tags.add(
-        APIC(
-          encoding=3,
-          mime=mimetype,
-          type=3,
-          desc="",
-          data=cover.read()
+      if cover.exists():
+        audio.tags.add(
+          APIC(
+            encoding=3,
+            mime=mimetype,
+            type=3,
+            desc="",
+            data=cover.read()
+          )
         )
-      )
   
     # need to add try catch here
     audio.save(v2_version=3)
@@ -92,12 +93,13 @@ class Metadata:
       cover = AlbumCover(self.album_cover_path)
       mimetype = cover.get_mimetype()
 
-      p.data = cover.read()
-      p.type = 3
-      p.mime = mimetype
+      if cover.exists():
+        p.data = cover.read()
+        p.type = 3
+        p.mime = mimetype
 
-      audio.clear_pictures()
-      audio.add_picture(p)
+        audio.clear_pictures()
+        audio.add_picture(p)
 
     audio.save()
   # END set_on_flac

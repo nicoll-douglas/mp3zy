@@ -77,7 +77,7 @@ class PostDownloadsValidator:
     self._response.field = "track_name"
     track_name = body.get(self._response.field)
 
-    if not track_name:
+    if track_name is None or track_name == "":
       self._response.message = f"Field `{self._response.field}` is required."
       return False
     
@@ -102,7 +102,7 @@ class PostDownloadsValidator:
     self._response.field = "url"
     url = body.get(self._response.field)
 
-    if not url:
+    if url is None or url == "":
       self._response.message = f"Field `{self._response.field}` is required."
       return False
     
@@ -249,20 +249,48 @@ class PostDownloadsValidator:
     self._response.field = "download_dir"
     download_dir = body.get(self._response.field)
 
-    if not download_dir:
+    if download_dir is None or download_dir == "":
       self._response.message = f"Field `{self._response.field}` is required."
       return False
 
     if not isinstance(download_dir, str):
-      self._response.message = f"Field `{self._response.field} must be a string."
+      self._response.message = f"Field `{self._response.field}` must be a string."
       return False
 
     if not is_valid_filepath(download_dir, "auto"):
-      self._response.message = f"Field `{self._response.field}` is not a valid directory."
+      self._response.message = f"Field `{self._response.field}` must be a valid directory."
       return False
     
     return download_dir
   # END _validate_download_dir
+
+
+  def _validate_album_cover_path(self, body: dict) -> Literal[False] | str | None:
+    """Helper that validates the `album_cover_path` field of the request body.
+
+    Args:
+      body (dict): The request body.
+
+    Returns:
+      Literal[False] | str | None: False is the field is invalid, the validated field's value otherwise.
+    """
+    
+    self._response.field = "album_cover_path"
+    album_cover_path = body.get(self._response.field)
+
+    if album_cover_path is None or album_cover_path == "":
+      return album_cover_path
+    
+    if not isinstance(album_cover_path, str):
+      self._response.message = f"Field `{self._response.field}` must be a string or null."
+      return False
+    
+    if not is_valid_filepath(album_cover_path, "auto"):
+      self._response.message = f"Field `{self._response.field}` must be a valid file path."
+      return False
+    
+    return album_cover_path
+  # END _validate_album_cover_path
 
 
   def validate(self, body: Any) -> tuple[Literal[False], PostDownloadsResponse.BadRequest] | tuple[Literal[True], PostDownloadsRequest]:
@@ -287,6 +315,7 @@ class PostDownloadsValidator:
       (self._validate_track_name, "track_name"),
       (self._validate_url, "url"),
       (self._validate_download_dir, "download_dir"),
+      (self._validate_album_cover_path, "album_cover_path"),
       (self._validate_codec, "codec"),
       (self._validate_bitrate, "bitrate"),
       (self._validate_album_name, "album_name"),

@@ -54,6 +54,7 @@ SELECT
   m.track_number,
   m.disc_number,
   m.release_date,
+  m.album_cover_path,
   json_group_array(a.name) AS other_artists
 FROM downloads d
 LEFT JOIN metadata m ON d.metadata_id = m.id
