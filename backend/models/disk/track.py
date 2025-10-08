@@ -34,7 +34,7 @@ class Track:
     self.path = self._build_path()
     self.output_template = self._build_output_template()
 
-    os.makedirs(self.path, exist_ok=True)
+    os.makedirs(os.path.dirname(self.path), exist_ok=True)
   # END __init__
   
 
@@ -76,11 +76,11 @@ class Track:
     """
 
     segments = []
-    artist_folder = sanitize_filename(self.track_info.artist_names.get_main_artist())
+    artist_folder = sanitize_filename(self.track_info.artist_names.get_main_artist(), platform="auto")
     segments.append(artist_folder)
 
     if self.track_info.album_name:
-      album_folder = sanitize_filename(self.track_info.album_name)
+      album_folder = sanitize_filename(self.track_info.album_name, platform="auto")
       segments.append(album_folder)
 
     return os.path.join(*segments)
@@ -112,7 +112,7 @@ class Track:
     if self.track_id:
       stem += " - " + self.track_id
 
-    return sanitize_filename(stem)
+    return sanitize_filename(stem, platform="auto")
   # END _build_stem
   
 

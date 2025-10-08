@@ -2,8 +2,8 @@ from user_types import TrackArtistNames, TrackCodec, TrackBitrate, TrackReleaseD
 from typing import Any, Literal, Callable
 from user_types.requests import PostDownloadsRequest
 from user_types.reponses import PostDownloadsResponse
-import copy
-from pathvalidate import validate_filepath, ValidationError
+import copy, os
+from pathvalidate import is_valid_filepath
 
 class PostDownloadsValidator:
   """Validator class that validates request bodies to the POST /downloads endpoint.
@@ -253,13 +253,15 @@ class PostDownloadsValidator:
       self._response.message = f"Field `{self._response.field}` is required."
       return False
 
-    try:
-      validate_filepath(download_dir)
-    except ValidationError:
-      self._response.message = f"Field `{self._response.field}` is not a valid file path."
+    if not isinstance(download_dir, str):
+      self._response.message = f"Field `{self._response.field} must be a string."
+      return False
+
+    if not is_valid_filepath(download_dir, "auto"):
+      self._response.message = f"Field `{self._response.field}` is not a valid directory."
       return False
     
-    return True
+    return download_dir
   # END _validate_download_dir
 
 
@@ -284,12 +286,12 @@ class PostDownloadsValidator:
       (self._validate_artist_names, "artist_names"),
       (self._validate_track_name, "track_name"),
       (self._validate_url, "url"),
-      (self._validate_download_dir, "download_dir")
+      (self._validate_download_dir, "download_dir"),
       (self._validate_codec, "codec"),
       (self._validate_bitrate, "bitrate"),
       (self._validate_album_name, "album_name"),
-      (lambda: validated_body, self._validate_track_or_disc_number(validated_body, "track_number"), "track_number"),
-      (lambda: validated_body, self._validate_track_or_disc_number(validated_body, "disc_number"), "disc_number"),
+      (lambda validated_body: self._validate_track_or_disc_number(validated_body, "track_number"), "track_number"),
+      (lambda validated_body: self._validate_track_or_disc_number(validated_body, "disc_number"), "disc_number"),
       (self._validate_release_date, "release_date")
     ]
 

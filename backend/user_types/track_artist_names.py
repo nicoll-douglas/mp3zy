@@ -77,7 +77,7 @@ class TrackArtistNames(UserList):
       list[str]: A list of the artist names.
     """
     
-    return list(self[1:])
+    return list(self)[1:]
   # END get_other_artists
 
 # END class TrackArtistNames

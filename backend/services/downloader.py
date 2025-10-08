@@ -40,14 +40,14 @@ class Downloader:
           "total_bytes": hook_data["total_bytes"],
           "downloaded_bytes": hook_data["downloaded_bytes"],
           "speed": hook_data["speed"],
-          "eta": hook_data["eta"]
+          "eta": hook_data.get("eta")
         })
 
       update.status = DownloadStatus.DOWNLOADING
       update.total_bytes = hook_data["total_bytes"]
       update.downloaded_bytes = hook_data["downloaded_bytes"]
       update.speed = hook_data["speed"]
-      update.eta = hook_data["eta"]
+      update.eta = hook_data.get("eta")
       update.terminated_at = None
 
       downloads_socket.send_download_update(update)
