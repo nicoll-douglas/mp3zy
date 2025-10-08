@@ -6,12 +6,12 @@ class Model:
   Attributes:
     _conn (sqlite3.Connection): A connection to the application database.
     _cur (sqlite3.Cursor): The connection's cursor.
-    _TABLE (str): The name of the model's table in the database. Should be set by subclasses.
+    TABLE (str): The name of the model's table in the database. Should be set by subclasses.
   """
 
   _conn: sqlite3.Connection
   _cur: sqlite3.Cursor
-  _TABLE: str
+  TABLE: str
 
 
   def __init__(self, conn: sqlite3.Connection):
@@ -35,7 +35,7 @@ class Model:
     placeholders = ", ".join("?" * len(params))
 
     self._cur.execute(
-      f"INSERT INTO {self._TABLE} ({fields}) VALUES ({placeholders})",
+      f"INSERT INTO {self.TABLE} ({fields}) VALUES ({placeholders})",
       params
     )
     self._conn.commit()

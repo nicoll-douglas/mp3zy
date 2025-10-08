@@ -6,7 +6,7 @@ class MetadataArtist(Model):
   """A database model representing the metadata_artists table.
   """
 
-  _TABLE = "metadata_artists"
+  TABLE = "metadata_artists"
 
 
   def __init__(self, conn = db.connect()):

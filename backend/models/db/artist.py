@@ -5,7 +5,7 @@ class Artist(Model):
   """A database model representing the artists table.
   """
   
-  _TABLE = "artists"
+  TABLE = "artists"
 
 
   def __init__(self, conn = db.connect()):

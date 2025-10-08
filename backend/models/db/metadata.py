@@ -6,7 +6,7 @@ class Metadata(Model):
   """A database model representing the metadata table.
   """
 
-  _TABLE = "metadata"
+  TABLE = "metadata"
   
   
   def __init__(self, conn: sqlite3.Connection = db.connect()):
