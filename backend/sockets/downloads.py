@@ -1,7 +1,8 @@
 from flask_socketio import Namespace
-from user_types import DownloadUpdate
-
-DOWNLOADS_NAMESPACE = "/downloads"
+from user_types import DownloadUpdate, DownloadStatus, TrackArtistNames, TrackCodec, TrackBitrate
+import models
+from typing import Self
+import sqlite3
 
 class DownloadsSocket(Namespace):
   """Socket namespace that deals with downloads.
@@ -9,14 +10,76 @@ class DownloadsSocket(Namespace):
   Attributes:
     DOWNLOAD_UPDATE_EVENT (str): The name of the event for download upates.
     DOWNLOAD_INIT_EVENT (str): The name of the event for sending all downloads (downloads initialization).
+    _db_conn (sqlite3.Connection): A database connection.
+    _instance (DownloadsSocket | None): A singleton instance of the class to use throughout the rest of the app.
   """
 
   DOWNLOAD_UPDATE_EVENT = "download_update"
   DOWNLOAD_INIT_EVENT = "download_init"
+  NAMESPACE = "/downloads"
+
+  _db_conn: sqlite3.Connection
+  _instance: Self | None = None
+
+
+  def __init__(self, db_conn: sqlite3.Connection):
+    """Stores the database connection as well as the current instance in the class as a singleton instance.
+    """
+    
+    super().__init__(self.NAMESPACE)
+    self._db_conn = db_conn
+    DownloadsSocket._instance = self
+  # END __init__
+
+
+  @classmethod
+  def instance(cls) -> Self:
+    """Gets the singleton class instance to use throughout the rest of the app.
+
+    Returns:
+      DownloadsSocket: The instsance.
+
+    Raises:
+      RuntimeError: If the instance was not yet created.
+    """
+    
+    if cls._instance is None:
+      raise RuntimeError("DownloadsSocket instance was accessed before it was created")
+
+    return cls._instance
+  # END instance
 
 
   def on_connect(self):
-    pass
+    """Sends a list of all downloads when a client connects to the namespace.
+    """
+    
+    dl = models.db.Download(self._db_conn)
+    downloads = dl.get_all_downloads()
+
+    download_updates = []
+
+    for d in downloads:
+      d_update = DownloadUpdate()
+      d_update.download_id = d["download_id"]
+      d_update.status = DownloadStatus(d["status"])
+      d_update.artist_names = TrackArtistNames([d["main_artist"], *d["other_artists"]])
+      d_update.track_name = d["track_name"]
+      d_update.codec = TrackCodec(d["codec"])
+      d_update.bitrate = TrackBitrate(d["bitrate"])
+      d_update.url = d["url"]
+      d_update.download_dir = d["download_dir"]
+      d_update.created_at = d["created_at"]
+      d_update.total_bytes = d["total_bytes"]
+      d_update.downloaded_bytes = d["downloaded_bytes"]
+      d_update.speed = d["speed"]
+      d_update.eta = d["eta"]
+      d_update.terminated_at = d["terminated_at"]
+      d_update.error_msg = d["error_msg"]
+
+      download_updates.append(d_update)
+
+      self.send_all_downloads(download_updates)
   # END on_connect
 
 
@@ -49,5 +112,3 @@ class DownloadsSocket(Namespace):
   # END send_download_update
   
 # END class DownloadsSocket
-
-downloads_socket = DownloadsSocket(DOWNLOADS_NAMESPACE)

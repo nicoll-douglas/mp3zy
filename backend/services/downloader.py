@@ -4,7 +4,7 @@ from user_types import TrackBitrate, TrackCodec, TrackReleaseDate, DownloadUpdat
 import models, db
 import threading
 from typing import cast, Callable
-from sockets import downloads_socket
+from sockets import DownloadsSocket
 
 class Downloader:
   """A singleton class that acts as the controller for track downloads in the application.
@@ -50,7 +50,7 @@ class Downloader:
       update.eta = hook_data.get("eta")
       update.terminated_at = None
 
-      downloads_socket.send_download_update(update)
+      DownloadsSocket.instance().send_download_update(update)
     # END progress_hook
 
     return progress_hook
@@ -121,7 +121,6 @@ class Downloader:
           metadata.disc_number = track_info.disc_number
           metadata.release_date = track_info.release_date
           metadata.album_cover_path = track_info.album_cover_path
-          # add cover path metadata here
 
           if track_info.codec is TrackCodec.MP3:
             metadata.set_on_mp3(track_model.path)
@@ -137,7 +136,7 @@ class Downloader:
           update.terminated_at = download_model.get_current_timestamp()
           download_model.set_failed(update.download_id, update.terminated_at, update.error_msg)
 
-        downloads_socket.send_download_update(update)
+        DownloadsSocket.instance().send_download_update(update)
   # END _thread_target
 
 
@@ -199,7 +198,7 @@ class Downloader:
     update.created_at = created_at
     update.error_msg = None
 
-    downloads_socket.send_download_update(update)
+    DownloadsSocket.instance().send_download_update(update)
 
     return download_id
   # END queue

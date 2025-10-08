@@ -1,4 +1,4 @@
-from sockets.downloads import DOWNLOADS_NAMESPACE, DownloadsSocket
+from sockets import DownloadsSocket
 from flask_socketio import SocketIOTestClient
 from typing import Callable
 from user_types import DownloadUpdate, DownloadStatus, TrackArtistNames, TrackCodec, TrackBitrate
@@ -45,16 +45,15 @@ class TestDownloadsSocket:
     """Validates that the send_download_update method emits the correct event and download update data to the socket.
 
     Args:
-      socketio_test_client (Callable[[str], SocketIOTestClient]): Fixture which creates the SocketIO test client with a given namespace.
+      socketio_test_client (Callable[[str], SocketIOTestClient]): Fixture which provides a callable to create a SocketIO test client under the given namespace.
       download_update (DownloadUpdate): A mock download update.
     """
-  
-    client = socketio_test_client(DOWNLOADS_NAMESPACE)
     
-    namespace: DownloadsSocket = client.socketio.server.namespace_handlers[DOWNLOADS_NAMESPACE]
+    client = socketio_test_client(DownloadsSocket.NAMESPACE)
+    namespace: DownloadsSocket = client.socketio.server.namespace_handlers[DownloadsSocket.NAMESPACE]
     namespace.send_download_update(download_update)
 
-    received = client.get_received(DOWNLOADS_NAMESPACE)
+    received = client.get_received(DownloadsSocket.NAMESPACE)
 
     assert any(p["name"] == DownloadsSocket.DOWNLOAD_UPDATE_EVENT for p in received)
 
@@ -81,22 +80,21 @@ class TestDownloadsSocket:
 
   def test_send_all_downloads(
     self,
-    socketio_test_client: Callable[[str], SocketIOTestClient],
+    socketio_test_client: Callable[[str], SocketIOTestClient], 
     download_update: DownloadUpdate
   ):
     """Validates that the send_all_downloads method emits the correct event and downloads data to the socket.
 
     Args:
-      socketio_test_client (Callable[[str], SocketIOTestClient]): Fixture which creates the SocketIO test client with a given namespace.
+      socketio_test_client (Callable[[str], SocketIOTestClient]): Fixture which provides a callable to create a SocketIO test client under the given namespace.
       download_update (DownloadUpdate): A mock download update.
     """
-  
-    client = socketio_test_client(DOWNLOADS_NAMESPACE)
-    
-    namespace: DownloadsSocket = client.socketio.server.namespace_handlers[DOWNLOADS_NAMESPACE]
+      
+    client = socketio_test_client(DownloadsSocket.NAMESPACE)
+    namespace: DownloadsSocket = client.socketio.server.namespace_handlers[DownloadsSocket.NAMESPACE]
     namespace.send_all_downloads([download_update])
 
-    received = client.get_received(DOWNLOADS_NAMESPACE)
+    received = client.get_received(DownloadsSocket.NAMESPACE)
 
     assert any(p["name"] == DownloadsSocket.DOWNLOAD_INIT_EVENT for p in received)
 

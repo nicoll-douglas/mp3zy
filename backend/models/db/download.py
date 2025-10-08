@@ -3,12 +3,15 @@ from ..model import Model
 import json
 from user_types import DownloadStatus
 from datetime import datetime
+from .metadata import Metadata
+from .metadata_artist import MetadataArtist
+from .artist import Artist
 
 class Download(Model):
   """A database model representing the downloads table.
   """
   
-  _TABLE = "downloads"
+  TABLE = "downloads"
 
 
   def __init__(self, conn = db.connect()):
@@ -29,6 +32,64 @@ class Download(Model):
     now = datetime.now()
     return now.strftime("%Y-%m-%d %H:%M:%S")
   # END get_current_timestamp
+
+
+  def get_all_downloads(self) -> list[dict]:
+    """Selects all downloads in the database, aggregating metadata.
+
+    Returns:
+      list[dict]: The list of rows.
+    """
+    
+    query = f"""
+SELECT 
+  d.id AS download_id,
+  d.url,
+  d.codec,
+  d.bitrate,
+  d.status,
+  d.download_dir,
+  d.downloaded_bytes,
+  d.total_bytes,
+  d.speed,
+  d.eta,
+  d.terminated_at,
+  d.error_msg,
+  d.created_at,
+  m.id AS metadata_id,
+  m.track_name,
+  m.main_artist,
+  m.album_name,
+  m.track_number,
+  m.disc_number,
+  m.release_date,
+  m.album_cover_path,
+  json_group_array(a.name) AS other_artists
+FROM {self.TABLE} d
+LEFT JOIN {Metadata.TABLE} m ON d.metadata_id = m.id
+LEFT JOIN {MetadataArtist.TABLE} ma ON m.id = ma.metadata_id
+LEFT JOIN {Artist.TABLE} a ON ma.artist_id = a.id
+GROUP BY d.id
+"""
+    
+    self._cur.execute(query)
+    rows = self._cur.fetchall()
+    
+    if not rows:
+      return []
+    
+    results = []
+
+    for result in results:
+      other_artists = json.loads(result["other_artists"])
+
+      if other_artists == [None]:
+        other_artists = []
+        
+      result["other_artists"] = other_artists
+
+    return results
+  # END get_all_downloads
 
 
   def get_next_in_queue(self) -> dict | None:
@@ -56,14 +117,14 @@ SELECT
   m.release_date,
   m.album_cover_path,
   json_group_array(a.name) AS other_artists
-FROM downloads d
-LEFT JOIN metadata m ON d.metadata_id = m.id
-LEFT JOIN metadata_artists ma ON m.id = ma.metadata_id
-LEFT JOIN artists a ON ma.artist_id = a.id
+FROM {self.TABLE} d
+LEFT JOIN {Metadata.TABLE} m ON d.metadata_id = m.id
+LEFT JOIN {MetadataArtist.TABLE} ma ON m.id = ma.metadata_id
+LEFT JOIN {Artist.TABLE} a ON ma.artist_id = a.id
 WHERE d.status = :queued_status
   AND d.created_at = (
     SELECT MIN(created_at) 
-    FROM {self._TABLE}
+    FROM {self.TABLE}
     WHERE status = :queued_status
   ) 
 GROUP BY d.id
@@ -108,7 +169,7 @@ GROUP BY d.id
       terminated_at (str | None): The timestamp of when the download completed, gets set to the current timestamp if an empty value passed.
     """
     
-    sql = f"UPDATE {self._TABLE} SET status = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ?, terminated_at = ? WHERE id = ?"
+    sql = f"UPDATE {self.TABLE} SET status = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ?, terminated_at = ? WHERE id = ?"
 
     terminated_at = terminated_at if terminated_at else self.get_current_timestamp()
     params = (DownloadStatus.COMPLETED.value, None, None, None, None, terminated_at, download_id)
@@ -127,7 +188,7 @@ GROUP BY d.id
       terminated_at (str | None): The timestamp of when the download failed, gets set to the current timestamp if an empty value passed.
     """
     
-    sql = f"UPDATE {self._TABLE} SET status = ?, terminated_at = ?, error_msg = ? WHERE id = ?"
+    sql = f"UPDATE {self.TABLE} SET status = ?, terminated_at = ?, error_msg = ? WHERE id = ?"
 
     terminated_at = terminated_at if terminated_at else self.get_current_timestamp()
     params = (DownloadStatus.FAILED.value, terminated_at, error_msg, download_id)
@@ -145,7 +206,7 @@ GROUP BY d.id
       data (dict): Key-value pairs representing the column names and values to update for them.
     """
     
-    sql = f"UPDATE {self._TABLE} SET "
+    sql = f"UPDATE {self.TABLE} SET "
     set_clauses = ", ".join([f"{k} = ?" for k in data.keys()])
 
     sql += f"{set_clauses} WHERE id = ?"
