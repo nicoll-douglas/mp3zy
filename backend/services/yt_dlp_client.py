@@ -67,7 +67,7 @@ class YtDlpClient:
     progress_hook: Callable[[dict], None],
     save_dir: str | None = None,
     track_id: str | None = None 
-  ) -> models.disk.Track:
+  ) -> tuple[bool, models.disk.Track]:
     """Uses the yt-dlp downloader to download the associated track.
 
     Args:
@@ -77,7 +77,7 @@ class YtDlpClient:
       track_id (str | None): A unique identifier that will go in the downloaded track filename.
 
     Returns:
-      models.disk.Track: A disk model track instance.
+      tuple[bool, models.disk.Track]: A tuple where the first element is a bool indicating whether download suceeded and the second element is a track model instance loaded with the track info.
     """
 
     track = models.disk.Track(track_info, save_dir, track_id)
@@ -92,10 +92,13 @@ class YtDlpClient:
       "outtmpl": track.build_output_template()
     }
     
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-      ydl.download([track_info.url])
-
-    return track
+    try:
+      with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([track_info.url])
+    except Exception as e:
+      return False, track
+      
+    return True, track
   # END download_track
 
 

@@ -21,26 +21,34 @@ class Downloader:
     """Creates a progress hook function to be passed to the yt-dlp client instance when downloading.
 
     Args:
-      update (DownloadUpdate): The download update to be emitted via web socket in the progress hook.
+      update (DownloadUpdate): Static downloaded update data for the download.
 
     Returns:
       Callable[[dict], None]: The progress hook function.
     """
     
     def progress_hook(hook_data: dict):
+      """Updates the database with the updated downloaded data and emits and update to the downloads web socket.
+
+      Args:
+        hook_data (dict): The progress hook data received from the yt-dlp downloader.
+      """
+      
       with db.connect() as conn:
         models.db.Download(conn).update(update.download_id, {
-          "status": update.status.value,
+          "status": DownloadStatus.DOWNLOADING.value,
           "total_bytes": hook_data["total_bytes"],
           "downloaded_bytes": hook_data["downloaded_bytes"],
           "speed": hook_data["speed"],
           "eta": hook_data["eta"]
         })
 
+      update.status = DownloadStatus.DOWNLOADING
       update.total_bytes = hook_data["total_bytes"]
       update.downloaded_bytes = hook_data["downloaded_bytes"]
       update.speed = hook_data["speed"]
       update.eta = hook_data["eta"]
+      update.terminated_at = None
 
       downloads_socket.send_download_update(update)
     # END progress_hook
@@ -54,47 +62,58 @@ class Downloader:
     """Defines the thread target to pass to the downloader thread when it is created.
     """
     
+    # connect to the database
     with db.connect() as conn:
-      next_download = models.db.Download(conn).get_next_in_queue()
+      # get the next download in the queue
+      download_model = models.db.Download(conn)
 
-      while next_download:
-        artist_names = TrackArtistNames([next_download["main_artist"], *next_download["other_artists"]])
-        track_name = next_download["track_name"]
-        codec = TrackCodec(next_download["codec"])
-        bitrate = TrackBitrate(next_download["bitrate"])
-        
+      # whilst there is a next download, download it
+      while (next_download := download_model.get_next_in_queue()):
+        # create static download update data to pass to the progress hook
         update = DownloadUpdate()
-        update.status = DownloadStatus.DOWNLOADING
         update.download_id = next_download["download_id"]
-        update.artist_names = artist_names
-        update.track_name = track_name
-        update.codec = codec
-        update.bitrate = bitrate
+        update.artist_names = TrackArtistNames([next_download["main_artist"], *next_download["other_artists"]])
+        update.track_name = next_download["track_name"]
+        update.codec = TrackCodec(next_download["codec"])
+        update.bitrate = TrackBitrate(next_download["bitrate"])
         update.url = next_download["url"]
-        update.completed_at = next_download["completed_at"]
-        update.failed_at = next_download["failed_at"]
         update.created_at = next_download["created_at"]
 
+        # get the progress hook to pass to the track download function
         progress_hook = cls._create_progress_hook(update)
 
+        # recreate original request object to pass as track info to the download function
         track_info = PostDownloadsRequest()
         track_info.album_name = next_download["album_name"]
-        track_info.track_name = track_name
-        track_info.artist_names = artist_names
-        track_info.bitrate = bitrate
-        track_info.codec = codec
+        track_info.track_name = update.track_name
+        track_info.artist_names = update.artist_names
+        track_info.bitrate = update.bitrate
+        track_info.codec = update.codec
         track_info.disc_number = next_download["disc_number"]
         track_info.track_number = next_download["track_number"]
-        track_info.release_date = TrackReleaseDate.from_string(next_download["release_date"])
+        track_info.url = update.url
+        track_info.release_date = TrackReleaseDate.from_string(next_download["release_date"]) if next_download["release_date"] else None
 
         # here when spotify sync is implemented, we will pass an associated save dir and track id retrieved from the database
-        # we will also have to implement a try catch here; on failure update the download in db to failed and emit this update to the socket
-        track_model = YtDlpClient().download_track(track_info, progress_hook)
-
-        # on success here we have to update the metadata of the track using the track model to get the path
-        # then we have to set the download to completed in the db then emit this update to the socket
+        is_success, track_model = YtDlpClient().download_track(track_info, progress_hook)
         
-        next_download = models.db.Download(conn).get_next_in_queue()
+        # change the fields in the static download update data to new data
+        update.terminated_at = download_model.get_current_timestamp()
+        update.downloaded_bytes = None
+        update.total_bytes = None
+        update.eta = None
+        update.speed = None
+        update.status = DownloadStatus.COMPLETED if is_success else DownloadStatus.FAILED
+
+        # update the db with the new state
+        download_model.set_terminated(update.download_id, update.status, update.terminated_at)
+
+        if is_success:
+          pass # update track file metadata
+        else:
+          pass # do something with error message
+
+        downloads_socket.send_download_update(update)
   # END _thread_target
 
 
@@ -130,14 +149,16 @@ class Downloader:
         for aid in other_artist_ids
       ])
 
-      download_id = models.db.Download(conn).insert_as_queued({
+      download_model = models.db.Download(conn)
+      created_at = download_model.get_current_timestamp()
+
+      download_id = download_model.insert_as_queued({
         "url": track_info.url,
         "codec": track_info.codec.value,
         "bitrate": track_info.bitrate.value,
-        "metadata_id": metadata_id
+        "metadata_id": metadata_id,
+        "created_at": created_at
       })
-
-      # need to query for created_at here
 
     update = DownloadUpdate()
     update.status = DownloadStatus.QUEUED
@@ -148,7 +169,7 @@ class Downloader:
     update.bitrate = track_info.bitrate
     update.url = track_info.url
     update.terminated_at = None
-    # assign created_at to the update here
+    update.created_at = created_at
 
     downloads_socket.send_download_update(update)
 

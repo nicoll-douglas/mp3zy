@@ -2,6 +2,7 @@ import db
 from ..model import Model
 import json
 from user_types import DownloadStatus
+from datetime import datetime
 
 class Download(Model):
   """A database model representing the downloads table.
@@ -13,6 +14,21 @@ class Download(Model):
   def __init__(self, conn = db.connect()):
     super().__init__(conn)
   # END __init__
+
+
+  @staticmethod
+  def get_current_timestamp() -> str:
+    """Gets the current timestamp as a string.
+
+    Useful for setting the terminated_at column.
+
+    Returns:
+      str: The timestamp
+    """
+    
+    now = datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S")
+  # END get_current_timestamp
 
 
   def get_next_in_queue(self) -> dict | None:
@@ -80,12 +96,32 @@ GROUP BY d.id
 
     return self.insert({ **data, "status": DownloadStatus.QUEUED.value })
   # END insert_as_queued
+  
+
+  def set_terminated(self, download_id: int, new_status: DownloadStatus, terminated_at: str | None = None):
+    """Sets a row/download in the table to a terminated state.
+
+    Args:
+      download_id (int): The ID of the row/download.
+      new_status (DownloadStatus): The new status of the download.
+      terminated_at (str | None): The timestamp of when the download terminated, gets set to the current timestamp if an empty value passed.
+    """
+    
+    sql = f"UPDATE {self._TABLE} SET status = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ?, terminated_at = ? WHERE id = ?"
+
+    terminated_at = terminated_at if terminated_at else self.get_current_timestamp()
+    params = (new_status.value, None, None, None, None, terminated_at, download_id)
+
+    self._cur.execute(sql, params)
+    self._conn.commit()
+  # END set_terminated
 
 
   def update(self, download_id: int, data: dict):
     """Updates a row in the table based on ID with the given data.
 
     Args:
+      download_id (int): The ID of the row/download.
       data (dict): Key-value pairs representing the column names and values to update for them.
     """
     
