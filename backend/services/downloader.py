@@ -182,6 +182,7 @@ class Downloader:
     update.download_dir = track_info.download_dir
     update.terminated_at = None
     update.created_at = created_at
+    update.error_msg = None
 
     downloads_socket.send_download_update(update)
 
