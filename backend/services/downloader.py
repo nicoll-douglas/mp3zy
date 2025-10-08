@@ -112,7 +112,19 @@ class Downloader:
 
           track_model = cast(models.disk.Track, result)
 
-          # update track file metadata here
+          metadata = models.disk.Metadata()
+          metadata.track_name = track_info.track_name
+          metadata.artist_names = track_info.artist_names
+          metadata.album_name = track_info.album_name
+          metadata.track_number = track_info.track_number
+          metadata.disc_number = track_info.disc_number
+          metadata.release_date = track_info.release_date
+          # add cover path metadata here
+
+          if track_info.codec is TrackCodec.MP3:
+            metadata.set_on_mp3(track_model.path)
+          elif track_info.codec is TrackCodec.FLAC:
+            metadata.set_on_flac(track_model.path)
 
           update.terminated_at = download_model.get_current_timestamp()
           download_model.set_completed(update.download_id, update.terminated_at)
