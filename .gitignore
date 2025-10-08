@@ -5,6 +5,9 @@
 # db
 *.db
 
+# editor
+.vscode
+
 # python
 __pycache__
 *.egg-info
@@ -13,12 +16,10 @@ __pycache__
 
 # js
 node_modules
-
-.DS_Store
-
-# React Router
 /.react-router/
 /build/
 
 # build
 dist
+
+.DS_Store
