@@ -5,7 +5,7 @@ from flask.testing import FlaskClient
 from typing import Generator
 import sqlite3
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def flask_app(in_memory_db_conn: sqlite3.Connection) -> Generator[Flask, None, None]:
   """Fixture that provides the Flask application instance.
 
