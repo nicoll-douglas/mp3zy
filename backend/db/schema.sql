@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS artists (
 CREATE TABLE IF NOT EXISTS metadata (
   id INTEGER PRIMARY KEY,
   track_name TEXT NOT NULL,
+  main_artist TEXT NOT NULL,
   album_name TEXT,
   track_number INTEGER,
   disc_number INTEGER,

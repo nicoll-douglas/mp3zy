@@ -29,39 +29,40 @@ SELECT
   d.codec,
   d.bitrate,
   d.status,
-  d.downloaded_bytes,
-  d.total_bytes,
-  d.speed,
-  d.eta,
   d.created_at,
-  d.terminated_at,
   m.id AS metadata_id,
   m.track_name,
+  m.main_artist,
   m.album_name,
   m.track_number,
   m.disc_number,
   m.release_date,
-  json_group_array(a.name) AS artists_names
+  json_group_array(a.name) AS other_artists
 FROM downloads d
 LEFT JOIN metadata m ON d.metadata_id = m.id
 LEFT JOIN metadata_artists ma ON m.id = ma.metadata_id
 LEFT JOIN artists a ON ma.artist_id = a.id
-WHERE d.status = ?
+WHERE d.status = :queued_status
   AND d.created_at = (
     SELECT MIN(created_at) 
     FROM {self._TABLE}
-    WHERE status = ?
+    WHERE status = :queued_status
   ) 
 GROUP BY d.id
 """
-    self._cur.execute(query, (DownloadStatus.QUEUED.value,))
+    self._cur.execute(query, { "queued_status": DownloadStatus.QUEUED.value })
     row = self._cur.fetchone()
     
     if not row:
       return None
     
     result = dict(row)
-    result["artist_names"] = json.loads(result["artist_names"] if result["artist_names"] else [])
+    other_artists = json.loads(result["other_artists"])
+
+    if other_artists == [None]:
+      other_artists = []
+      
+    result["other_artists"] = other_artists
 
     return result
   # END get_next_in_queue

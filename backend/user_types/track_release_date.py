@@ -20,7 +20,7 @@ class TrackReleaseDate:
     Constructs the effective release date values (`year`, `month`, `day`) from the data.
 
     Args:
-      data (Any): The data being passed to the class to validate.
+      data (Any): The data being passed to the class to validate and instantiate from.
       field_name (str | None): The name of a field associated with the incoming data.
 
     Raises:

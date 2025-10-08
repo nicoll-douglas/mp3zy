@@ -1,0 +1,19 @@
+-- A second seed for the application's SQLite database describing two queued downloads.
+
+INSERT INTO metadata (track_name, main_artist, album_name, release_date)
+VALUES ("Radio Ga Ga", "Queen", "The Works", "20-02-1984"); -- metadata id: 1
+
+INSERT INTO downloads (url, codec, bitrate, metadata_id, status)
+VALUES ("https://www.youtube.com/watch?v=azdwsXLmrHE", "mp3", 320, 1, "queued"); -- downloads id: 1
+
+INSERT INTO metadata (track_name, main_artist, album_name, track_number, disc_number, release_date)
+VALUES ("The Girl Is Mine", "Michael Jackson", "Thriller", 3, 1, "1982"); -- metadata id: 2
+
+INSERT INTO artists (name)
+VALUES ("Paul McCartney"); -- artist id: 1
+
+INSERT INTO metadata_artists (metadata_id, artist_id)
+VALUES (2, 1);
+
+INSERT INTO downloads (url, codec, bitrate, metadata_id, status)
+VALUES ("https://www.youtube.com/watch?v=8GB9BULxZ8c", "flac", 320, 2, "queued"); -- downloads id: 2

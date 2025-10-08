@@ -58,7 +58,7 @@ class Downloader:
       next_download = models.db.Download(conn).get_next_in_queue()
 
       while next_download:
-        artist_names = TrackArtistNames(next_download["artist_names"])
+        artist_names = TrackArtistNames([next_download["main_artist"], *next_download["other_artists"]])
         track_name = next_download["track_name"]
         codec = TrackCodec(next_download["codec"])
         bitrate = TrackBitrate(next_download["bitrate"])
@@ -110,23 +110,24 @@ class Downloader:
     """
 
     with db.connect() as conn:
-      artist_ids = models.db.Artist(conn).insert_many([
+      other_artist_ids = models.db.Artist(conn).insert_many([
         { "name": n } 
-        for n in track_info.artist_names
+        for n in track_info.artist_names.get_other_artists()
       ])
 
       metadata_id = models.db.Metadata(conn).insert({
         "track_name": track_info.track_name,
+        "main_artist": track_info.artist_names.get_main_artist(),
         "album_name": track_info.album_name,
         "track_number": track_info.track_number,
         "disc_number": track_info.disc_number,
-        "release_date": str(track_info.release_date)
+        "release_date": str(track_info.release_date) if track_info.release_date else None
       })
       metadata_id = cast(int, metadata_id)
 
       models.db.MetadataArtist(conn).insert_many([
         { "metadata_id": metadata_id, "artist_id": aid }
-        for aid in artist_ids
+        for aid in other_artist_ids
       ])
 
       download_id = models.db.Download(conn).insert_as_queued({
