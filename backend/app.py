@@ -15,8 +15,11 @@ def create_app(db_conn: sqlite3.Connection = db.connect()) -> tuple[Flask, Socke
 
   db.setup(db_conn)
   db_conn.close()
+
+  app_name = os.getenv("APP_NAME") or ""
+  flask_app_name = app_name + (" " if app_name else "") + "Desktop Backend API"
   
-  app = Flask(os.getenv("VITE_APP_NAME") + " Backend")
+  app = Flask(flask_app_name)
   CORS(app, resources={ r"/*": { "origins": config.CORS_ALLOWED_ORIGINS } })
   socketio = SocketIO(app, cors_allowed_origins=config.CORS_ALLOWED_ORIGINS)
 
