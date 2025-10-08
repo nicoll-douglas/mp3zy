@@ -78,6 +78,7 @@ class Downloader:
         update.bitrate = TrackBitrate(next_download["bitrate"])
         update.url = next_download["url"]
         update.created_at = next_download["created_at"]
+        update.download_dir = next_download["download_dir"]
 
         # get the progress hook to pass to the track download function
         progress_hook = cls._create_progress_hook(update)
@@ -92,9 +93,10 @@ class Downloader:
         track_info.disc_number = next_download["disc_number"]
         track_info.track_number = next_download["track_number"]
         track_info.url = update.url
+        track_info.download_dir = update.download_dir
         track_info.release_date = TrackReleaseDate.from_string(next_download["release_date"]) if next_download["release_date"] else None
 
-        # here when spotify sync is implemented, we will pass an associated save dir and track id retrieved from the database
+        # here when spotify sync is implemented, we will pass an associated track ID to go in the filename
         is_success, track_model = YtDlpClient().download_track(track_info, progress_hook)
         
         # add fields to the static download update data with new data
@@ -157,7 +159,8 @@ class Downloader:
         "codec": track_info.codec.value,
         "bitrate": track_info.bitrate.value,
         "metadata_id": metadata_id,
-        "created_at": created_at
+        "created_at": created_at,
+        "download_dir": track_info.download_dir
       })
 
     update = DownloadUpdate()
@@ -168,6 +171,7 @@ class Downloader:
     update.codec = track_info.codec
     update.bitrate = track_info.bitrate
     update.url = track_info.url
+    update.download_dir = track_info.download_dir
     update.terminated_at = None
     update.created_at = created_at
 

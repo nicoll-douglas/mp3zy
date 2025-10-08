@@ -3,6 +3,7 @@ from typing import Any, Literal, Callable
 from user_types.requests import PostDownloadsRequest
 from user_types.reponses import PostDownloadsResponse
 import copy
+from pathvalidate import validate_filepath, ValidationError
 
 class PostDownloadsValidator:
   """Validator class that validates request bodies to the POST /downloads endpoint.
@@ -235,6 +236,33 @@ class PostDownloadsValidator:
   # END _validate_release_date
 
 
+  def _validate_download_dir(self, body: dict) -> Literal[False] | str:
+    """Helper that validates the `download_dir` field of the request body.
+
+    Args:
+      body (dict): The request body.
+
+    Returns:
+      Literal[False] | str: False is the field is invalid, the validated field's value otherwise.
+    """
+    
+    self._response.field = "download_dir"
+    download_dir = body.get(self._response.field)
+
+    if not download_dir:
+      self._response.message = f"Field `{self._response.field}` is required."
+      return False
+
+    try:
+      validate_filepath(download_dir)
+    except ValidationError:
+      self._response.message = f"Field `{self._response.field}` is not a valid file path."
+      return False
+    
+    return True
+  # END _validate_download_dir
+
+
   def validate(self, body: Any) -> tuple[Literal[False], PostDownloadsResponse.BadRequest] | tuple[Literal[True], PostDownloadsRequest]:
     """Performs full validation on the request body.
 
@@ -256,6 +284,7 @@ class PostDownloadsValidator:
       (self._validate_artist_names, "artist_names"),
       (self._validate_track_name, "track_name"),
       (self._validate_url, "url"),
+      (self._validate_download_dir, "download_dir")
       (self._validate_codec, "codec"),
       (self._validate_bitrate, "bitrate"),
       (self._validate_album_name, "album_name"),

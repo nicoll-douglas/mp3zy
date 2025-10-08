@@ -8,7 +8,6 @@ class Track:
 
   Attributes:
     track_info (PostDownloadsRequest): Metadata about the track.
-    save_dir (str): The preferred root directory under which the track file should be stored, defaults to the user's preference in the application settings file.
     track_id (str | None): A unique ID associated with the track that will go in the file name if not None.
     ext (str): The extension (including the ".") of the track file associated with the codec in the track info.
     mimetype (str): The mimetype of the track file.
@@ -16,7 +15,6 @@ class Track:
   """
 
   track_info: PostDownloadsRequest
-  save_dir: str
   track_id: str | None
   ext: str
   mimetype: str
@@ -24,7 +22,7 @@ class Track:
   output_template: str
 
 
-  def __init__(self, track_info: PostDownloadsRequest, save_dir: str | None = None, track_id: str | None = None):
+  def __init__(self, track_info: PostDownloadsRequest, track_id: str | None = None):
     """Initializes Track.
 
     Will assign the appropriate save directory to `save_dir` and create the track file path's directories if they don't exist.
@@ -36,13 +34,6 @@ class Track:
     self.mimetype = mimetypes.types_map[self.ext]
     self.path = self._build_path()
     self.output_template = self._build_output_template()
-
-    if save_dir is None:
-      settings = Settings()
-      settings.load()
-      self.save_dir = settings.download_dir
-    else:
-      self.save_dir = save_dir
 
     os.makedirs(self.path, exist_ok=True)
   # END __init__
@@ -56,7 +47,7 @@ class Track:
     """
 
     return os.path.join(
-      self.save_dir, 
+      self.track_info.download_dir, 
       self._build_relative_dir(), 
       self._build_stem() + self.ext
     )
@@ -71,7 +62,7 @@ class Track:
     """
 
     return os.path.join(
-      self.save_dir,
+      self.track_info.download_dir,
       self._build_relative_dir(),
       f"{self._build_stem()}.%(ext)s"
     )

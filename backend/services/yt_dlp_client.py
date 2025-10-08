@@ -65,7 +65,6 @@ class YtDlpClient:
   def download_track(self,
     track_info: PostDownloadsRequest,
     progress_hook: Callable[[dict], None],
-    save_dir: str | None = None,
     track_id: str | None = None 
   ) -> tuple[bool, models.disk.Track]:
     """Uses the yt-dlp downloader to download the associated track.
@@ -73,14 +72,13 @@ class YtDlpClient:
     Args:
       track_info (PostDownloadsRequest): Contains all information about the track.
       progress_hook (Callable[[dict], None]): The progress hook function to be passed to the downloader.
-      save_dir (str | None): The preferred root directory that the track will be saved under.
       track_id (str | None): A unique identifier that will go in the downloaded track filename.
 
     Returns:
       tuple[bool, models.disk.Track]: A tuple where the first element is a bool indicating whether download suceeded and the second element is a track model instance loaded with the track info.
     """
 
-    track = models.disk.Track(track_info, save_dir, track_id)
+    track = models.disk.Track(track_info, track_id)
     ydl_opts = {
       "format": "bestaudio/best",
       "progress_hooks": [progress_hook],

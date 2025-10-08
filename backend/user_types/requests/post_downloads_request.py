@@ -16,6 +16,7 @@ class PostDownloadsRequest:
     disc_number (int | None): Disc number metadata.
     release_date (TrackReleaseDate | None): Track release date metadata.
     url (str): The URL to use as the audio source for the track download.
+    download_dir (str): The directory where the associated audio file should be saved to.
   """
   
   artist_names: TrackArtistNames
@@ -27,5 +28,6 @@ class PostDownloadsRequest:
   disc_number: int | None
   release_date: TrackReleaseDate | None
   url: str
+  download_dir: str
   
 # END class PostDownloadsRequest

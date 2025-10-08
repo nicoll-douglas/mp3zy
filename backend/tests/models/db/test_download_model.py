@@ -20,7 +20,8 @@ from typing import Callable
       "track_number": 3,
       "disc_number": 1,
       "release_date": "1982",
-      "other_artists": ["Paul McCartney"]
+      "other_artists": ["Paul McCartney"],
+      "download_dir": "/home/user/music"
     }
   ),
   (
@@ -38,7 +39,8 @@ from typing import Callable
       "track_number": None,
       "disc_number": None,
       "release_date": "20-02-1984",
-      "other_artists": []
+      "other_artists": [],
+      "download_dir": "/home/user/music"
     }
   ),
   (None, None)

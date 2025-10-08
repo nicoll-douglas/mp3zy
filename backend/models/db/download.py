@@ -46,6 +46,7 @@ SELECT
   d.bitrate,
   d.status,
   d.created_at,
+  d.download_dir,
   m.id AS metadata_id,
   m.track_name,
   m.main_artist,

@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS downloads (
   metadata_id INTEGER,
   status TEXT NOT NULL,
   downloaded_bytes INTEGER,
+  download_dir TEXT NOT NULL,
   total_bytes INTEGER,
   speed REAL,
   eta REAL,

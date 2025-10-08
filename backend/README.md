@@ -193,7 +193,8 @@ This endpoint will trigger an audio file download of a song from the provided UR
   "track_number": number | null,
   "disc_number": number | null,
   "release_date": TrackReleaseDate | null,
-  "url": string
+  "url": string,
+  "download_dir": string
 }
 ```
 
@@ -206,6 +207,7 @@ This endpoint will trigger an audio file download of a song from the provided UR
 - `disc_number` - The disc number that the track is on on the album.
 - `release_date` - The release date of the track.
 - `url` - The URL source to use for download (should ideally be extracted from the response body of a request to GET /downloads/search).
+- `download_dir` - The directory where the associated audio file should be saved to.
 
 #### Responses
 
