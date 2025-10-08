@@ -101,9 +101,12 @@ def validate_album_name_fixture(request: pytest.FixtureRequest) -> tuple[dict, V
   ("track_number", { "track_number": "234" }, ValidationCase.INVALID),
   ("disc_number", { "disc_number": ["4256"] }, ValidationCase.INVALID),
   ("track_number", { "track_number": -1 }, ValidationCase.INVALID),
+  ("disc_number", { "disc_number": 100 }, ValidationCase.INVALID),
+  ("track_number", { "track_number": 324 }, ValidationCase.INVALID),
   ("disc_number", { "disc_number": 0 }, ValidationCase.INVALID),
   ("track_number", { "track_number": 1 }, ValidationCase.VALID),
   ("disc_number", { "disc_number": 42 }, ValidationCase.VALID),
+  ("track_number", { "track_number": 99 }, ValidationCase.VALID),
 ])
 def validate_track_or_disc_number_fixture(request: pytest.FixtureRequest) -> tuple[Literal["track_number", "disc_number"], dict, ValidationCase]:
   """Parametrized fixture providing test cases for the test_validate_track_or_disc_number method.

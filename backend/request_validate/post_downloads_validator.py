@@ -201,6 +201,10 @@ class PostDownloadsValidator:
         self._response.message = f"Field `{self._response.field}` must be greater than 0."
         return False
       
+      if value > 99:
+        self._response.message = f"Field `{self._response.field} must not be greater than 99."
+        return False
+      
     return value
   # END _validate_track_or_disc_number
 

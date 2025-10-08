@@ -69,7 +69,7 @@ class Downloader:
 
       # whilst there is a next download, download it
       while (next_download := download_model.get_next_in_queue()):
-        # create static download update data to pass to the progress hook
+        # create static download update data
         update = DownloadUpdate()
         update.download_id = next_download["download_id"]
         update.artist_names = TrackArtistNames([next_download["main_artist"], *next_download["other_artists"]])
@@ -97,7 +97,7 @@ class Downloader:
         # here when spotify sync is implemented, we will pass an associated save dir and track id retrieved from the database
         is_success, track_model = YtDlpClient().download_track(track_info, progress_hook)
         
-        # change the fields in the static download update data to new data
+        # add fields to the static download update data with new data
         update.terminated_at = download_model.get_current_timestamp()
         update.downloaded_bytes = None
         update.total_bytes = None
