@@ -126,10 +126,10 @@ GROUP BY d.id
       terminated_at (str | None): The timestamp of when the download failed, gets set to the current timestamp if an empty value passed.
     """
     
-    sql = f"UPDATE {self._TABLE} SET status = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ?, terminated_at = ?, error_msg = ? WHERE id = ?"
+    sql = f"UPDATE {self._TABLE} SET status = ?, terminated_at = ?, error_msg = ? WHERE id = ?"
 
     terminated_at = terminated_at if terminated_at else self.get_current_timestamp()
-    params = (DownloadStatus.FAILED.value, None, None, None, None, terminated_at, error_msg, download_id)
+    params = (DownloadStatus.FAILED.value, terminated_at, error_msg, download_id)
 
     self._cur.execute(sql, params)
     self._conn.commit()
