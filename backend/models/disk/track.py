@@ -4,39 +4,66 @@ from .settings import Settings
 from user_types.requests import PostDownloadsRequest
 
 class Track:
-  """A model class for interfacing with audio/track file paths on disk.
+  """A model class for interfacing with an audio/track file path on disk.
 
   Attributes:
     track_info (PostDownloadsRequest): Metadata about the track.
     save_dir (str): The preferred root directory under which the track file should be stored, defaults to the user's preference in the application settings file.
     track_id (str | None): A unique ID associated with the track that will go in the file name if not None.
+    ext (str): The extension (including the ".") of the track file associated with the codec in the track info.
+    mimetype (str): The mimetype of the track file.
+    output_template (str): The output filepath template for `yt_dlp` to know where to download the track to.
   """
 
   track_info: PostDownloadsRequest
   save_dir: str
   track_id: str | None
+  ext: str
+  mimetype: str
+  path: str
+  output_template: str
 
 
   def __init__(self, track_info: PostDownloadsRequest, save_dir: str | None = None, track_id: str | None = None):
     """Initializes Track.
 
-    Will assign the appropriate save directory to `save_dir` and create the directory if it doesn't exist.
+    Will assign the appropriate save directory to `save_dir` and create the track file path's directories if they don't exist.
     """
     
     self.track_info = track_info
     self.track_id = track_id
+    self.ext = "." + self.track_info.codec.value
+    self.mimetype = mimetypes.types_map[self.ext]
+    self.path = self._build_path()
+    self.output_template = self._build_output_template()
 
     if save_dir is None:
-      settings = Settings.load_settings()
-      self.save_dir = settings["download_dir"]
+      settings = Settings()
+      settings.load()
+      self.save_dir = settings.download_dir
     else:
       self.save_dir = save_dir
 
-    os.makedirs(self.save_dir, exist_ok = True)
+    os.makedirs(self.path, exist_ok=True)
   # END __init__
   
 
-  def build_output_template(self) -> str:
+  def _build_path(self) -> str:
+    """Builds the full path of where the track should be stored.
+
+    Returns:
+      str: The file path.
+    """
+
+    return os.path.join(
+      self.save_dir, 
+      self._build_relative_dir(), 
+      self._build_stem() + self.ext
+    )
+  # END _build_path
+  
+
+  def _build_output_template(self) -> str:
     """Builds the output filepath template for `yt_dlp` to know where to download the track to.
 
     Returns:
@@ -48,11 +75,11 @@ class Track:
       self._build_relative_dir(),
       f"{self._build_stem()}.%(ext)s"
     )
-  # END build_output_template
+  # END _build_output_template
 
   
   def _build_relative_dir(self) -> str:
-    """Builds the path of the relative directory the track file should be stored in relative to `save_dir`.
+    """Builds the path of the directory the track file should be stored in relative to `save_dir`.
 
     Returns:
       str: A relative path.
@@ -79,11 +106,12 @@ class Track:
     
     stem = ""
 
-    if self.track_info.track_number is not None:
-      stem += str(self.track_info.track_number).zfill(2) + " - "
+    if self.track_info.album_name:
+      if self.track_info.track_number is not None:
+        stem += str(self.track_info.track_number).zfill(2) + " - "
 
-      if self.track_info.disc_number is not None:
-        stem = str(self.track_info.disc_number).zfill(2) + "-" + stem
+        if self.track_info.disc_number is not None:
+          stem = str(self.track_info.disc_number).zfill(2) + "-" + stem
 
     stem += self.track_info.track_name
     other_artists = self.track_info.artist_names.get_other_artists()
@@ -96,28 +124,6 @@ class Track:
 
     return sanitize_filename(stem)
   # END _build_stem
-
-
-  def build_path(self) -> str:
-    """Builds the full path of where the track should be stored.
-
-    Returns:
-      str: The file path.
-    """
-
-    return os.path.join(self.save_dir, self._build_relative_dir() + self.get_ext())
-  # END build_path
-
-
-  def get_ext(self) -> str:
-    """Gets the appropriate extension associated with the audio codec of the track.
-
-    Returns:
-      str: The file extension.
-    """
-
-    return "." + self.track_info.codec.value
-  # END get_ext
   
 
   def exists(self) -> bool:
@@ -127,18 +133,7 @@ class Track:
       bool: True if it exists, false otherwise.
     """
 
-    return os.path.exists(self.build_path())
+    return os.path.exists(self.path)
   # END exists
-
-
-  def get_path_mimetype(self) -> str | None:
-    """Gets the mimetype associated with the track file's extension.
-
-    Returns:
-      str | None: The mimetype if there is a valid extension, None otherwise.
-    """
-
-    return mimetypes.types_map.get(self.get_ext())
-  # END get_path_mimetype
 
 # END class Track

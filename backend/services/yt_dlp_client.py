@@ -89,7 +89,7 @@ class YtDlpClient:
         "preferredcodec": track_info.codec.value,
         "preferredquality": track_info.bitrate.value,
       }],
-      "outtmpl": track.build_output_template()
+      "outtmpl": track.output_template
     }
     
     try:
