@@ -66,8 +66,8 @@ class YtDlpClient:
     track_info: PostDownloadsRequest,
     progress_hook: Callable[[dict], None],
     track_id: str | None = None 
-  ) -> tuple[bool, models.disk.Track]:
-    """Uses the yt-dlp downloader to download the associated track.
+  ) -> tuple[Literal[True], models.disk.Track] | tuple[Literal[False], str]:
+    """Uses the yt-dlp downloader to download a track.
 
     Args:
       track_info (PostDownloadsRequest): Contains all information about the track.
@@ -75,10 +75,18 @@ class YtDlpClient:
       track_id (str | None): A unique identifier that will go in the downloaded track filename.
 
     Returns:
-      tuple[bool, models.disk.Track]: A tuple where the first element is a bool indicating whether download suceeded and the second element is a track model instance loaded with the track info.
+      tuple[Literal[True], models.disk.Track] | tuple[Literal[False], str]: A tuple where on download success the first element is True and the second is a track model instance, otherwise the first element is False and the second is an error message indicating the error that occurred.
     """
 
-    track = models.disk.Track(track_info, track_id)
+    try:
+      track = models.disk.Track(track_info, track_id)
+    except PermissionError:
+      return False, "The application does not have permission to create the provided download directory."
+    except OSError:
+      return False, "An OS-level error ocurred."
+    except Exception:
+      return False, "An unexpected error ocurred."
+
     ydl_opts = {
       "format": "bestaudio/best",
       "progress_hooks": [progress_hook],
@@ -93,8 +101,8 @@ class YtDlpClient:
     try:
       with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([track_info.url])
-    except Exception as e:
-      return False, track
+    except Exception:
+      return False, "The download started but failed to complete."
       
     return True, track
   # END download_track

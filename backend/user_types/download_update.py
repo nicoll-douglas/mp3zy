@@ -17,10 +17,11 @@ class DownloadUpdate:
     created_at (str): Timestamp of when the download record was created in the database
     total_bytes (int | None): The total number of bytes that will be downloaded.
     speed (int | float | None): The speed of the download.
-    downloaded_bytes (int | None): THe number of bytes already downloaded.
+    downloaded_bytes (int | None): The number of bytes already downloaded.
     terminated_at (str | None): Timestamp of when the download record was set to completed or failed in the database.
     eta (int | None): The amount of time in seconds left for the download.
     download_dir (str): The directory path of where the audio file will be downloaded to.
+    error_msg (str | None): An error message if the download failed.
   """
   
   download_id: int
@@ -37,6 +38,7 @@ class DownloadUpdate:
   downloaded_bytes: int | None
   terminated_at: str | None
   eta: int | None
+  error_msg: str | None
 
 
   def get_serializable(self) -> dict:

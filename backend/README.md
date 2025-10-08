@@ -154,8 +154,9 @@ An object containing information about a download update for a track being downl
   "bitrate": TrackBitrate,
   "url": string,
   "created_at": string,
-  "completed_at": string | null,
-  "failed_at": string | null
+  "terminated_at": string | null,
+  "download_dir": string,
+  "error_msg": string | null
 }
 ```
 
@@ -172,6 +173,8 @@ An object containing information about a download update for a track being downl
 - `url` - The source URL of the file being downloaded.
 - `created_at` - A timestamp indicating when the download record was created.
 - `terminated_at` - A timestamp indicating when the download completed or failed if so.
+- `download_dir` - The directory where the download will be saved to.
+- `error_msg` - An error message if the download failed.
 
 ## REST API
 

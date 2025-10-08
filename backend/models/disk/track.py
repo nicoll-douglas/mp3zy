@@ -1,6 +1,5 @@
 import os, mimetypes
 from pathvalidate import sanitize_filename
-from .settings import Settings
 from user_types.requests import PostDownloadsRequest
 
 class Track:

@@ -99,19 +99,37 @@ GROUP BY d.id
   # END insert_as_queued
   
 
-  def set_terminated(self, download_id: int, new_status: DownloadStatus, terminated_at: str | None = None):
-    """Sets a row/download in the table to a terminated state.
+  def set_completed(self, download_id: int, terminated_at: str | None = None):
+    """Sets a row/download in the table to a completed state.
 
     Args:
       download_id (int): The ID of the row/download.
-      new_status (DownloadStatus): The new status of the download.
-      terminated_at (str | None): The timestamp of when the download terminated, gets set to the current timestamp if an empty value passed.
+      terminated_at (str | None): The timestamp of when the download completed, gets set to the current timestamp if an empty value passed.
     """
     
     sql = f"UPDATE {self._TABLE} SET status = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ?, terminated_at = ? WHERE id = ?"
 
     terminated_at = terminated_at if terminated_at else self.get_current_timestamp()
-    params = (new_status.value, None, None, None, None, terminated_at, download_id)
+    params = (DownloadStatus.COMPLETED.value, None, None, None, None, terminated_at, download_id)
+
+    self._cur.execute(sql, params)
+    self._conn.commit()
+  # END set_terminated
+
+
+  def set_failed(self, download_id: int, terminated_at: str | None = None, error_msg: str | None = None,):
+    """Sets a row/download in the table to a failed state.
+
+    Args:
+      download_id (int): The ID of the row/download.
+      error_msg (str | None): An error message indicating the error that caused the download to fail.
+      terminated_at (str | None): The timestamp of when the download failed, gets set to the current timestamp if an empty value passed.
+    """
+    
+    sql = f"UPDATE {self._TABLE} SET status = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ?, terminated_at = ?, error_msg = ? WHERE id = ?"
+
+    terminated_at = terminated_at if terminated_at else self.get_current_timestamp()
+    params = (DownloadStatus.FAILED.value, None, None, None, None, terminated_at, error_msg, download_id)
 
     self._cur.execute(sql, params)
     self._conn.commit()

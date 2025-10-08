@@ -79,6 +79,7 @@ class Downloader:
         update.url = next_download["url"]
         update.created_at = next_download["created_at"]
         update.download_dir = next_download["download_dir"]
+        update.error_msg = None
 
         # get the progress hook to pass to the track download function
         progress_hook = cls._create_progress_hook(update)
@@ -97,23 +98,30 @@ class Downloader:
         track_info.release_date = TrackReleaseDate.from_string(next_download["release_date"]) if next_download["release_date"] else None
 
         # here when spotify sync is implemented, we will pass an associated track ID to go in the filename
-        is_success, track_model = YtDlpClient().download_track(track_info, progress_hook)
+        is_success, result = YtDlpClient().download_track(track_info, progress_hook)
         
         # add fields to the static download update data with new data
-        update.terminated_at = download_model.get_current_timestamp()
         update.downloaded_bytes = None
         update.total_bytes = None
         update.eta = None
         update.speed = None
-        update.status = DownloadStatus.COMPLETED if is_success else DownloadStatus.FAILED
 
-        # update the db with the new state
-        download_model.set_terminated(update.download_id, update.status, update.terminated_at)
-
+        # handle success and failure cases
         if is_success:
-          pass # update track file metadata
+          update.status = DownloadStatus.COMPLETED
+
+          track_model = cast(models.disk.Track, result)
+
+          # update track file metadata here
+
+          update.terminated_at = download_model.get_current_timestamp()
+          download_model.set_completed(update.download_id, update.terminated_at)
         else:
-          pass # do something with error message
+          update.status = DownloadStatus.FAILED
+          update.error_msg = cast(str, result)
+
+          update.terminated_at = download_model.get_current_timestamp()
+          download_model.set_failed(update.download_id, update.terminated_at, update.error_msg)
 
         downloads_socket.send_download_update(update)
   # END _thread_target

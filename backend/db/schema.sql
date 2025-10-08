@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS downloads (
   eta REAL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   terminated_at TIMESTAMP,
+  error_msg TEXT,
   FOREIGN KEY (metadata_id) REFERENCES metadata(id) ON DELETE SET NULL
 );
 
