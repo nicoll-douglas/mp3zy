@@ -93,14 +93,16 @@ class Metadata:
       cover = AlbumCover(self.album_cover_path)
       mimetype = cover.get_mimetype()
 
-      if cover.exists():
+      try:
         p.data = cover.read()
         p.type = 3
         p.mime = mimetype
 
         audio.clear_pictures()
         audio.add_picture(p)
-
+      except OSError:
+        pass
+      
     audio.save()
   # END set_on_flac
 
