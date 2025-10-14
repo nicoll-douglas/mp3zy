@@ -1,38 +1,29 @@
-import { ipcMain, dialog } from "electron";
+import { ipcMain } from "electron";
 import {
   loadSettings,
   updateSettings,
   restoreSettings,
 } from "../services/settings.js";
 import type { UserSettings } from "../../types/shared.js";
+import { pickDirectory } from "../services/dialog.js";
+import { IpcChannels } from "./channels.js";
 
 /**
  * Registers the settings-related IPC handlers.
  */
 function registerHandlers() {
-  ipcMain.handle("get-settings", async () => {
-    return loadSettings();
-  });
+  ipcMain.handle(IpcChannels.getSettings, async () => loadSettings());
 
   ipcMain.handle(
-    "update-settings",
-    async (_event, settings: Partial<UserSettings>) => {
-      return updateSettings(settings);
-    }
+    IpcChannels.updateSettings,
+    async (_, settings: Partial<UserSettings>) => updateSettings(settings)
   );
 
-  ipcMain.handle("pick-save-directory", async () => {
-    const result = await dialog.showOpenDialog({
-      properties: ["openDirectory"],
-      title: "Select a New Save Directory",
-    });
+  ipcMain.handle(IpcChannels.pickDirectory, async (_, title: string) =>
+    pickDirectory(title)
+  );
 
-    return result.canceled ? null : result.filePaths[0];
-  });
-
-  ipcMain.handle("restore-settings", async () => {
-    return restoreSettings();
-  });
+  ipcMain.handle(IpcChannels.restoreSettings, async () => restoreSettings());
 }
 
 export { registerHandlers };

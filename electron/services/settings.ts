@@ -1,30 +1,51 @@
 import { app } from "electron";
 import path from "path";
-import fs from "fs";
-import defaultSettings from "../config/defaultSettings.js";
+import { promises as fs } from "fs";
 import type { UserSettings } from "../../types/shared.js";
 import logger from "./logger.js";
 
 /**
- * Gets the path to where the application settings file (settings.join) is saved.
+ * Produces the default settings configuration for the application.
+ *
+ * @returns The default configuration object.
+ */
+async function defaultSettings(): Promise<UserSettings> {
+  let defaultDownloadDir = app.getPath("music");
+
+  try {
+    await fs.access(defaultDownloadDir);
+  } catch {
+    defaultDownloadDir = app.getPath("home");
+  }
+
+  return {
+    default_download_dir: defaultDownloadDir,
+  };
+}
+
+/**
+ * Gets the path to where the application settings file (settings.json) is saved.
  *
  * @returns The file path.
  */
-function getSettingsPath() {
+function getSettingsPath(): string {
   const userDataPath = app.getPath("userData");
+
   return path.join(userDataPath, "settings.json");
 }
 
 /**
- * Synchronously overwrites the application settings file with a new settings configuration.
+ * Overwrites the application settings file with a new settings configuration.
  *
  * @param settings The new settings configuration object.
  * @returns `true` if the file was successfully written to, `false` otherwise.
  */
-function setSettings(settings: UserSettings): boolean {
+async function setSettings(settings: UserSettings): Promise<boolean> {
   try {
-    const settingsPath = getSettingsPath();
-    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
+    const settingsPath: string = getSettingsPath();
+    const jsonString: string = JSON.stringify(settings, null, 2);
+
+    await fs.writeFile(settingsPath, jsonString, "utf-8");
 
     logger.info("Successfully saved settings.");
     logger.debug(`Settings path: ${settingsPath}`);
@@ -42,10 +63,12 @@ function setSettings(settings: UserSettings): boolean {
  *
  * @returns `true` if the settings file was written to, `false` otherwise.
  */
-function restoreSettings(): boolean {
+async function restoreSettings(): Promise<boolean> {
   logger.info("Restoring default settings...");
 
-  return setSettings(defaultSettings());
+  const defaults: UserSettings = await defaultSettings();
+
+  return setSettings(defaults);
 }
 
 /**
@@ -53,19 +76,14 @@ function restoreSettings(): boolean {
  *
  * @returns The settings configuration object or `null` if the file couldn't be read.
  */
-function loadSettings(): UserSettings | null {
-  const settingsPath = getSettingsPath();
-
-  if (!fs.existsSync) {
-    restoreSettings();
-  }
-
+async function loadSettings(): Promise<UserSettings | null> {
   try {
-    const settingsData = fs.readFileSync(settingsPath, "utf-8");
+    const settingsPath = getSettingsPath();
+    const settingsData = await fs.readFile(settingsPath, "utf-8");
 
     return JSON.parse(settingsData);
   } catch (e) {
-    logger.warn(`Failed to read settings file: ${e}`);
+    logger.warn(`Failed to load settings file: ${e}`);
 
     return null;
   }
@@ -77,10 +95,12 @@ function loadSettings(): UserSettings | null {
  * @param updatedSettings New or updated configurations.
  * @returns `true` if the settings file was updated, `false` otherwise.
  */
-function updateSettings(updatedSettings: Partial<UserSettings>): boolean {
+async function updateSettings(
+  updatedSettings: Partial<UserSettings>
+): Promise<boolean> {
   logger.info("Updating settings...");
 
-  const currentSettings = loadSettings();
+  const currentSettings = await loadSettings();
 
   if (!currentSettings) {
     logger.warn("Failed to update settings.");
@@ -88,9 +108,9 @@ function updateSettings(updatedSettings: Partial<UserSettings>): boolean {
     return false;
   }
 
-  const newSettings = { ...currentSettings, ...updatedSettings };
+  const newSettings: UserSettings = { ...currentSettings, ...updatedSettings };
 
   return setSettings(newSettings);
 }
 
-export { loadSettings, updateSettings, restoreSettings };
+export { loadSettings, updateSettings, restoreSettings, defaultSettings };

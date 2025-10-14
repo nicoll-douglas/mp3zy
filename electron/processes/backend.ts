@@ -52,10 +52,8 @@ function registerBackendEventHandlers(proc: ChildProcessWithoutNullStreams) {
 
 /**
  * Starts the backend Python process of the application.
- *
- * @param authKey The authentication key the backend will use to authenticate HTTP requests from the renderer process.
  */
-function startBackend(authKey: string) {
+function startBackend() {
   killBackend();
 
   const pyPath = path.join(__dirname, "../../../.venv/bin/python");
@@ -65,7 +63,6 @@ function startBackend(authKey: string) {
     env: {
       ...process.env,
       USER_DATA_DIR: app.getPath("userData"),
-      ELECTRON_AUTH_KEY: authKey,
     },
   };
 
@@ -75,10 +72,8 @@ function startBackend(authKey: string) {
 
 /**
  * Starts the backend Python process of the application in watch mode.
- *
- * @param authKey The authentication key the backend will use to authenticate HTTP requests from the renderer process.
  */
-function watchBackend(authKey: string) {
+function watchBackend() {
   const watcher = chokidar.watch(backendSrcFolder, {
     ignored: (path, stats) => !!stats?.isFile() && !path.endsWith(".py"),
     ignoreInitial: true,
@@ -88,7 +83,7 @@ function watchBackend(authKey: string) {
     logger.info(
       `Backend source file ${filePath} changed with event ${event}, restarting backend...`
     );
-    startBackend(authKey);
+    startBackend();
   });
 
   watcher.on("ready", () => {

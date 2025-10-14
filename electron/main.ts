@@ -9,18 +9,15 @@ import {
   watchBackend,
 } from "./processes/backend.js";
 import { registerHandlers as registerSettingsIpcHandlers } from "./ipc/settings.js";
-import generateAuthKey from "./utils/generateAuthKey.js";
-
-const backendAuthKey = generateAuthKey();
 
 app.whenReady().then(() => {
-  startBackend(backendAuthKey);
+  startBackend();
 
   if (process.env.APP_ENV === "development") {
-    watchBackend(backendAuthKey);
+    watchBackend();
   }
 
-  createMainWindow(backendAuthKey);
+  createMainWindow();
   registerSettingsIpcHandlers();
 });
 
@@ -34,6 +31,6 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createMainWindow(backendAuthKey);
+    createMainWindow();
   }
 });

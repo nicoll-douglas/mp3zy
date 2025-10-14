@@ -1,11 +1,13 @@
 export interface UserSettings {
-  savePath: string;
+  default_download_dir: string;
 }
 
 export interface ElectronAPI {
   getSettings: () => Promise<UserSettings | null>;
+
   updateSettings: (updatedSettings: Partial<UserSettings>) => Promise<boolean>;
-  pickSaveDirectory: () => Promise<string | null>;
+
+  pickDirectory: (dialogTitle: string) => Promise<string | null>;
+
   restoreSettings: () => Promise<boolean>;
-  getBackendAuthKey: () => string;
 }

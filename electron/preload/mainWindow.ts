@@ -1,20 +1,18 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { ElectronAPI, UserSettings } from "../../types/shared.js";
-
-let backendAuthKey: string = "";
+import { IpcChannels } from "../ipc/channels.js";
 
 // The API object to be exposed on the window object in the renderer process
 const electronAPI: ElectronAPI = {
-  getSettings: async () => ipcRenderer.invoke("get-settings"),
-  updateSettings: async (updatedSettings: Partial<UserSettings>) =>
-    ipcRenderer.invoke("update-settings", updatedSettings),
-  pickSaveDirectory: async () => ipcRenderer.invoke("pick-save-directory"),
-  restoreSettings: async () => ipcRenderer.invoke("restore-settings"),
-  getBackendAuthKey: () => backendAuthKey,
-};
+  getSettings: async () => ipcRenderer.invoke(IpcChannels.getSettings),
 
-ipcRenderer.on("set-backend-auth-key", (_, authKey) => {
-  backendAuthKey = authKey;
-});
+  updateSettings: async (updatedSettings: Partial<UserSettings>) =>
+    ipcRenderer.invoke(IpcChannels.updateSettings, updatedSettings),
+
+  pickDirectory: async (dialogTitle: string) =>
+    ipcRenderer.invoke(IpcChannels.pickDirectory, dialogTitle),
+
+  restoreSettings: async () => ipcRenderer.invoke(IpcChannels.restoreSettings),
+};
 
 contextBridge.exposeInMainWorld("electronAPI", electronAPI);

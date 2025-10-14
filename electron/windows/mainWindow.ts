@@ -4,10 +4,8 @@ import path from "path";
 
 /**
  * Creates the main application window with the respective configuration.
- *
- * @param backendAuthKey The backend authentication key that the renderer will receive.
  */
-function createMainWindow(backendAuthKey: string) {
+function createMainWindow() {
   const mainWindow = new BrowserWindow(mainWindowConfig);
 
   if (process.env.APP_ENV === "development") {
@@ -20,10 +18,6 @@ function createMainWindow(backendAuthKey: string) {
   } else {
     mainWindow.loadFile(path.join(__dirname, "../../frontend/index.html"));
   }
-
-  mainWindow.webContents.on("did-finish-load", () => {
-    mainWindow.webContents.send("set-backend-auth-key", backendAuthKey);
-  });
 }
 
 export { createMainWindow };
