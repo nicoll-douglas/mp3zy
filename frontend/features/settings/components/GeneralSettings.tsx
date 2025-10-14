@@ -2,8 +2,13 @@ import * as Ch from "@chakra-ui/react";
 import SettingsGroup from "./shared/SettingsGroup";
 import useRestoreSettings from "../hooks/useRestoreSettings";
 
+/**
+ * Represents a card component that holds general application settings.
+ */
 export default function GeneralSettings() {
   const restoreSettingsMutation = useRestoreSettings();
+
+  // if error in update mutation, then toast error "failed to update settings"
 
   return (
     <SettingsGroup heading="General">

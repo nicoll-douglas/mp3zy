@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import getSettings from "../services/getSettings";
 
+/**
+ * Hook to get settings with a query.
+ *
+ * @returns The settings query.
+ */
 export default function useGetSettings() {
-  const query = useQuery({
-    queryKey: ["settings", "savePath"],
-    queryFn: getSettings,
+  return useQuery({
+    queryKey: ["settings"],
+    queryFn: async () => window.electronAPI.getSettings(),
   });
-
-  return query;
 }

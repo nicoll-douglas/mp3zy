@@ -1,13 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import restoreSettings from "../services/restoreSettings";
 
+/**
+ * Hook that provides a mutation to restore the application's default settings.
+ *
+ * @returns The mutation.
+ */
 export default function useRestoreSettings() {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: restoreSettings,
+  return useMutation({
+    mutationFn: async () => window.electronAPI.restoreSettings(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["settings"] }),
   });
-
-  return mutation;
 }

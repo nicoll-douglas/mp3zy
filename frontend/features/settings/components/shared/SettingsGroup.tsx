@@ -1,13 +1,25 @@
 import * as Ch from "@chakra-ui/react";
-import type React from "react";
+import type { ReactNode } from "react";
 
+export interface SettingsGroupProps {
+  /**
+   * The heading of the settings group to go in the card header.
+   */
+  heading: string;
+
+  /**
+   * The settings management components to go in the body of the card.
+   */
+  children: ReactNode;
+}
+
+/**
+ * Represents a card container for a group of related settings.
+ */
 export default function SettingsGroup({
   children,
   heading,
-}: {
-  heading: string;
-  children: React.ReactNode;
-}) {
+}: SettingsGroupProps) {
   return (
     <Ch.Card.Root size={"sm"}>
       <Ch.Card.Header>

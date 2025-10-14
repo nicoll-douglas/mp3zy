@@ -2,20 +2,17 @@ import * as Ch from "@chakra-ui/react";
 import { LuFolder } from "react-icons/lu";
 import SettingsGroup from "./shared/SettingsGroup";
 import useGetSettings from "../hooks/useGetSettings";
-import useUpdateSavePath from "../hooks/useUpdateSavePath";
+import useUpdateDownloadDir from "../hooks/useUpdateDownloadDir";
 
+/**
+ * Represents a card component that holds related settings to do with downloads.
+ */
 export default function DownloadSettings() {
   const getSettingsQuery = useGetSettings();
-  const updateSavePathMutation = useUpdateSavePath();
+  const updateDownloadDirMutation = useUpdateDownloadDir();
 
-  let savePath = "";
-  if (getSettingsQuery.data) {
-    savePath = getSettingsQuery.data.savePath;
-  } else if (getSettingsQuery.isLoading) {
-    savePath = "Loading...";
-  } else if (getSettingsQuery.error) {
-    savePath = getSettingsQuery.error.message;
-  }
+  // if error in get query, then toast error "failed to load settings"
+  // if error in update mutation, then toast error "failed to update settings"
 
   return (
     <SettingsGroup heading="Downloads">
@@ -23,23 +20,22 @@ export default function DownloadSettings() {
         <Ch.Field.Label>Save Directory</Ch.Field.Label>
         <Ch.Group attached w="full">
           <Ch.Input
-            value={savePath}
+            value={getSettingsQuery.data?.default_download_dir}
             disabled
             cursor={"default"}
-            title={savePath}
+            title={getSettingsQuery.data?.default_download_dir}
             textOverflow={"ellipsis"}
           />
           <Ch.Button
             variant={"outline"}
-            onClick={() => updateSavePathMutation.mutate()}
-            disabled={updateSavePathMutation.isPending}
+            onClick={() => updateDownloadDirMutation.mutate()}
+            disabled={updateDownloadDirMutation.isPending}
           >
             <LuFolder /> Change
           </Ch.Button>
         </Ch.Group>
         <Ch.Field.HelperText>
-          The directory on disk where music files downloaded and created are
-          saved.
+          The default directory on disk where downloaded tracks are saved.
         </Ch.Field.HelperText>
       </Ch.Field.Root>
     </SettingsGroup>
