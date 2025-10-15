@@ -22,36 +22,43 @@ export default function FailedTable() {
       emptyTitle="No Failed Downloads"
       emptyDesc="Failed downloads will appear here."
     >
-      <Ch.Table.Root>
-        <Ch.Table.Header>
-          <Ch.Table.Row>
-            <Ch.Table.ColumnHeader>Main Artist</Ch.Table.ColumnHeader>
-            <Ch.Table.ColumnHeader>Track Name</Ch.Table.ColumnHeader>
-            <Ch.Table.ColumnHeader>Codec</Ch.Table.ColumnHeader>
-            <Ch.Table.ColumnHeader>Bitrate</Ch.Table.ColumnHeader>
-            <Ch.Table.ColumnHeader>Error</Ch.Table.ColumnHeader>
-            <Ch.Table.ColumnHeader>Failed At</Ch.Table.ColumnHeader>
-          </Ch.Table.Row>
-        </Ch.Table.Header>
-        <Ch.Table.Body>
-          <Ch.For each={failedWithEarliestFirst}>
-            {(download) => (
-              <Ch.Table.Row key={download.download_id}>
-                <Ch.Table.Cell>{download.artist_names[0]}</Ch.Table.Cell>
-                <Ch.TableCell>{download.track_name}</Ch.TableCell>
-                <Ch.Table.Cell>{download.codec}</Ch.Table.Cell>
-                <Ch.Table.Cell>
-                  {download.codec === "mp3" && download.bitrate}
-                </Ch.Table.Cell>
-                <Ch.TableCell>{download.error_msg}</Ch.TableCell>
-                <Ch.TableCell>
-                  {getDownloadTimeAgo(download.terminated_at)}
-                </Ch.TableCell>
-              </Ch.Table.Row>
-            )}
-          </Ch.For>
-        </Ch.Table.Body>
-      </Ch.Table.Root>
+      <Ch.Table.ScrollArea
+        borderTopWidth={"1px"}
+        borderRightWidth={"1px"}
+        borderLeftWidth={"1px"}
+        maxHeight={"500px"}
+      >
+        <Ch.Table.Root>
+          <Ch.Table.Header>
+            <Ch.Table.Row>
+              <Ch.Table.ColumnHeader>Main Artist</Ch.Table.ColumnHeader>
+              <Ch.Table.ColumnHeader>Track Name</Ch.Table.ColumnHeader>
+              <Ch.Table.ColumnHeader>Codec</Ch.Table.ColumnHeader>
+              <Ch.Table.ColumnHeader>Bitrate</Ch.Table.ColumnHeader>
+              <Ch.Table.ColumnHeader>Error</Ch.Table.ColumnHeader>
+              <Ch.Table.ColumnHeader>Failed At</Ch.Table.ColumnHeader>
+            </Ch.Table.Row>
+          </Ch.Table.Header>
+          <Ch.Table.Body>
+            <Ch.For each={failedWithEarliestFirst}>
+              {(download) => (
+                <Ch.Table.Row key={download.download_id}>
+                  <Ch.Table.Cell>{download.artist_names[0]}</Ch.Table.Cell>
+                  <Ch.TableCell>{download.track_name}</Ch.TableCell>
+                  <Ch.Table.Cell>{download.codec}</Ch.Table.Cell>
+                  <Ch.Table.Cell>
+                    {download.codec === "mp3" && download.bitrate}
+                  </Ch.Table.Cell>
+                  <Ch.TableCell>{download.error_msg}</Ch.TableCell>
+                  <Ch.TableCell>
+                    {getDownloadTimeAgo(download.terminated_at)}
+                  </Ch.TableCell>
+                </Ch.Table.Row>
+              )}
+            </Ch.For>
+          </Ch.Table.Body>
+        </Ch.Table.Root>
+      </Ch.Table.ScrollArea>
     </DownloadsTableCard>
   );
 }
