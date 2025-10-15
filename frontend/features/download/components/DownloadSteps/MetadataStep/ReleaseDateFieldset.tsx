@@ -14,7 +14,6 @@ export default function ReleaseDateFieldset() {
   return (
     <Fieldset.Root invalid={!!error}>
       <Fieldset.Legend>Release Date</Fieldset.Legend>
-      <Fieldset.ErrorText>{error?.message}</Fieldset.ErrorText>
       <Fieldset.Content>
         <Group alignItems={"end"}>
           <Field.Root maxW={"fit"}>
@@ -47,6 +46,7 @@ export default function ReleaseDateFieldset() {
           </Show>
         </Group>
       </Fieldset.Content>
+      <Fieldset.ErrorText>{error?.message}</Fieldset.ErrorText>
     </Fieldset.Root>
   );
 }

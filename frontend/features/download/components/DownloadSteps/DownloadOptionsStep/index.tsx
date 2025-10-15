@@ -1,5 +1,6 @@
-import { useDownloadFormContext } from "../../context/DownloadFormContext";
+import { useDownloadFormContext } from "../../../context/DownloadFormContext";
 import * as Ch from "@chakra-ui/react";
+import DownloadDirectoryPicker from "./DownloadDirectoryPicker";
 
 /**
  * Represents a card component that lays out the step for the user to select options for their download such as codec and bitrate.
@@ -14,6 +15,8 @@ export default function DownloadOptionsStep() {
       </Ch.Card.Header>
       <Ch.Card.Body>
         <Ch.Stack gap={"5"} maxW={"lg"}>
+          <DownloadDirectoryPicker />
+
           <Ch.Field.Root invalid={!!form.formState.errors.codec} required>
             <Ch.Field.Label>
               Desired Audio Codec

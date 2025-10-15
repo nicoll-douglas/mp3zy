@@ -8,6 +8,7 @@ import { useEffect, useState, type BaseSyntheticEvent } from "react";
 import type { DownloadFormValues } from "../forms/downloadForm";
 import startDownload from "../services/startDownload";
 import type { PostDownloadsResponse } from "../types";
+import { useGetSettings } from "@/features/settings";
 
 /**
  * Return type of the useDownloadForm hook.
@@ -77,6 +78,8 @@ export interface UseDownloadFormReturn {
  */
 export default function useDownloadForm(): UseDownloadFormReturn {
   const [response, setResponse] = useState<PostDownloadsResponse | null>(null);
+  const getSettingsQuery = useGetSettings();
+  const defaultDownloadDir = getSettingsQuery?.data?.default_download_dir;
 
   const form = useForm<DownloadFormValues>({
     defaultValues: {
@@ -90,11 +93,17 @@ export default function useDownloadForm(): UseDownloadFormReturn {
       releaseYear: "",
       releaseMonth: "",
       releaseDay: "",
-      downloadDir: "",
+      downloadDir: defaultDownloadDir ?? "",
       url: "",
       albumCoverPath: "",
     },
   });
+
+  useEffect(() => {
+    if (defaultDownloadDir) {
+      form.setValue("downloadDir", defaultDownloadDir);
+    }
+  }, [defaultDownloadDir]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -122,7 +131,6 @@ export default function useDownloadForm(): UseDownloadFormReturn {
 
   const onFormSubmit = form.handleSubmit(async (data) => {
     const res = await startDownload(data);
-    console.log(res);
     setResponse(res);
   });
 

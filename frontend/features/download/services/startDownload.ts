@@ -10,7 +10,7 @@ import type { PostDownloadsResponse, PostDownloadsRequest } from "../types";
 export default async function startDownload(
   data: DownloadFormValues
 ): Promise<PostDownloadsResponse> {
-  const endpoint = `${import.meta.env.VITE_BACKEND_URL}/download`;
+  const endpoint = `${import.meta.env.VITE_BACKEND_URL}/downloads`;
   let releaseDate: PostDownloadsRequest["release_date"] = null;
 
   if (data.releaseYear !== "") {
@@ -39,7 +39,7 @@ export default async function startDownload(
     track_name: data.trackName,
     album_name: data.albumName === "" ? null : data.albumName,
     codec: data.codec,
-    bitrate: data.bitrate,
+    bitrate: Number.parseInt(data.bitrate),
     track_number:
       data.trackNumber === "" ? null : Number.parseInt(data.trackNumber),
     disc_number:

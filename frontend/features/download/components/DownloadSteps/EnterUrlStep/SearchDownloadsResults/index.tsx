@@ -18,7 +18,7 @@ export default function SearchDownloadsResults() {
   return (
     <Ch.Card.Root size={"sm"}>
       <Ch.Card.Header>
-        <Ch.Card.Title>Results</Ch.Card.Title>
+        <Ch.Card.Title>Search Results</Ch.Card.Title>
         {response.status === 200 && (
           <Ch.Card.Description>{`${response.body.results.length} total.`}</Ch.Card.Description>
         )}

@@ -78,7 +78,7 @@ export interface PostDownloadsRequest {
   track_name: string;
   album_name: string | null;
   codec: TrackCodec;
-  bitrate: TrackBitrate;
+  bitrate: number;
   track_number: number | null;
   disc_number: number | null;
   release_date: TrackReleaseDate | null;

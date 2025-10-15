@@ -1,10 +1,11 @@
 import { useDownloadFormContext } from "../../../context/DownloadFormContext";
 import * as Ch from "@chakra-ui/react";
-import { LuCirclePlus } from "react-icons/lu";
+import { LuCirclePlus, LuDownload } from "react-icons/lu";
 import ArtistNameField from "./ArtistNameField";
 import ControlledNumberInput from "./ControlledNumberInput";
 import { downloadFormValidationRuleset } from "../../../forms/downloadForm";
 import ReleaseDateFieldset from "./ReleaseDateFieldset";
+import AlbumCoverPicker from "./AlbumCoverPicker";
 
 /**
  * Represents a card component that lays out the step for the user to configure metadata options for their download such as track name, artists, etc.
@@ -66,6 +67,8 @@ export default function MetadataStep() {
             </Ch.Field.ErrorText>
           </Ch.Field.Root>
 
+          <AlbumCoverPicker />
+
           <Ch.Field.Root invalid={!!form.formState.errors.trackNumber}>
             <Ch.Field.Label>Track Number</Ch.Field.Label>
             <ControlledNumberInput
@@ -104,6 +107,7 @@ export default function MetadataStep() {
             loading={form.formState.isSubmitting}
           >
             Start Download
+            <LuDownload />
           </Ch.Button>
         </Ch.Stack>
       </Ch.Card.Body>

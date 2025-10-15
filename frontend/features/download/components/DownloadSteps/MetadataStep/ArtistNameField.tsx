@@ -28,24 +28,23 @@ export default function ArtistNameField({ index }: ArtistNameFieldProps) {
           <Ch.Field.RequiredIndicator />
         </Ch.Show>
       </Ch.Field.Label>
-      <Ch.HStack width={"full"}>
-        <Ch.Group width={"full"}>
-          <Ch.Input
-            placeholder={`Artist ${index + 1}`}
-            {...form.register(`artistNames.${index}.value`)}
-          />
-          <Ch.Show when={index > 0}>
-            <Ch.Button
-              onClick={() => utils.removeArtistName(index)}
-              colorPalette={"red"}
-              variant={"subtle"}
-            >
-              Remove
-              <LuCircleMinus />
-            </Ch.Button>
-          </Ch.Show>
-        </Ch.Group>
-      </Ch.HStack>
+
+      <Ch.Group width={"full"}>
+        <Ch.Input
+          placeholder={`Artist ${index + 1}`}
+          {...form.register(`artistNames.${index}.value`)}
+        />
+        <Ch.Show when={index > 0}>
+          <Ch.IconButton
+            onClick={() => utils.removeArtistName(index)}
+            colorPalette={"red"}
+            variant={"surface"}
+            aria-label={`Remove Artist ${index + 1}`}
+          >
+            <LuCircleMinus />
+          </Ch.IconButton>
+        </Ch.Show>
+      </Ch.Group>
     </Ch.Field.Root>
   );
 }

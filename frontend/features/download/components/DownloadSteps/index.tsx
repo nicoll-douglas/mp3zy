@@ -19,9 +19,11 @@ export default function DownloadSteps() {
     const { form } = useDownloadFormContext();
 
     const url = form.watch("url");
+    const downloadDir = form.watch("downloadDir");
 
     const prevDisabled = step === 3 || step === 0;
-    const nextDisabled = (step === 0 && !url) || step >= 2;
+    const nextDisabled =
+      (step === 0 && !url) || (step === 1 && !downloadDir) || step >= 2;
 
     useEffect(() => {
       if (form.formState.isSubmitSuccessful) {
