@@ -1,10 +1,10 @@
-import { useDownloadOptionsFormContext } from "../../../../../context/DownloadOptionsFormContext";
+import { useDownloadOptionsFormContext } from "../../../../../context/DownloadFormContext";
 import * as Ch from "@chakra-ui/react";
 import { LuCirclePlus } from "react-icons/lu";
 import ArtistField from "./ArtistField";
 import OptionsGroup from "../shared/OptionsGroup";
 import ControlledNumberInput from "../shared/ControlledNumberInput";
-import { downloadOptionsControlRules as rules } from "../../../../../forms/downloadOptions";
+import { downloadOptionsControlRules as rules } from "../../../../../forms/downloadForm";
 import ReleaseDateFieldset from "./ReleaseDateFieldset";
 
 export default function MetadataOptions() {

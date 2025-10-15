@@ -1,14 +1,29 @@
 import * as Ch from "@chakra-ui/react";
 import { LuSearchX } from "react-icons/lu";
-import type React from "react";
+import type { ReactNode } from "react";
 
+/**
+ * Props for the SearchResultsEmptyState component.
+ */
+interface SearchResultsEmptyStateProps {
+  /**
+   * The title of the empty state.
+   */
+  title: ReactNode;
+
+  /**
+   * The description of the empty state.
+   */
+  description: ReactNode;
+}
+
+/**
+ * Represents an empty state to display to the user for when there are no search results.
+ */
 export default function SearchResultsEmptyState({
   title,
   description,
-}: {
-  title: string;
-  description: React.ReactNode;
-}) {
+}: SearchResultsEmptyStateProps) {
   return (
     <Ch.EmptyState.Root>
       <Ch.EmptyState.Content>

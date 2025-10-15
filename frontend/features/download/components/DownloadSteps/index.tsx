@@ -1,27 +1,24 @@
 import * as Ch from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
-import {
-  useAudioSearchContext,
-  AudioSearchProvider,
-} from "../../context/AudioSearchContext";
-import SearchAudioStep from "./SearchAudioStep";
+import EnterUrlStep from "./EnterUrlStep";
 import DownloadOptionsStep from "./DownloadOptionsStep";
 import {
-  DownloadOptionsFormProvider,
-  useDownloadOptionsFormContext,
-} from "../../context/DownloadOptionsFormContext";
+  DownloadFormProvider,
+  useDownloadFormContext,
+} from "../../context/DownloadFormContext";
 import CompletedContent from "./CompletedContent";
 
 export default function DownloadSteps() {
-  const __DownloadSteps = () => {
+  const _DownloadSteps = () => {
     const [step, setStep] = useState(0);
-    const { audioUrlSelected } = useAudioSearchContext();
-    const { form } = useDownloadOptionsFormContext();
+    const { form } = useDownloadFormContext();
+
+    const urlSelected = form.watch("url");
 
     useEffect(() => {
       if (form.formState.isSubmitSuccessful) {
-        setStep(2);
+        setStep(3);
       }
     }, [form.formState.isSubmitSuccessful]);
 
@@ -32,7 +29,7 @@ export default function DownloadSteps() {
         count={2}
       >
         <Ch.Steps.List>
-          <Ch.Steps.Item index={0} title={"Search For Audio"}>
+          <Ch.Steps.Item index={0} title={"Enter Source URL"}>
             <Ch.Steps.Indicator />
             <Ch.Steps.Title>Search For Audio</Ch.Steps.Title>
             <Ch.Steps.Separator />
@@ -45,24 +42,23 @@ export default function DownloadSteps() {
           </Ch.Steps.Item>
         </Ch.Steps.List>
 
-        <SearchAudioStep />
+        <Ch.Steps.Content index={0}>
+          <EnterUrlStep />
+        </Ch.Steps.Content>
+
         <DownloadOptionsStep />
         <CompletedContent />
 
         <Ch.ButtonGroup size="sm" variant="outline">
           <Ch.Steps.PrevTrigger asChild>
-            <Ch.Button disabled={step === 2 || step === 0}>
+            <Ch.Button disabled={step === 3 || step === 0}>
               <LuChevronLeft />
               Prev
             </Ch.Button>
           </Ch.Steps.PrevTrigger>
 
           <Ch.Steps.NextTrigger asChild>
-            <Ch.Button
-              disabled={
-                (step === 0 && !audioUrlSelected) || step === 1 || step === 2
-              }
-            >
+            <Ch.Button disabled={!urlSelected && step === 0}>
               Next
               <LuChevronRight />
             </Ch.Button>
@@ -72,19 +68,9 @@ export default function DownloadSteps() {
     );
   };
 
-  const _DownloadSteps = () => {
-    const { audioUrlSelected } = useAudioSearchContext();
-
-    return (
-      <DownloadOptionsFormProvider audioUrl={audioUrlSelected as string}>
-        <__DownloadSteps />
-      </DownloadOptionsFormProvider>
-    );
-  };
-
   return (
-    <AudioSearchProvider>
+    <DownloadFormProvider>
       <_DownloadSteps />
-    </AudioSearchProvider>
+    </DownloadFormProvider>
   );
 }

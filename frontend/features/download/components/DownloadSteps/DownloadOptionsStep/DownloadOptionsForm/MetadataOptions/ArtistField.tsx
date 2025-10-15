@@ -1,7 +1,7 @@
 import * as Ch from "@chakra-ui/react";
 import type { FieldArrayWithId } from "react-hook-form";
-import type { DownloadOptionsFormValues } from "../../../../../forms/downloadOptions";
-import { useDownloadOptionsFormContext } from "../../../../../context/DownloadOptionsFormContext";
+import type { DownloadOptionsFormValues } from "../../../../../forms/downloadForm";
+import { useDownloadOptionsFormContext } from "../../../../../context/DownloadFormContext";
 import { LuCircleMinus } from "react-icons/lu";
 
 export default function ArtistField({ index }: { index: number }) {

@@ -1,7 +1,7 @@
 import { Fieldset, Field, Show, Group } from "@chakra-ui/react";
-import { downloadOptionsControlRules as rules } from "../../../../../forms/downloadOptions";
+import { downloadOptionsControlRules as rules } from "../../../../../forms/downloadForm";
 import ControlledNumberInput from "../shared/ControlledNumberInput";
-import { useDownloadOptionsFormContext } from "../../../../../context/DownloadOptionsFormContext";
+import { useDownloadOptionsFormContext } from "../../../../../context/DownloadFormContext";
 
 export default function ReleaseDateFieldset() {
   const { showMonthField, showDayField, form } =

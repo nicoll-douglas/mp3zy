@@ -1,7 +1,7 @@
 import { Controller, type RegisterOptions } from "react-hook-form";
 import * as Ch from "@chakra-ui/react";
-import type { DownloadOptionsFormValues } from "../../../../../forms/downloadOptions";
-import { useDownloadOptionsFormContext } from "../../../../../context/DownloadOptionsFormContext";
+import type { DownloadOptionsFormValues } from "../../../../../forms/downloadForm";
+import { useDownloadOptionsFormContext } from "../../../../../context/DownloadFormContext";
 
 export default function ControlledNumberInput({
   name,

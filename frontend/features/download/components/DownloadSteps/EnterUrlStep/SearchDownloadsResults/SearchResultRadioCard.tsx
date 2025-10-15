@@ -1,13 +1,24 @@
-import type { YtDlpAudioSearchResult } from "../../../../types";
+import type { DownloadSearchResult } from "../../../../types";
 import * as Ch from "@chakra-ui/react";
 
+/**
+ * Props for the SearchResultRadioCard component.
+ */
+export interface SearchResultRadioCardProps {
+  /**
+   * The download search result holding the information to render.
+   */
+  result: DownloadSearchResult;
+}
+
+/**
+ * Represents a radio card component that displays a download search result with thumbnail, title, url, etc.
+ */
 export default function SearchResultRadioCard({
   result,
-}: {
-  result: YtDlpAudioSearchResult;
-}) {
+}: SearchResultRadioCardProps) {
   return (
-    <Ch.RadioCard.Item value={result.url} width="full">
+    <Ch.RadioCard.Item value={result ? result.url : ""} width="full">
       <Ch.RadioCard.ItemHiddenInput />
       <Ch.RadioCard.ItemControl>
         <Ch.HStack gap={"4"}>
@@ -15,7 +26,7 @@ export default function SearchResultRadioCard({
           <Ch.RadioCard.ItemContent>
             <Ch.Flex gap={"4"}>
               <Ch.Image
-                src={result.thumbnails[0].url}
+                src={result.thumbnail || undefined}
                 width={180}
                 borderRadius={"sm"}
               />
