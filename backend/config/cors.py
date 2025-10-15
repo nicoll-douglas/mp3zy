@@ -6,7 +6,7 @@ CORS_ALLOWED_ORIGINS = [
   "app://*"
 ]
 
-frontend_app_url = os.getenv("FRONTEND_APP_URL"),
+frontend_app_url = os.getenv("FRONTEND_APP_URL")
 
 if frontend_app_url:
   CORS_ALLOWED_ORIGINS.append(frontend_app_url)

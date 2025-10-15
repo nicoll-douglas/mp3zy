@@ -30,4 +30,4 @@ def create_app(db_conn: sqlite3.Connection = db.connect()) -> tuple[Flask, Socke
 
 if __name__ == "__main__":
   app, socketio = create_app()
-  socketio.run(app, host="127.0.0.1", port=8888, debug=False)
+  socketio.run(app, host="127.0.0.1", port=8888, allow_unsafe_werkzeug=True)
