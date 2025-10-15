@@ -1,4 +1,4 @@
-import type { TrackBitrate, TrackCodec } from "@/types";
+import type { TrackBitrate, TrackCodec, TrackArtistNames } from "@/types";
 
 /**
  * Represents a download search result retrieved from the backend API.
@@ -10,11 +10,6 @@ export interface DownloadSearchResult {
   duration: number | null;
   thumbnail: string | null;
 }
-
-/**
- * Represents artist name metadata.
- */
-export type TrackArtistNames = [string, ...string[]];
 
 /**
  * Represents track release date metadata.

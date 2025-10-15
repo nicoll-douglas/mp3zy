@@ -1,13 +1,13 @@
 import * as Ch from "@chakra-ui/react";
 import { LuListX } from "react-icons/lu";
-import type React from "react";
+import type { ReactNode } from "react";
 
 export default function DownloadsTableEmptyState({
   title,
   description,
 }: {
-  title: string;
-  description: React.ReactNode;
+  title: ReactNode;
+  description: ReactNode;
 }) {
   return (
     <Ch.EmptyState.Root size={"sm"}>

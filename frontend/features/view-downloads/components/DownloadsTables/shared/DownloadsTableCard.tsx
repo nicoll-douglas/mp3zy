@@ -1,16 +1,21 @@
 import * as Ch from "@chakra-ui/react";
 import type { ReactNode } from "react";
+import DownloadsTableEmptyState from "./DownloadsTableEmptyState";
 
 export default function DownloadsTableCard({
   title,
   statusColorPalette,
   children,
   totalItems,
+  emptyTitle,
+  emptyDesc,
 }: {
   children: ReactNode;
   statusColorPalette: "blue" | "green" | "red" | "yellow" | "orange";
   title: string;
-  totalItems?: number;
+  totalItems: number;
+  emptyTitle: string;
+  emptyDesc: string;
 }) {
   return (
     <Ch.Card.Root size={"sm"}>
@@ -19,11 +24,17 @@ export default function DownloadsTableCard({
           <Ch.Status.Indicator />
           <Ch.Card.Title>{title}</Ch.Card.Title>
         </Ch.Status.Root>
-        <Ch.Show when={!!totalItems}>
-          <Ch.Card.Description>{totalItems} total.</Ch.Card.Description>
-        </Ch.Show>
+        <Ch.Card.Description>{totalItems} total.</Ch.Card.Description>
       </Ch.Card.Header>
-      <Ch.Card.Body>{children}</Ch.Card.Body>
+      <Ch.Card.Body>
+        <Ch.Show when={totalItems > 0}>{children}</Ch.Show>
+        <Ch.Show when={totalItems === 0}>
+          <DownloadsTableEmptyState
+            title={emptyTitle}
+            description={emptyDesc}
+          />
+        </Ch.Show>
+      </Ch.Card.Body>
     </Ch.Card.Root>
   );
 }

@@ -1,4 +1,6 @@
-export default function getDownloadTimeAgo(dateStr: string): string {
+export default function getDownloadTimeAgo(dateStr: string | null): string {
+  if (!dateStr) return "";
+
   const dt = new Date(dateStr.replace(" ", "T"));
   const now = new Date();
 
