@@ -52,7 +52,7 @@ class Metadata:
       audio.tags.add(TYER(encoding=3, text=str(self.release_date.year)))
 
       if self.release_date.month is not None and self.release_date.day is not None:
-        tdat_value = str(self.release_date.month).zfill(2) + str(self.release_date.day).zfill(2)
+        tdat_value = str(self.release_date.day).zfill(2) + str(self.release_date.month).zfill(2)
         audio.tags.add(TDAT(encoding=3, text=tdat_value))
 
     if self.album_cover_path:
