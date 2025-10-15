@@ -9,8 +9,8 @@ class TrackBitrate(Enum):
     _128: Represents a bitrate of 128kbps.
   """
   
-  _320 = 320
-  _192 = 192
-  _128 = 128
+  _320 = "320"
+  _192 = "192"
+  _128 = "128"
   
 # END class TrackBitrate

@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS downloads (
   id INTEGER PRIMARY KEY,
   url TEXT NOT NULL,
   codec TEXT NOT NULL,
-  bitrate INTEGER NOT NULL,
+  bitrate TEXT NOT NULL,
   metadata_id INTEGER,
   status TEXT NOT NULL,
   downloaded_bytes INTEGER,

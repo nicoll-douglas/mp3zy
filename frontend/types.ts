@@ -1,3 +1,9 @@
-export type Codec = "mp3" | "flac";
+/**
+ * Represents the various possible codecs to use for a track download.
+ */
+export type TrackCodec = "mp3" | "flac";
 
-export type Bitrate = "128" | "192" | "320";
+/**
+ * Represents the various possible bitrates to use for a track download.
+ */
+export type TrackBitrate = "320" | "192" | "128";

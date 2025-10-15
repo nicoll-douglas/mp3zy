@@ -1,3 +1,5 @@
+import type { TrackBitrate, TrackCodec } from "@/types";
+
 /**
  * Represents a download search result retrieved from the backend API.
  */
@@ -14,15 +16,6 @@ export interface DownloadSearchResult {
  */
 export type TrackArtistNames = [string, ...string[]];
 
-/**
- * Represents the various possible codecs to use for a track download.
- */
-export type TrackCodec = "mp3" | "flac";
-
-/**
- * Represents the various possible bitrates to use for a track download.
- */
-export type TrackBitrate = "320" | "192" | "128";
 /**
  * Represents track release date metadata.
  */
@@ -78,7 +71,7 @@ export interface PostDownloadsRequest {
   track_name: string;
   album_name: string | null;
   codec: TrackCodec;
-  bitrate: number;
+  bitrate: TrackBitrate;
   track_number: number | null;
   disc_number: number | null;
   release_date: TrackReleaseDate | null;
