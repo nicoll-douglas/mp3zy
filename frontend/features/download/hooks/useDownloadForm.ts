@@ -41,16 +41,6 @@ export interface UseDownloadFormReturn {
     showBitrateField: boolean;
 
     /**
-     * A boolean indicating whether to show the release month field if the release year field is non-empty.
-     */
-    showMonthField: boolean;
-
-    /**
-     * A boolean indicating whether to show the release day field if the release year and month fields are non-empty.
-     */
-    showDayField: boolean;
-
-    /**
      * The artist name field array.
      */
     artistNameFields: FieldArrayWithId<
@@ -114,20 +104,6 @@ export default function useDownloadForm(): UseDownloadFormReturn {
   const removeArtistName = (index: number) => remove(index);
 
   const codec = form.watch("codec");
-  const releaseYear = form.watch("releaseYear");
-  const releaseMonth = form.watch("releaseMonth");
-
-  useEffect(() => {
-    if (!releaseYear) {
-      form.resetField("releaseMonth");
-    }
-  }, [releaseYear]);
-
-  useEffect(() => {
-    if (!releaseMonth) {
-      form.resetField("releaseDay");
-    }
-  }, [releaseMonth]);
 
   const onFormSubmit = form.handleSubmit(async (data) => {
     const res = await startDownload(data);
@@ -140,8 +116,6 @@ export default function useDownloadForm(): UseDownloadFormReturn {
     form,
     utils: {
       showBitrateField: codec === "mp3",
-      showMonthField: !!releaseYear,
-      showDayField: !!releaseYear && !!releaseMonth,
       artistNameFields: fields,
       addArtistName,
       removeArtistName,

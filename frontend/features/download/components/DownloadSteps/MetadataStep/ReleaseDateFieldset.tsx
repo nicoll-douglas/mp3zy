@@ -24,26 +24,22 @@ export default function ReleaseDateFieldset() {
               rules={downloadFormValidationRuleset.releaseYear}
             />
           </Field.Root>
-          <Show when={utils.showMonthField}>
-            <Field.Root maxW={"fit"}>
-              <Field.Label>Month</Field.Label>
-              <ControlledNumberInput
-                name="releaseMonth"
-                placeholder="3"
-                rules={downloadFormValidationRuleset.releaseMonth}
-              />
-            </Field.Root>
-          </Show>
-          <Show when={utils.showDayField}>
-            <Field.Root maxW={"fit"}>
-              <Field.Label>Day</Field.Label>
-              <ControlledNumberInput
-                name="releaseDay"
-                placeholder="12"
-                rules={downloadFormValidationRuleset.releaseDay}
-              />
-            </Field.Root>
-          </Show>
+          <Field.Root maxW={"fit"}>
+            <Field.Label>Month</Field.Label>
+            <ControlledNumberInput
+              name="releaseMonth"
+              placeholder="3"
+              rules={downloadFormValidationRuleset.releaseMonth}
+            />
+          </Field.Root>
+          <Field.Root maxW={"fit"}>
+            <Field.Label>Day</Field.Label>
+            <ControlledNumberInput
+              name="releaseDay"
+              placeholder="12"
+              rules={downloadFormValidationRuleset.releaseDay}
+            />
+          </Field.Root>
         </Group>
       </Fieldset.Content>
       <Fieldset.ErrorText>{error?.message}</Fieldset.ErrorText>
