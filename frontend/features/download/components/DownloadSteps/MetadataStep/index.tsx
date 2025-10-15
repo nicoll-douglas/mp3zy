@@ -89,6 +89,7 @@ export default function MetadataStep() {
             <ControlledNumberInput
               name="discNumber"
               rules={downloadFormValidationRuleset.discNumber}
+              placeholder="1"
             />
             <Ch.Field.ErrorText>
               {form.formState.errors.discNumber?.message}

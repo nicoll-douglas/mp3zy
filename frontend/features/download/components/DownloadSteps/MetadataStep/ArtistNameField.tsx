@@ -31,7 +31,7 @@ export default function ArtistNameField({ index }: ArtistNameFieldProps) {
 
       <Ch.Group width={"full"}>
         <Ch.Input
-          placeholder={`Artist ${index + 1}`}
+          placeholder={index === 0 ? "Daft Punk" : `Artist ${index + 1}`}
           {...form.register(`artistNames.${index}.value`)}
         />
         <Ch.Show when={index > 0}>
