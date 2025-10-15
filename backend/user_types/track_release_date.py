@@ -160,10 +160,10 @@ class TrackReleaseDate:
     
     if year < 0:
       if field_name:
-        args.append(f"Field `{field_name}` must be greater than 0.")
+        args.append(f"Field `{field_name}` must be greater than or equal to 0.")
         args.append(field_name)
       else:
-        args.append(f"Expected integer property `year` greater than 0, got {year!r}")
+        args.append(f"Expected integer property `year` greater than or equal 0, got {year!r}")
 
       raise ValueError(*args)
     

@@ -30,8 +30,8 @@ from typing import Any
   ({ "year": 2025, "month": 6 }, "abcd", ValidationCase.VALID, (2025, 6, None)),
   ({ "year": 2025, "month": 12, "day": 1 }, "", ValidationCase.VALID, (2025, 12, 1)),
   ({ "year": 2025, "month": 1, "day": 31 }, None, ValidationCase.VALID, (2025, 1, 31)),
-  ({ "year": 2025, "month": None, "day": 31 }, "", ValidationCase.VALID, (2025, None, None)),
-  ({ "year": 2025, "month": 3, "day": None }, "abcd", ValidationCase.VALID, (2025, 3, None)),
+  ({ "year": 9999, "month": None, "day": 31 }, "", ValidationCase.VALID, (9999, None, None)),
+  ({ "year": 0, "month": 3, "day": None }, "abcd", ValidationCase.VALID, (0, 3, None)),
 ])
 def init_fixture(request: pytest.FixtureRequest) -> tuple[
   Any, 
