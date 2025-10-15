@@ -10,6 +10,7 @@ const mainWindowConfig: BrowserWindowConstructorOptions = {
     contextIsolation: true,
     nodeIntegration: false,
     preload: path.join(__dirname, "../preload/mainWindow.js"),
+    sandbox: false,
   },
 };
 

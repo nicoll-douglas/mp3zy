@@ -12,6 +12,9 @@ const electronAPI: ElectronAPI = {
   pickDirectory: async (dialogTitle: string) =>
     ipcRenderer.invoke(IpcChannels.pickDirectory, dialogTitle),
 
+  pickImageFile: async (dialogTitle: string) =>
+    ipcRenderer.invoke(IpcChannels.pickImageFile, dialogTitle),
+
   restoreSettings: async () => ipcRenderer.invoke(IpcChannels.restoreSettings),
 };
 

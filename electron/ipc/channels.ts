@@ -7,4 +7,5 @@ export enum IpcChannels {
   restoreSettings = "settings:restore",
 
   pickDirectory = "dialog:pick-dir",
+  pickImageFile = "dialog:pick-img",
 }

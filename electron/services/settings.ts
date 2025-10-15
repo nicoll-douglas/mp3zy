@@ -82,7 +82,14 @@ async function loadSettings(): Promise<UserSettings | null> {
     const settingsData = await fs.readFile(settingsPath, "utf-8");
 
     return JSON.parse(settingsData);
-  } catch (e) {
+  } catch (e: any) {
+    if (e.code === "ENOENT") {
+      const defaults = await defaultSettings();
+      restoreSettings();
+
+      return defaults;
+    }
+
     logger.warn(`Failed to load settings file: ${e}`);
 
     return null;

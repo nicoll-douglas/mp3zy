@@ -9,6 +9,7 @@ import {
   watchBackend,
 } from "./processes/backend.js";
 import { registerHandlers as registerSettingsIpcHandlers } from "./ipc/settings.js";
+import { registerHandlers as registerDialogIpcHandlers } from "./ipc/dialog.js";
 
 app.whenReady().then(() => {
   startBackend();
@@ -19,6 +20,7 @@ app.whenReady().then(() => {
 
   createMainWindow();
   registerSettingsIpcHandlers();
+  registerDialogIpcHandlers();
 });
 
 app.on("will-quit", () => {

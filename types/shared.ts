@@ -9,5 +9,7 @@ export interface ElectronAPI {
 
   pickDirectory: (dialogTitle: string) => Promise<string | null>;
 
+  pickImageFile: (dialogTitle: string) => Promise<string | null>;
+
   restoreSettings: () => Promise<boolean>;
 }
