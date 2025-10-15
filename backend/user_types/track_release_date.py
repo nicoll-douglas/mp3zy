@@ -311,7 +311,7 @@ class TrackReleaseDate:
       data["month"] = int(segments[1])
 
     if len(segments) > 2:
-      data["day"] = segments[2]
+      data["day"] = int(segments[2])
 
     return cls(data)
   # END from_string

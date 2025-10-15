@@ -27,7 +27,7 @@ class Artist(Model):
     
     for d in data:
       id = self.insert(d)
-      ids.append()
+      ids.append(id)
 
     return ids
   # END insert_many

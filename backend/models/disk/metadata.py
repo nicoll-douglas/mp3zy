@@ -1,4 +1,4 @@
-from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TRCK, TPOS, TDRC
+from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TRCK, TPOS, TDRC, TYER, TDAT
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC, Picture
 from .album_cover import AlbumCover
@@ -49,7 +49,11 @@ class Metadata:
       audio.tags.add(TPOS(encoding=3, text=str(self.disc_number)))
 
     if self.release_date is not None:
-      audio.tags.add(TDRC(encoding=3, text=str(self.release_date)))
+      audio.tags.add(TYER(encoding=3, text=str(self.release_date.year)))
+
+      if self.release_date.month is not None and self.release_date.day is not None:
+        tdat_value = str(self.release_date.month).zfill(2) + str(self.release_date.day).zfill(2)
+        audio.tags.add(TDAT(encoding=3, text=tdat_value))
 
     if self.album_cover_path:
       cover = AlbumCover(self.album_cover_path)
