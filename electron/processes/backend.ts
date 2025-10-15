@@ -61,8 +61,12 @@ function startBackend() {
   const spawnOptions = {
     cwd: backendSrcFolder,
     env: {
-      ...process.env,
       USER_DATA_DIR: app.getPath("userData"),
+      APP_NAME: process.env.VITE_APP_NAME,
+      FRONTEND_APP_URL: process.env.VITE_APP_URL,
+      APP_ENV: process.env.APP_ENV,
+      SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
+      SPOTIFY_REDIRECT_URI: process.env.SPOTIFY_REDIRECT_URI,
     },
   };
 

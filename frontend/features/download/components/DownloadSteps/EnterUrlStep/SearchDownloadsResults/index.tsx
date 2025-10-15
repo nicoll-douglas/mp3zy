@@ -39,7 +39,7 @@ export default function SearchDownloadsResults() {
                 fallback={
                   <SearchResultsEmptyState
                     title="No results"
-                    description="Try adjusting your search or manually adding a URL."
+                    description="Try adjusting your search or manually entering a URL."
                   />
                 }
               >
@@ -53,7 +53,7 @@ export default function SearchDownloadsResults() {
           <SearchResultsEmptyState
             title="Failed to Search"
             description={
-              "Sorry, something went wrong. Try manually adding a URL."
+              "Sorry, something went wrong. Try manually entering a URL."
             }
           />
         )}

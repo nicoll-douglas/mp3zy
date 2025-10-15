@@ -1,12 +1,12 @@
 import * as Ch from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
-import useSearchDownloadsForm from "../../../hooks/useSearchDownloadsForm";
+import { useSearchDownloadsFormContext } from "../../../context/SearchDownloadsFormContext";
 
 /**
  * Represents a card component that contains a form to search for download sources.
  */
 export default function SearchDownloadsForm() {
-  const { form, onFormSubmit } = useSearchDownloadsForm();
+  const { form, onFormSubmit } = useSearchDownloadsFormContext();
 
   return (
     <Ch.Card.Root size={"sm"}>
@@ -31,6 +31,7 @@ export default function SearchDownloadsForm() {
               {form.formState.errors.main_artist?.message}
             </Ch.Field.ErrorText>
           </Ch.Field.Root>
+
           <Ch.Field.Root invalid={!!form.formState.errors.track_name} required>
             <Ch.Field.Label>
               Track Name
@@ -44,6 +45,7 @@ export default function SearchDownloadsForm() {
               {form.formState.errors.track_name?.message}
             </Ch.Field.ErrorText>
           </Ch.Field.Root>
+
           <Ch.Button
             type="submit"
             variant={"subtle"}

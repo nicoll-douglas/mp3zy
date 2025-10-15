@@ -20,17 +20,23 @@ interface DownloadFormValues {
   albumCoverPath: string | null;
 }
 
-type DownloadFormValidationRule = Omit<
-  RegisterOptions<DownloadFormValues, keyof DownloadFormValues>,
+type DownloadFormValidationRules = Omit<
+  RegisterOptions<
+    DownloadFormValues,
+    "trackNumber" | "discNumber" | "releaseYear" | "releaseMonth" | "releaseDay"
+  >,
   "setValueAs" | "disabled" | "valueAsNumber" | "valueAsDate"
 >;
 
 /**
- * Represents validation rules to pass to the download form when registering fields.
+ * A validation ruleset for the download form.
+ *
+ * Each rule is passed to the register function when registering the corresponding field.
  */
-const downloadFormValidationRules: {
-  [key: string]: DownloadFormValidationRule;
-} = {
+const downloadFormValidationRuleset: Record<
+  "trackNumber" | "discNumber" | "releaseYear" | "releaseMonth" | "releaseDay",
+  DownloadFormValidationRules
+> = {
   trackNumber: {
     required: false,
     validate: {
@@ -138,4 +144,8 @@ const downloadFormValidationRules: {
   },
 };
 
-export { downloadFormValidationRules, type DownloadFormValues };
+export {
+  downloadFormValidationRuleset,
+  type DownloadFormValues,
+  type DownloadFormValidationRules,
+};

@@ -4,7 +4,10 @@ import SearchResults from "./SearchDownloadsResults";
 import { SearchDownloadsFormProvider } from "../../../context/SearchDownloadsFormContext";
 import UrlField from "./UrlField";
 
-export default function SearchDownloadsStep() {
+/**
+ * Represents a stack of cards that together lay out the step for obtaining a source URL to submit and download from.
+ */
+export default function EnterUrlStep() {
   return (
     <SearchDownloadsFormProvider>
       <Ch.Stack gap={"4"}>

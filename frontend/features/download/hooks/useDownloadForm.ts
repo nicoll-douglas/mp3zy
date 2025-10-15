@@ -102,7 +102,7 @@ export default function useDownloadForm(): UseDownloadFormReturn {
   });
 
   const addArtistName = () => append({ value: "" });
-  const removeArtistName = (index: number) => () => remove(index);
+  const removeArtistName = (index: number) => remove(index);
 
   const codec = form.watch("codec");
   const releaseYear = form.watch("releaseYear");
@@ -122,6 +122,7 @@ export default function useDownloadForm(): UseDownloadFormReturn {
 
   const onFormSubmit = form.handleSubmit(async (data) => {
     const res = await startDownload(data);
+    console.log(res);
     setResponse(res);
   });
 

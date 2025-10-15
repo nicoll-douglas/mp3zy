@@ -1,53 +1,47 @@
 import { Fieldset, Field, Show, Group } from "@chakra-ui/react";
-import { downloadOptionsControlRules as rules } from "../../../../../forms/downloadForm";
-import ControlledNumberInput from "../shared/ControlledNumberInput";
-import { useDownloadOptionsFormContext } from "../../../../../context/DownloadFormContext";
+import { downloadFormValidationRuleset } from "../../../forms/downloadForm";
+import ControlledNumberInput from "./ControlledNumberInput";
+import { useDownloadFormContext } from "../../../context/DownloadFormContext";
 
+/**
+ * Component that represents a fieldset for the user to enter release date metadata for a track.
+ */
 export default function ReleaseDateFieldset() {
-  const { showMonthField, showDayField, form } =
-    useDownloadOptionsFormContext();
+  const { form, utils } = useDownloadFormContext();
   const errors = form.formState.errors;
-  let error;
-
-  if (errors.year) {
-    error = errors.year.message;
-  } else if (errors.month) {
-    error = errors.month.message;
-  } else if (errors.day) {
-    error = errors.day.message;
-  }
+  const error = errors.releaseYear ?? errors.releaseMonth ?? errors.releaseDay;
 
   return (
     <Fieldset.Root invalid={!!error}>
       <Fieldset.Legend>Release Date</Fieldset.Legend>
-      <Fieldset.ErrorText>{error}</Fieldset.ErrorText>
+      <Fieldset.ErrorText>{error?.message}</Fieldset.ErrorText>
       <Fieldset.Content>
         <Group alignItems={"end"}>
           <Field.Root maxW={"fit"}>
             <Field.Label>Year</Field.Label>
             <ControlledNumberInput
-              name="year"
+              name="releaseYear"
               placeholder="2001"
-              rules={rules["year"]}
+              rules={downloadFormValidationRuleset.releaseYear}
             />
           </Field.Root>
-          <Show when={showMonthField}>
+          <Show when={utils.showMonthField}>
             <Field.Root maxW={"fit"}>
               <Field.Label>Month</Field.Label>
               <ControlledNumberInput
-                name="month"
+                name="releaseMonth"
                 placeholder="3"
-                rules={rules["month"]}
+                rules={downloadFormValidationRuleset.releaseMonth}
               />
             </Field.Root>
           </Show>
-          <Show when={showDayField}>
+          <Show when={utils.showDayField}>
             <Field.Root maxW={"fit"}>
               <Field.Label>Day</Field.Label>
               <ControlledNumberInput
-                name="day"
+                name="releaseDay"
                 placeholder="12"
-                rules={rules["day"]}
+                rules={downloadFormValidationRuleset.releaseDay}
               />
             </Field.Root>
           </Show>
