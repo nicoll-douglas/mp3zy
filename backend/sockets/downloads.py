@@ -1,6 +1,6 @@
 from flask_socketio import Namespace
 from user_types import DownloadUpdate, DownloadStatus, TrackArtistNames, TrackCodec, TrackBitrate
-import models
+import models, db
 from typing import Self
 import sqlite3
 
@@ -10,7 +10,7 @@ class DownloadsSocket(Namespace):
   Attributes:
     DOWNLOAD_UPDATE_EVENT (str): The name of the event for download upates.
     DOWNLOAD_INIT_EVENT (str): The name of the event for sending all downloads (downloads initialization).
-    _db_conn (sqlite3.Connection): A database connection.
+    _db_conn (sqlite3.Connection | None): A singleton database connection instance used by the app.
     _instance (DownloadsSocket | None): A singleton instance of the class to use throughout the rest of the app.
   """
 
@@ -18,11 +18,11 @@ class DownloadsSocket(Namespace):
   DOWNLOAD_INIT_EVENT = "download_init"
   NAMESPACE = "/downloads"
 
-  _db_conn: sqlite3.Connection
+  _db_conn: sqlite3.Connection | None
   _instance: Self | None = None
 
 
-  def __init__(self, db_conn: sqlite3.Connection):
+  def __init__(self, db_conn: sqlite3.Connection | None = None):
     """Stores the database connection as well as the current instance in the class as a singleton instance.
     """
     
@@ -53,8 +53,14 @@ class DownloadsSocket(Namespace):
   def on_connect(self):
     """Sends a list of all downloads when a client connects to the namespace.
     """
-    
-    dl = models.db.Download(self._db_conn)
+    db_conn = self._db_conn
+    created_conn = False
+
+    if not db_conn:
+      db_conn = db.connect()
+      created_conn = True
+
+    dl = models.db.Download(db_conn)
     downloads = dl.get_all_downloads()
 
     download_updates = []
@@ -80,6 +86,9 @@ class DownloadsSocket(Namespace):
       download_updates.append(d_update)
 
       self.send_all_downloads(download_updates)
+
+    if created_conn:
+      db_conn.close()
   # END on_connect
 
 

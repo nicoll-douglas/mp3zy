@@ -6,14 +6,22 @@ from sockets import register_sockets
 import config, db
 from flask_socketio import SocketIO
 
-def create_app(db_conn: sqlite3.Connection = db.connect()) -> tuple[Flask, SocketIO]:
+def create_app(db_conn: sqlite3.Connection | None = None) -> tuple[Flask, SocketIO]:
   """Sets up and creates the application and returns it.
+
+  Args:
+    db_conn (sqlite3.Connection | None): A singleton database connection to use for parts of the app.
 
   Returns:
     tuple[Flask, SocketIO]: A tuple containing the Flask application and the SocketIO instance.
   """
 
-  db.setup(db_conn)
+  if db_conn:
+    db.setup(db_conn)
+  else:
+    setup_db_conn = db.connect()
+    db.setup(setup_db_conn)
+    setup_db_conn.close()
 
   app_name = os.getenv("APP_NAME") or ""
   flask_app_name = app_name + (" " if app_name else "") + "Desktop Backend API"
