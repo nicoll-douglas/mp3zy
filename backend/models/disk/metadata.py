@@ -85,12 +85,20 @@ class Metadata:
     audio = FLAC(file_path)
     audio.delete()
 
-    audio["title"] = self.track_name
-    audio["artist"] = self.artist_names
-    audio["album"] = self.album_name
-    audio["tracknumber"] = self.track_number
-    audio["discnumber"] = self.disc_number
-    audio["date"] = self.release_date
+    audio["TITLE"] = self.track_name
+    audio["ARTIST"] = self.artist_names.data
+    
+    if self.album_name:
+      audio["ALBUM"] = self.album_name
+
+    if self.track_number is not None:      
+      audio["TRACKNUMBER"] = str(self.track_number)
+
+    if self.disc_number is not None:      
+      audio["DISCNUMBER"] = str(self.disc_number)
+    
+    if self.release_date is not None:
+      audio["DATE"] = str(self.release_date)
 
     if self.album_cover_path:
       p = Picture()

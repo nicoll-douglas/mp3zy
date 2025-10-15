@@ -80,11 +80,11 @@ class YtDlpClient:
 
     try:
       track = models.disk.Track(track_info, track_id)
-    except PermissionError:
+    except PermissionError as e:
       return False, "The application does not have permission to create the provided download directory."
-    except OSError:
+    except OSError as e:
       return False, "An OS-level error ocurred."
-    except Exception:
+    except Exception as e:
       return False, "An unexpected error ocurred."
 
     ydl_opts = {
@@ -101,7 +101,7 @@ class YtDlpClient:
     try:
       with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([track_info.url])
-    except Exception:
+    except Exception as e:
       return False, "The download started but failed to complete."
       
     return True, track

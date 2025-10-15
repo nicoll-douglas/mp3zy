@@ -2,6 +2,8 @@ import os, mimetypes
 from pathvalidate import sanitize_filename
 from user_types.requests import PostDownloadsRequest
 
+mimetypes.add_type("audio/flac", ".flac")
+
 class Track:
   """A model class for interfacing with an audio/track file path on disk.
 
