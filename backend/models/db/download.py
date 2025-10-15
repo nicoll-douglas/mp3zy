@@ -80,13 +80,15 @@ GROUP BY d.id
     
     results = []
 
-    for result in results:
+    for row in rows:
+      result = dict(row)
       other_artists = json.loads(result["other_artists"])
 
       if other_artists == [None]:
         other_artists = []
         
       result["other_artists"] = other_artists
+      results.append(result)
 
     return results
   # END get_all_downloads
