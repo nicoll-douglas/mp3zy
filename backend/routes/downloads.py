@@ -23,7 +23,7 @@ def post_downloads() -> tuple[Response, Literal[400, 200]]:
     res_body = cast(res.PostDownloadsResponse.BadRequest, validation_result_data)
     return jsonify(res_body.__dict__), 400
   
-  req_body = cast(res.PostDownloadsRequest, validation_result_data)
+  req_body = cast(req.PostDownloadsRequest, validation_result_data)
   res_body = res.PostDownloadsResponse.Ok()
   res_body.download_id = Downloader.queue(req_body)
 
