@@ -1,5 +1,5 @@
 from services import YtDlpClient
-from user_types.requests import PostDownloadsRequest
+from user_types.requests import PostDownloadsRequest, PostDownloadsRestartRequest
 from user_types import TrackBitrate, TrackCodec, TrackReleaseDate, DownloadUpdate, DownloadStatus, TrackArtistNames
 import models, db
 import threading
@@ -197,6 +197,10 @@ class Downloader:
     update.terminated_at = None
     update.created_at = created_at
     update.error_msg = None
+    update.eta = None
+    update.speed = None
+    update.downloaded_bytes = None
+    update.total_bytes = None
 
     DownloadsSocket.instance().send_download_update(update)
 
@@ -220,4 +224,48 @@ class Downloader:
     return True
   # END start
 
+
+  @staticmethod
+  def requeue(req: PostDownloadsRestartRequest):
+    """Sets a download's status to queued in the database and broadcasts the update.
+
+    Args:
+      req (PostDownloadsRestartRequest): The request to restart a download containing the download ID.
+
+    Returns:
+      bool: True if the download was found and could be restarted, false otherwise.
+    """
+
+    with db.connect() as conn:
+      dl = models.db.Download(conn)
+      requeued = dl.requeue(req.download_id)
+
+      if requeued:
+        download = dl.get_download(req.download_id)
+
+        if download["status"] == DownloadStatus.QUEUED.value:
+          update = DownloadUpdate()
+          update.status = DownloadStatus.QUEUED
+          update.download_id = req.download_id
+          update.artist_names = TrackArtistNames([download["main_artist"], *download["other_artists"]])
+          update.track_name = download["track_name"]
+          update.codec = TrackCodec(download["codec"])
+          update.bitrate = TrackCodec(download["bitrate"])
+          update.url = download["url"]
+          update.download_dir = download["download_dir"]
+          update.terminated_at = None
+          update.created_at = download["created_at"]
+          update.error_msg = None
+          update.eta = None
+          update.speed = None
+          update.downloaded_bytes = None
+          update.total_bytes = None
+
+          DownloadsSocket.instance().send_download_update(update)
+
+        return True
+
+      return False
+  # END requeue
+    
 # END class Downloader

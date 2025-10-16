@@ -1,2 +1,3 @@
 from .post_downloads_request import PostDownloadsRequest
 from .get_downloads_search_request import GetDownloadsSearchRequest
+from .post_downloads_restart_request import PostDownloadsRestartRequest
