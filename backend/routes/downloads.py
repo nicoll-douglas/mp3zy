@@ -61,6 +61,7 @@ def get_downloads_search():
   return jsonify(res_body.get_serializable()), 200
 # END get_downloads_search
 
+
 @downloads_bp.route("/downloads/restart", methods=["POST"])
 def post_downloads_restart():
   """Sets a track to queued for the downloader thread to pick up and restart the download.
