@@ -291,7 +291,7 @@ WHERE id IN ({download_id_placeholders}) AND status != ?
       int: The number of downloads deleted.
     """
     
-    placeholders = ", ".join("?" * download_ids)
+    placeholders = ", ".join("?" * len(download_ids))
     sql = f"DELETE FROM {self.TABLE} WHERE id IN ({placeholders})"
     params = tuple(download_ids)
 
@@ -312,7 +312,7 @@ WHERE id IN ({download_id_placeholders}) AND status != ?
       list[int]: The list of metadata IDs.
     """
     
-    placeholders = ", ".join("?" * download_ids)
+    placeholders = ", ".join("?" * len(download_ids))
     sql = f"SELECT metadata_id FROM {self.TABLE} WHERE id IN ({placeholders}) AND status != ?"
     params = (*download_ids, DownloadStatus.DOWNLOADING.value)
 

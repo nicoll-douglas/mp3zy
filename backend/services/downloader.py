@@ -269,7 +269,7 @@ class Downloader:
       
       artist_ids =  models.db.MetadataArtist(conn).get_many_artist_ids(metadata_ids)
       models.db.Artist(conn).delete_many(artist_ids)
-      models.db.Metadata.delete_many(metadata_ids)
+      models.db.Metadata(conn).delete_many(metadata_ids)
 
     DownloadsSocket.instance().get_and_send_all_downloads()
 
