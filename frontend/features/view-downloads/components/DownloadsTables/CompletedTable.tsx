@@ -9,48 +9,41 @@ export default function CompletedTable() {
   return (
     <DownloadsTableCard
       title="Completed"
-      statusColorPalette="green"
+      status="completed"
       totalItems={completed.length}
       emptyTitle="No Completed Downloads"
       emptyDesc="Completed downloads will appear here."
     >
-      <Ch.Table.ScrollArea
-        borderTopWidth={"1px"}
-        borderRightWidth={"1px"}
-        borderLeftWidth={"1px"}
-        maxHeight={"500px"}
-      >
-        <Ch.Table.Root>
-          <Ch.Table.Header>
-            <Ch.Table.Row>
-              <Ch.Table.ColumnHeader>Main Artist</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Track Name</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Codec</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Bitrate</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Output Directory</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Completed At</Ch.Table.ColumnHeader>
-            </Ch.Table.Row>
-          </Ch.Table.Header>
-          <Ch.Table.Body>
-            <Ch.For each={completed}>
-              {(download) => (
-                <Ch.Table.Row key={download.download_id}>
-                  <Ch.Table.Cell>{download.artist_names[0]}</Ch.Table.Cell>
-                  <Ch.Table.Cell>{download.track_name}</Ch.Table.Cell>
-                  <Ch.Table.Cell>{download.codec}</Ch.Table.Cell>
-                  <Ch.Table.Cell>
-                    {download.codec === "mp3" && download.bitrate}
-                  </Ch.Table.Cell>
-                  <Ch.TableCell>{download.download_dir}</Ch.TableCell>
-                  <Ch.Table.Cell>
-                    {getDownloadTimeAgo(download.terminated_at)}
-                  </Ch.Table.Cell>
-                </Ch.Table.Row>
-              )}
-            </Ch.For>
-          </Ch.Table.Body>
-        </Ch.Table.Root>
-      </Ch.Table.ScrollArea>
+      <Ch.Table.Root>
+        <Ch.Table.Header>
+          <Ch.Table.Row>
+            <Ch.Table.ColumnHeader>Main Artist</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Track Name</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Codec</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Bitrate</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Output Directory</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Completed At</Ch.Table.ColumnHeader>
+          </Ch.Table.Row>
+        </Ch.Table.Header>
+        <Ch.Table.Body>
+          <Ch.For each={completed}>
+            {(download) => (
+              <Ch.Table.Row key={download.download_id}>
+                <Ch.Table.Cell>{download.artist_names[0]}</Ch.Table.Cell>
+                <Ch.Table.Cell>{download.track_name}</Ch.Table.Cell>
+                <Ch.Table.Cell>{download.codec}</Ch.Table.Cell>
+                <Ch.Table.Cell>
+                  {download.codec === "mp3" && download.bitrate}
+                </Ch.Table.Cell>
+                <Ch.TableCell>{download.download_dir}</Ch.TableCell>
+                <Ch.Table.Cell>
+                  {getDownloadTimeAgo(download.terminated_at)}
+                </Ch.Table.Cell>
+              </Ch.Table.Row>
+            )}
+          </Ch.For>
+        </Ch.Table.Body>
+      </Ch.Table.Root>
     </DownloadsTableCard>
   );
 }

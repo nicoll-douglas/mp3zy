@@ -14,50 +14,43 @@ export default function QueuedTable() {
   return (
     <DownloadsTableCard
       title="Download Queue"
-      statusColorPalette="yellow"
+      status="queued"
       totalItems={queued.length}
       emptyTitle="No Queued Downloads"
       emptyDesc="Queued downloads will appear here."
     >
-      <Ch.Table.ScrollArea
-        borderTopWidth={"1px"}
-        borderRightWidth={"1px"}
-        borderLeftWidth={"1px"}
-        maxHeight={"500px"}
-      >
-        <Ch.Table.Root>
-          <Ch.Table.Header>
-            <Ch.Table.Row>
-              <Ch.Table.ColumnHeader>Position</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Main Artist</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Track Name</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Codec</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Bitrate</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Ouput Directory</Ch.Table.ColumnHeader>
-              <Ch.Table.ColumnHeader>Queued At</Ch.Table.ColumnHeader>
-            </Ch.Table.Row>
-          </Ch.Table.Header>
-          <Ch.Table.Body>
-            <Ch.For each={queuedWithEarliestFirst}>
-              {(download, index) => (
-                <Ch.Table.Row key={download.download_id}>
-                  <Ch.Table.Cell>{index + 1}</Ch.Table.Cell>
-                  <Ch.Table.Cell>{download.artist_names[0]}</Ch.Table.Cell>
-                  <Ch.TableCell>{download.track_name}</Ch.TableCell>
-                  <Ch.Table.Cell>{download.codec}</Ch.Table.Cell>
-                  <Ch.Table.Cell>
-                    {download.codec === "mp3" && download.bitrate}
-                  </Ch.Table.Cell>
-                  <Ch.TableCell>{download.download_dir}</Ch.TableCell>
-                  <Ch.TableCell>
-                    {getDownloadTimeAgo(download.created_at)}
-                  </Ch.TableCell>
-                </Ch.Table.Row>
-              )}
-            </Ch.For>
-          </Ch.Table.Body>
-        </Ch.Table.Root>
-      </Ch.Table.ScrollArea>
+      <Ch.Table.Root>
+        <Ch.Table.Header>
+          <Ch.Table.Row>
+            <Ch.Table.ColumnHeader>Position</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Main Artist</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Track Name</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Codec</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Bitrate</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Ouput Directory</Ch.Table.ColumnHeader>
+            <Ch.Table.ColumnHeader>Queued At</Ch.Table.ColumnHeader>
+          </Ch.Table.Row>
+        </Ch.Table.Header>
+        <Ch.Table.Body>
+          <Ch.For each={queuedWithEarliestFirst}>
+            {(download, index) => (
+              <Ch.Table.Row key={download.download_id}>
+                <Ch.Table.Cell>{index + 1}</Ch.Table.Cell>
+                <Ch.Table.Cell>{download.artist_names[0]}</Ch.Table.Cell>
+                <Ch.TableCell>{download.track_name}</Ch.TableCell>
+                <Ch.Table.Cell>{download.codec}</Ch.Table.Cell>
+                <Ch.Table.Cell>
+                  {download.codec === "mp3" && download.bitrate}
+                </Ch.Table.Cell>
+                <Ch.TableCell>{download.download_dir}</Ch.TableCell>
+                <Ch.TableCell>
+                  {getDownloadTimeAgo(download.created_at)}
+                </Ch.TableCell>
+              </Ch.Table.Row>
+            )}
+          </Ch.For>
+        </Ch.Table.Body>
+      </Ch.Table.Root>
     </DownloadsTableCard>
   );
 }
