@@ -34,4 +34,25 @@ class MetadataArtist(Model):
     return ids
   # END insert_many
 
+
+  def get_many_artist_ids(self, metadata_ids: list[int]) -> list[int]:
+    """Gets several artist IDs from the table based on metadata IDs.
+
+    Args:
+      metadata_ids (list[int]): The IDs of the metadata.
+
+    Returns:
+      list[int]: The artist IDs.
+    """
+    
+    placeholders = ", ".join("?" * len(metadata_ids))
+    sql = f"SELECT artist_id FROM {self.TABLE} WHERE metadata_id IN ({placeholders})"
+    params = tuple(metadata_ids)
+
+    self._cur.execute(sql, params)
+    rows = self._cur.fetchall()
+
+    return [row["artist_id"] for row in rows]
+  # END get_artist_ids
+
 # END class MetadataArtist

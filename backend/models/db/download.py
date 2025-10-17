@@ -280,9 +280,9 @@ WHERE id IN ({download_id_placeholders}) AND status != ?
     return self._cur.rowcount
   # END requeue
     
-
-  def delete(self, download_ids: list[int]) -> int:
-    """Deletes rows/downloads from the metadata table based on the given download IDs which cascades to delete downloads.
+  
+  def delete_many(self, download_ids: list[int]):
+    """Deletes several rows/downloads from the table based on the given IDs.
 
     Args:
       download_ids (list[int]): The IDs of the rows/downloads to delete.
@@ -291,16 +291,8 @@ WHERE id IN ({download_id_placeholders}) AND status != ?
       int: The number of downloads deleted.
     """
     
-    download_id_placeholders = ", ".join("?" * len(download_ids))
-
-    sql = f"""   
-DELETE FROM {Metadata.TABLE}
-WHERE id IN (
-  SELECT metadata_id FROM {self.TABLE}
-  WHERE id IN ({download_id_placeholders})
-)
-"""
-    
+    placeholders = ", ".join("?" * download_ids)
+    sql = f"DELETE FROM {self.TABLE} WHERE id IN ({placeholders})"
     params = tuple(download_ids)
 
     self._cur.execute(sql, params)
@@ -308,6 +300,27 @@ WHERE id IN (
 
     return self._cur.rowcount
   # END delete
+
+
+  def get_metadata_ids(self, download_ids: list[int]) -> list[int]:
+    """Gets the metadata IDs for each given download ID.
+
+    Args:
+      download_ids (list[int]): The list of download IDs.
+
+    Returns:
+      list[int]: The list of metadata IDs.
+    """
+    
+    placeholders = ", ".join("?" * download_ids)
+    sql = f"SELECT metadata_id FROM {self.TABLE} WHERE id IN ({placeholders}) AND status != ?"
+    params = (*download_ids, DownloadStatus.DOWNLOADING.value)
+
+    self._cur.execute(sql, params)
+    rows = self._cur.fetchall()
+
+    return [row["metadata_id"] for row in rows]
+  # END get_metadata_ids
 
 
   def update(self, download_id: int, data: dict):

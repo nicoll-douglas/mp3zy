@@ -249,7 +249,7 @@ class Downloader:
 
   @staticmethod
   def delete(request: req.DeleteDownloadsRequest) -> int :
-    """Deletes downloads and broadcasts the update to the socket.
+    """Deletes downloads and associated data, and broadcasts the update to the socket.
 
     Args:
       request (DeleteDownloadsRequest): The request to delete downloads containing the download IDs.
@@ -260,10 +260,18 @@ class Downloader:
     
     with db.connect() as conn:
       dl = models.db.Download(conn)
-      delete_count = dl.delete(request.download_ids)
+      metadata_ids = dl.get_metadata_ids(request.download_ids)
 
-    if delete_count > 0:
-      DownloadsSocket.instance().get_and_send_all_downloads()
+      delete_count = dl.delete_many(request.download_ids)
+
+      if delete_count == 0:
+        return 0
+      
+      artist_ids =  models.db.MetadataArtist(conn).get_many_artist_ids(metadata_ids)
+      models.db.Artist(conn).delete_many(artist_ids)
+      models.db.Metadata.delete_many(metadata_ids)
+
+    DownloadsSocket.instance().get_and_send_all_downloads()
 
     return delete_count
   # END delete
