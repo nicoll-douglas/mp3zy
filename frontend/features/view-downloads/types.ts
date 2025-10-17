@@ -123,3 +123,32 @@ export type PostDownloadsRestartResponse =
         message: string;
       };
     };
+
+/**
+ * Represents the request body structure that must be sent with a delete download backend API request.
+ */
+export interface DeleteDownloadsRequest {
+  /**
+   * A list of download IDs to delete.
+   */
+  download_ids: number[];
+}
+
+/**
+ * Represents the various reponses that may be returned from a delete download backend API request.
+ */
+export type DeleteDownloadsReseponse =
+  | {
+      status: 400;
+      body: {
+        field: string;
+        message: string;
+      };
+    }
+  | {
+      status: 200;
+      body: {
+        delete_count: number;
+        message: string;
+      };
+    };

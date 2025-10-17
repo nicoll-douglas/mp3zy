@@ -8,6 +8,7 @@ import DownloadsTableColumnHeaderCheckbox from "./shared/DownloadsTableColumnHea
 import DownloadsSelectionActionBar from "./shared/DownloadsSelectionActionBar";
 import { LuCircleMinus, LuRotateCw } from "react-icons/lu";
 import restartDownloads from "../../services/restartDownloads";
+import deleteDownloads from "../../services/deleteDownloads";
 
 export default function FailedTable() {
   const { failed } = useDownloadsSocketContext();
@@ -23,6 +24,14 @@ export default function FailedTable() {
 
   const handleRestart = async () => {
     const res = await restartDownloads(downloadsSelection.selection);
+
+    if (res.status === 200) {
+      downloadsSelection.resetSelection();
+    }
+  };
+
+  const handleDelete = async () => {
+    const res = await deleteDownloads(downloadsSelection.selection);
 
     if (res.status === 200) {
       downloadsSelection.resetSelection();
@@ -93,7 +102,11 @@ export default function FailedTable() {
           Restart
           <LuRotateCw />
         </Ch.Button>
-        <Ch.Button colorPalette={"red"} variant={"surface"}>
+        <Ch.Button
+          colorPalette={"red"}
+          variant={"surface"}
+          onClick={handleDelete}
+        >
           Remove
           <LuCircleMinus />
         </Ch.Button>
