@@ -1,5 +1,6 @@
 import * as Ch from "@chakra-ui/react";
 import type { Route } from "./+types/home";
+import PageHeading from "@/components/PageHeading";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: import.meta.env.VITE_APP_NAME }];
@@ -18,7 +19,7 @@ export default function Home() {
 
   return (
     <>
-      <Ch.Heading size={"2xl"}>Home</Ch.Heading>
+      <PageHeading>Home</PageHeading>
       <Ch.Button onClick={pingPython}>Ping Backend</Ch.Button>
     </>
   );

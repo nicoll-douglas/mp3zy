@@ -2,10 +2,10 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import Header from "@/components/Header";
 import { Provider as ChProvider } from "@/components/chakra-ui/provider";
 import * as Ch from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Sidebar from "@/components/Sidebar";
 
 const queryClient = new QueryClient();
 
@@ -32,21 +32,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <QueryClientProvider client={queryClient}>
-          <ChProvider>
-            <Header />
-            <Ch.Container py={"4"} as={"main"}>
-              <Ch.Stack gap={"4"}>{children}</Ch.Stack>
-            </Ch.Container>
-            <ScrollRestoration />
-            <Scripts />
-          </ChProvider>
-        </QueryClientProvider>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
   );
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ChProvider>
+        <Ch.Container
+          py={"4"}
+          px={"4"}
+          minHeight={"100dvh"}
+          display={"flex"}
+          gap={"4"}
+          alignItems={"start"}
+        >
+          <Sidebar />
+          <Ch.Stack gap={"4"} mt={"10"} flex={1}>
+            <Outlet />
+          </Ch.Stack>
+        </Ch.Container>
+      </ChProvider>
+    </QueryClientProvider>
+  );
 }

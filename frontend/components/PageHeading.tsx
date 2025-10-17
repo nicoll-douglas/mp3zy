@@ -6,7 +6,7 @@ export default function PageHeading({
   children: React.ReactNode;
 }) {
   return (
-    <Ch.Heading as={"h1"} size={"2xl"}>
+    <Ch.Heading as={"h1"} size={"2xl"} lineHeight={"1"}>
       {children}
     </Ch.Heading>
   );
