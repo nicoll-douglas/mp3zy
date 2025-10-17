@@ -1,6 +1,6 @@
 import * as Ch from "@chakra-ui/react";
 import { type UseDownloadsSelectionReturn } from "../../../hooks/useDownloadsSelection";
-import type { DownloadProgressUpdate } from "@/features/view-downloads/types";
+import type { DownloadUpdate } from "@/features/view-downloads/types";
 
 /**
  * Props for the DownloadsTableCellCheckbox component.
@@ -14,7 +14,7 @@ export interface DownloadsTableCellCheckboxProps {
   /**
    * The download progress update pertaining to the current row of the table.
    */
-  download: DownloadProgressUpdate;
+  download: DownloadUpdate;
 }
 
 export default function DownloadsTableCellCheckbox({

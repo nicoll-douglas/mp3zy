@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import downloadsSocket from "../services/downloadsSocket";
-import type { DownloadProgressUpdate, DownloadInitData } from "../types";
+import type { DownloadUpdate, DownloadInitData } from "../types";
 
 /**
  * Return type for the useDownloadsSocket hook.
  */
 export interface UseDownloadsSocketReturn {
-  completed: DownloadProgressUpdate[];
-  failed: DownloadProgressUpdate[];
-  queued: DownloadProgressUpdate[];
-  downloading: DownloadProgressUpdate[];
+  completed: DownloadUpdate[];
+  failed: DownloadUpdate[];
+  queued: DownloadUpdate[];
+  downloading: DownloadUpdate[];
 }
 
 /**
@@ -19,14 +19,14 @@ export interface UseDownloadsSocketReturn {
  */
 export default function useDownloadsSocket(): UseDownloadsSocketReturn {
   const [allDownloads, setAllDownloads] = useState<{
-    [key: number]: DownloadProgressUpdate;
+    [key: number]: DownloadUpdate;
   }>({});
 
   useEffect(() => {
     const socket = downloadsSocket();
 
     socket.on("download_init", (data: DownloadInitData) => {
-      const downloadsMap: { [key: number]: DownloadProgressUpdate } = {};
+      const downloadsMap: { [key: number]: DownloadUpdate } = {};
 
       data.downloads.forEach((download) => {
         downloadsMap[download.download_id] = download;
@@ -35,7 +35,7 @@ export default function useDownloadsSocket(): UseDownloadsSocketReturn {
       setAllDownloads(downloadsMap);
     });
 
-    socket.on("download_update", (data: DownloadProgressUpdate) => {
+    socket.on("download_update", (data: DownloadUpdate) => {
       setAllDownloads((v) => ({ ...v, [data.download_id]: data }));
     });
 
