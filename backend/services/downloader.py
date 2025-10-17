@@ -1,5 +1,5 @@
 from services import YtDlpClient
-from user_types.requests import PostDownloadsRequest, PostDownloadsRestartRequest
+import user_types.requests as req
 from user_types import TrackBitrate, TrackCodec, TrackReleaseDate, DownloadUpdate, DownloadStatus, TrackArtistNames
 import models, db
 import threading
@@ -85,7 +85,7 @@ class Downloader:
         progress_hook = cls._create_progress_hook(update)
 
         # recreate original request object to pass as track info to the download function
-        track_info = PostDownloadsRequest()
+        track_info = req.PostDownloadsRequest()
         track_info.album_name = next_download["album_name"]
         track_info.track_name = update.track_name
         track_info.artist_names = update.artist_names
@@ -141,7 +141,7 @@ class Downloader:
 
 
   @staticmethod
-  def queue(track_info: PostDownloadsRequest) -> int:
+  def queue(track_info: req.PostDownloadsRequest) -> int:
     """Inserts the track info into the database and inserts a download row as queued.
 
     Args:
@@ -226,11 +226,11 @@ class Downloader:
 
 
   @staticmethod
-  def requeue(req: PostDownloadsRestartRequest):
+  def requeue(request: req.PostDownloadsRestartRequest) -> int:
     """Sets the status of the given downloads to queued in the database if not already queued/downloading and broadcasts the update to the socket.
 
     Args:
-      req (PostDownloadsRestartRequest): The request to restart a download containing the download IDs.
+      request (PostDownloadsRestartRequest): The request to restart a download containing the download IDs.
 
     Returns:
       int: The number of downloads restarted.
@@ -238,12 +238,34 @@ class Downloader:
 
     with db.connect() as conn:
       dl = models.db.Download(conn)
-      restart_count = dl.requeue(req.download_ids)
+      restart_count = dl.requeue(request.download_ids)
 
-      if restart_count > 0:
-        DownloadsSocket.instance().get_and_send_all_downloads()
+    if restart_count > 0:
+      DownloadsSocket.instance().get_and_send_all_downloads()
 
-      return restart_count
+    return restart_count
   # END requeue
+
+
+  @staticmethod
+  def delete(request: req.DeleteDownloadsRequest) -> int :
+    """Deletes downloads and broadcasts the update to the socket.
+
+    Args:
+      request (DeleteDownloadsRequest): The request to delete downloads containing the download IDs.
+
+    Returns:
+      int: The number of downloads deleted.
+    """
+    
+    with db.connect() as conn:
+      dl = models.db.Download(conn)
+      delete_count = dl.delete(request.download_ids)
+
+    if delete_count > 0:
+      DownloadsSocket.instance().get_and_send_all_downloads()
+
+    return delete_count
+  # END delete
     
 # END class Downloader

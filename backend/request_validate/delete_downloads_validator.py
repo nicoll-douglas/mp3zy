@@ -1,33 +1,33 @@
-from user_types.reponses import PostDownloadsRestartResponse
-from user_types.requests import PostDownloadsRestartRequest
+from user_types.reponses import DeleteDownloadsResponse
+from user_types.requests import DeleteDownloadsRequest
 from typing import Any, Literal
 
-class PostDownloadsRestartValidator():
-  """Validator class that validates request bodies to the POST /downloads/restart endpoint.
+class DeleteDownloadsValidator():
+  """Validator class that validates request bodies to the DELETE /downloads endpoint.
 
   Attributes:
-    _response (PostDownloadsRestartResponse.BadRequest): A response body model instance associated with the endpoint.
-    _request (PostDownloadsRestartRequest): A request body model instance associated with the endpoint.
+    _response (DeleteDownloadsResponse.BadRequest): A response body model instance associated with the endpoint.
+    _request (DeleteDownloadsRequest): A request body model instance associated with the endpoint.
   """
   
-  _response: PostDownloadsRestartResponse.BadRequest
-  _request: PostDownloadsRestartRequest
+  _response: DeleteDownloadsResponse.BadRequest
+  _request: DeleteDownloadsRequest
 
 
   def __init__(self):
-    self._response = PostDownloadsRestartResponse.BadRequest()
-    self._request = PostDownloadsRestartRequest()
+    self._response = DeleteDownloadsResponse.BadRequest()
+    self._request = DeleteDownloadsRequest()
   # END __init__
 
 
-  def validate(self, body: Any)-> tuple[Literal[False], PostDownloadsRestartResponse.BadRequest] | tuple[Literal[True], PostDownloadsRestartRequest]:
+  def validate(self, body: Any)-> tuple[Literal[False], DeleteDownloadsResponse.BadRequest] | tuple[Literal[True], DeleteDownloadsRequest]:
     """Performs full validation on the request body.
 
     Args:
       body (Any): A request body to validate.
 
     Returns:
-      tuple[Literal[False], PostDownloadsRestartResponse.BadRequest] | tuple[Literal[True], PostDownloadsRestartRequest]: A tuple where on successful validation the first element is True and the second is the sanitized request body, or on failure the first element is False and the second is the response body to send.
+      tuple[Literal[False], DeleteDownloadsResponse.BadRequest] | tuple[Literal[True], DeleteDownloadsRequest]: A tuple where on successful validation the first element is True and the second is the sanitized request body, or on failure the first element is False and the second is the response body to send.
     """
     
     bad_request = (False, self._response)
@@ -65,4 +65,4 @@ class PostDownloadsRestartValidator():
     return True, self._request
   # END validate
 
-# END class PostDownloadsRestartValidator
+# END class DeleteDownloadsValidator

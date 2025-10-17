@@ -281,6 +281,35 @@ WHERE id IN ({download_id_placeholders}) AND status != ?
   # END requeue
     
 
+  def delete(self, download_ids: list[int]) -> int:
+    """Deletes rows/downloads from the metadata table based on the given download IDs which cascades to delete downloads.
+
+    Args:
+      download_ids (list[int]): The IDs of the rows/downloads to delete.
+
+    Returns:
+      int: The number of downloads deleted.
+    """
+    
+    download_id_placeholders = ", ".join("?" * len(download_ids))
+
+    sql = f"""   
+DELETE FROM {Metadata.TABLE}
+WHERE id IN (
+  SELECT metadata_id FROM {self.TABLE}
+  WHERE id IN ({download_id_placeholders})
+)
+"""
+    
+    params = tuple(download_ids)
+
+    self._cur.execute(sql, params)
+    self._conn.commit()
+
+    return self._cur.rowcount
+  # END delete
+
+
   def update(self, download_id: int, data: dict):
     """Updates a row in the table based on ID with the given data.
 

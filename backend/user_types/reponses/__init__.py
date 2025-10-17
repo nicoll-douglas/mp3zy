@@ -1,3 +1,4 @@
 from .post_downloads_response import PostDownloadsResponse
 from .get_downloads_search_response import GetDownloadsSearchResponse
 from .post_downloads_restart_response import PostDownloadsRestartResponse
+from .delete_downloads_response import DeleteDownloadsResponse

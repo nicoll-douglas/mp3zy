@@ -64,7 +64,7 @@ def get_downloads_search():
 
 @downloads_bp.route("/downloads/restart", methods=["POST"])
 def post_downloads_restart():
-  """Sets a track to queued for the downloader thread to pick up and restart the download.
+  """Sets tracks to queued for the downloader thread to pick up and restart them.
   
   Returns:
     tuple[Response, Literal[400, 200]]: The response and status code.
@@ -74,7 +74,7 @@ def post_downloads_restart():
   is_valid, validation_result_data = reqv.PostDownloadsRestartValidator().validate(raw_body)
 
   if not is_valid:
-    res_body = cast(res.PostDownloadsResponse.BadRequest, validation_result_data)
+    res_body = cast(res.PostDownloadsRestartResponse.BadRequest, validation_result_data)
     return jsonify(res_body.__dict__), 400
 
   req_body = cast(req.PostDownloadsRestartRequest, validation_result_data)
@@ -90,3 +90,29 @@ def post_downloads_restart():
 
   return jsonify(res_body.__dict__), 200
 # END post_downloads_restart
+
+
+@downloads_bp.route("/downloads", methods=["DELETE"])
+def delete_downloads():
+  """Deletes downloads from the database.
+  
+  Returns:
+    tuple[Response, Literal[400, 200]]: The response and status code.
+  """
+
+  raw_body = request.get_json()
+  is_valid, validation_result_data = reqv.DeleteDownloadsValidator().validate(raw_body)
+
+  if not is_valid:
+    res_body = cast(res.DeleteDownloadsResponse.BadRequest, validation_result_data)
+    return jsonify(res_body.__dict__), 400
+  
+  req_body = cast(req.DeleteDownloadsRequest, validation_result_data)
+
+  res_body = res.DeleteDownloadsResponse.Ok()
+  res_body.delete_count = Downloader.delete(req_body)
+  res_body.message = f"{res_body.delete_count} downloads were deleted." if res_body.delete_count > 0 else "No downloads were deleted"
+
+  return jsonify(res_body.__dict__), 200
+
+# END delete_downloads

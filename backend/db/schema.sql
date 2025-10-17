@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS downloads (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   terminated_at TIMESTAMP,
   error_msg TEXT,
-  FOREIGN KEY (metadata_id) REFERENCES metadata(id) ON DELETE SET NULL
+  FOREIGN KEY (metadata_id) REFERENCES metadata(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS artists (
