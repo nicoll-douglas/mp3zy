@@ -1,6 +1,6 @@
-# mp3zy API v1
+# Sharktooth API v1
 
-Specification for v1 of the mp3zy app's desktop web API.
+Specification for v1 of the Sharktooth app's desktop web API.
 
 ## Table of Contents
 
@@ -28,13 +28,13 @@ Specification for v1 of the mp3zy app's desktop web API.
 
 ### REST API
 
-One part of the mp3zy API consists of a REST API. All requests and responses to these REST endpoints can be expected to be in JSON format.
+One part of the Sharktooth API consists of a REST API. All requests and responses to these REST endpoints can be expected to be in JSON format.
 
 ###
 
 ### Real-time API
 
-The other part of the mp3zy API consists of a real-time API for download progress updates using WebSockets and JSON messages.
+The other part of the Sharktooth API consists of a real-time API for download progress updates using WebSockets and JSON messages.
 
 ## Type Reference
 
