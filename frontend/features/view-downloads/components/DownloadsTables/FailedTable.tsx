@@ -7,6 +7,7 @@ import DownloadsTableCellCheckbox from "./shared/DownloadsTableCellCheckbox";
 import DownloadsTableColumnHeaderCheckbox from "./shared/DownloadsTableColumnHeaderCheckbox";
 import DownloadsSelectionActionBar from "./shared/DownloadsSelectionActionBar";
 import { LuCircleMinus, LuRotateCw } from "react-icons/lu";
+import restartDownloads from "../../services/restartDownloads";
 
 export default function FailedTable() {
   const { failed } = useDownloadsSocketContext();
@@ -19,6 +20,14 @@ export default function FailedTable() {
       new Date(a.terminated_at).getTime() - new Date(b.terminated_at).getTime()
     );
   });
+
+  const handleRestart = async () => {
+    const res = await restartDownloads(downloadsSelection.selection);
+
+    if (res.status === 200) {
+      downloadsSelection.resetSelection();
+    }
+  };
 
   return (
     <>
@@ -74,10 +83,13 @@ export default function FailedTable() {
       </DownloadsTableCard>
       <DownloadsSelectionActionBar
         tableStatus="failed"
-        open={downloadsSelection.hasSelection}
-        selectCount={downloadsSelection.selectionCount}
+        downloadsSelection={downloadsSelection}
       >
-        <Ch.Button colorPalette={"green"} variant={"surface"}>
+        <Ch.Button
+          colorPalette={"green"}
+          variant={"surface"}
+          onClick={handleRestart}
+        >
           Restart
           <LuRotateCw />
         </Ch.Button>

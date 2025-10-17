@@ -2,6 +2,7 @@ import * as Ch from "@chakra-ui/react";
 import { type DownloadStatus } from "../../../types";
 import getDownloadStatusColorPalette from "../../../utils/getDownloadStatusColorPalette";
 import type { ReactNode } from "react";
+import type { UseDownloadsSelectionReturn } from "../../../hooks/useDownloadsSelection";
 
 /**
  * Props for the DownloadsSelectionActionBar component.
@@ -13,14 +14,9 @@ export interface DownloadsSelectionActionBarProps {
   tableStatus: DownloadStatus;
 
   /**
-   * Whether the action bar should be open or not i.e there is a selection of downloads.
+   * A value returned from a useDownloadsSelection hook call.
    */
-  open: boolean;
-
-  /**
-   * The number of selected downloads.
-   */
-  selectCount: number;
+  downloadsSelection: UseDownloadsSelectionReturn;
 
   /**
    * Children i.e the actions.
@@ -33,12 +29,11 @@ export interface DownloadsSelectionActionBarProps {
  */
 export default function DownloadsSelectionActionBar({
   tableStatus,
-  open,
-  selectCount,
+  downloadsSelection,
   children,
 }: DownloadsSelectionActionBarProps) {
   return (
-    <Ch.ActionBar.Root open={open}>
+    <Ch.ActionBar.Root open={downloadsSelection.hasSelection}>
       <Ch.Portal>
         <Ch.ActionBar.Positioner>
           <Ch.ActionBar.Content>
@@ -48,7 +43,7 @@ export default function DownloadsSelectionActionBar({
               >
                 <Ch.Status.Indicator />
               </Ch.Status.Root>
-              {selectCount} selected
+              {downloadsSelection.selectionCount} selected
             </Ch.ActionBar.SelectionTrigger>
             <Ch.ActionBar.Separator />
             {children}

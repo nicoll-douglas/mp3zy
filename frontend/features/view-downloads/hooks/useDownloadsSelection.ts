@@ -1,11 +1,16 @@
 import type { CheckboxCheckedChangeDetails } from "@chakra-ui/react";
-import type { DownloadProgressUpdate } from "../types";
+import type { DownloadUpdate } from "../types";
 import { useState } from "react";
 
 /**
  * Return type for the useDownloadsSelection hook.
  */
 export interface UseDownloadsSelectionReturn {
+  /**
+   * The selected IDs of the downloads.
+   */
+  selection: number[];
+
   /**
    * Whether there is a current selection of downloads.
    */
@@ -29,19 +34,29 @@ export interface UseDownloadsSelectionReturn {
   /**
    * Determines whether a download is currently checked (i.e in the selection).
    */
-  downloadChecked: (download: DownloadProgressUpdate) => boolean;
+  downloadChecked: (download: DownloadUpdate) => boolean;
 
   /**
    * Creates a handler to run when a download's checkbox value changes that updates the selection.
    */
   onDownloadCheckedChange: (
-    download: DownloadProgressUpdate
+    download: DownloadUpdate
   ) => (changes: CheckboxCheckedChangeDetails) => void;
 
   /**
    * Determines the value of the data-selected attribute for a row in the downloads table.
    */
-  downloadRowSelected: (download: DownloadProgressUpdate) => "" | undefined;
+  downloadRowSelected: (download: DownloadUpdate) => "" | undefined;
+
+  /**
+   * Resets the selection to an empty array.
+   */
+  resetSelection: () => void;
+
+  /**
+   * Removes selections from the current list of selections.
+   */
+  removeSelections: (ids: number[]) => void;
 }
 
 /**
@@ -51,7 +66,7 @@ export interface UseDownloadsSelectionReturn {
  * @returns Event handlers and state values for selection state.
  */
 export default function useDownloadsSelection(
-  downloads: DownloadProgressUpdate[]
+  downloads: DownloadUpdate[]
 ): UseDownloadsSelectionReturn {
   const [selection, setSelection] = useState<number[]>([]);
 
@@ -66,10 +81,10 @@ export default function useDownloadsSelection(
     );
   };
 
-  const downloadChecked = (download: DownloadProgressUpdate) =>
+  const downloadChecked = (download: DownloadUpdate) =>
     selection.includes(download.download_id);
 
-  const onDownloadCheckedChange = (download: DownloadProgressUpdate) => {
+  const onDownloadCheckedChange = (download: DownloadUpdate) => {
     return (changes: CheckboxCheckedChangeDetails) =>
       setSelection((prev) =>
         changes.checked
@@ -78,10 +93,16 @@ export default function useDownloadsSelection(
       );
   };
 
-  const downloadRowSelected = (download: DownloadProgressUpdate) =>
+  const downloadRowSelected = (download: DownloadUpdate) =>
     selection.includes(download.download_id) ? "" : undefined;
 
+  const removeSelections = (ids: number[]) =>
+    setSelection((prev) => prev.filter((id) => !ids.includes(id)));
+
+  const resetSelection = () => setSelection([]);
+
   return {
+    selection,
     hasSelection,
     allChecked,
     selectionCount,
@@ -89,5 +110,7 @@ export default function useDownloadsSelection(
     downloadChecked,
     onDownloadCheckedChange,
     downloadRowSelected,
+    resetSelection,
+    removeSelections,
   };
 }
