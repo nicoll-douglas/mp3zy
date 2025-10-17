@@ -272,7 +272,7 @@ SET status = ?, terminated_at = ?, error_msg = ?
 WHERE id IN ({download_id_placeholders}) AND status != ?
 """
 
-    params = (DownloadStatus.QUEUED.value, None, None *download_ids, DownloadStatus.DOWNLOADING.value)
+    params = (DownloadStatus.QUEUED.value, None, None, *download_ids, DownloadStatus.DOWNLOADING.value)
 
     self._cur.execute(sql, params)
     self._conn.commit()
