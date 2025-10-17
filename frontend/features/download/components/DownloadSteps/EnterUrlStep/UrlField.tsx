@@ -29,7 +29,9 @@ export default function UrlField() {
           <Controller
             name="url"
             control={form.control}
-            render={({ field }) => <Ch.Input {...field} />}
+            render={({ field }) => (
+              <Ch.Input placeholder="Enter URL" {...field} />
+            )}
           />
           <Ch.Field.ErrorText>
             {form.formState.errors.url?.message}

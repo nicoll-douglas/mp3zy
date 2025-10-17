@@ -1,6 +1,7 @@
 import * as Ch from "@chakra-ui/react";
 import SettingsGroup from "./shared/SettingsGroup";
 import useRestoreSettings from "../hooks/useRestoreSettings";
+import { LuRefreshCw } from "react-icons/lu";
 
 /**
  * Represents a card component that holds general application settings.
@@ -16,12 +17,13 @@ export default function GeneralSettings() {
         <Ch.Field.Label>Restore Defaults</Ch.Field.Label>
         <Ch.Field.HelperText>Restore the default settings.</Ch.Field.HelperText>
         <Ch.Button
-          size={"xs"}
+          size={"sm"}
           colorPalette={"red"}
           marginTop={"2"}
           onClick={() => restoreSettingsMutation.mutate()}
         >
           Restore
+          <LuRefreshCw />
         </Ch.Button>
       </Ch.Field.Root>
     </SettingsGroup>

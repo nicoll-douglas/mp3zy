@@ -24,7 +24,7 @@ export default function SearchDownloadsForm() {
               <Ch.Field.RequiredIndicator />
             </Ch.Field.Label>
             <Ch.Input
-              placeholder="e.g Daft Punk"
+              placeholder="Daft Punk"
               {...form.register("main_artist")}
             />
             <Ch.Field.ErrorText>
@@ -38,7 +38,7 @@ export default function SearchDownloadsForm() {
               <Ch.Field.RequiredIndicator />
             </Ch.Field.Label>
             <Ch.Input
-              placeholder="e.g One More Time"
+              placeholder="One More Time"
               {...form.register("track_name")}
             />
             <Ch.Field.ErrorText>

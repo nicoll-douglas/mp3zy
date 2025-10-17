@@ -32,6 +32,7 @@ export default function DownloadDirectoryPicker() {
               cursor={"default"}
               title={field.value}
               textOverflow={"ellipsis"}
+              placeholder="Select directory"
             />
             <Ch.Button
               variant={"outline"}

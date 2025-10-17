@@ -27,6 +27,7 @@ export default function AlbumCoverPicker() {
                 cursor={"default"}
                 title={field.value ?? ""}
                 textOverflow={"ellipsis"}
+                placeholder="Select an image file"
               />
               <Ch.Button
                 variant={"outline"}

@@ -6,7 +6,7 @@ import useDownloadsSelection from "../../hooks/useDownloadsSelection";
 import DownloadsTableCellCheckbox from "./shared/DownloadsTableCellCheckbox";
 import DownloadsTableColumnHeaderCheckbox from "./shared/DownloadsTableColumnHeaderCheckbox";
 import DownloadsSelectionActionBar from "./shared/DownloadsSelectionActionBar";
-import { LuCircleMinus, LuRefreshCw } from "react-icons/lu";
+import { LuCircleMinus, LuRotateCw } from "react-icons/lu";
 
 export default function FailedTable() {
   const { failed } = useDownloadsSocketContext();
@@ -79,7 +79,7 @@ export default function FailedTable() {
       >
         <Ch.Button colorPalette={"green"} variant={"surface"}>
           Restart
-          <LuRefreshCw />
+          <LuRotateCw />
         </Ch.Button>
         <Ch.Button colorPalette={"red"} variant={"surface"}>
           Remove
