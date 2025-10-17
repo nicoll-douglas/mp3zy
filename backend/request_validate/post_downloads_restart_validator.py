@@ -37,22 +37,25 @@ class PostDownloadsRestartValidator():
       self._response.message = "Body must be an object."
       return bad_request
     
-    self._response.field = "download_id"
-    download_id = body.get(self._response.field)
+    self._response.field = "download_ids"
+    download_ids = body.get(self._response.field)
 
-    if download_id is None:
+    if download_ids is None:
       self._response.message = f"Field `{self._response.field}` is required."
       return bad_request
+    
+    if not isinstance(download_ids, list):
+      self._response.message = F"Field `{self._response.field}` must be an array."
 
-    if not isinstance(download_id, int):
-      self._response.message = f"Field `{self._response.field}` must be an integer."
+    if not all(isinstance(id, int) for id in download_ids):
+      self._response.message = f"Field `{self._response.field}` must be an array of integers."
       return bad_request
       
-    if download_id < 1:
-      self._response.message = f"Field `{self._response.field}` must be greater than 0."
+    if not all(id > 0 for id in download_ids):
+      self._response.message = f"Field `{self._response.field}` must be an array of integers greater than 0."
       return bad_request
     
-    self._request.download_id = download_id
+    self._request.download_ids = download_ids
 
     return True, self._request
   # END validate

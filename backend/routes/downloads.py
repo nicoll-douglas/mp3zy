@@ -67,7 +67,7 @@ def post_downloads_restart():
   """Sets a track to queued for the downloader thread to pick up and restart the download.
   
   Returns:
-    tuple[Response, Literal[400, 200, 500]]: The response and status code.
+    tuple[Response, Literal[400, 200]]: The response and status code.
   """
 
   raw_body = request.get_json()
@@ -78,17 +78,15 @@ def post_downloads_restart():
     return jsonify(res_body.__dict__), 400
 
   req_body = cast(req.PostDownloadsRestartRequest, validation_result_data)
-  requeud = Downloader.requeue(req_body)
 
-  if not requeud:
-    res_body = res.PostDownloadsRestartResponse.ServerError()
-    res_body.message = "Failed to restart download, the download may already be in progress or does not exist."
-
-    return jsonify(res_body.__dict__), 500
-  
-  Downloader.start()
-  
   res_body = res.PostDownloadsRestartResponse.Ok()
+  res_body.restart_count = Downloader.requeue(req_body)
+
+  if res_body.restart_count > 0:
+    Downloader.start()
+    res_body.message = f"{res_body.restart_count} downloads were queued and should be restarted shortly."
+  else:
+    res_body.message = "No downloads were restarted."
 
   return jsonify(res_body.__dict__), 200
 # END post_downloads_restart

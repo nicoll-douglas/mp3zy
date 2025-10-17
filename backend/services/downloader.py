@@ -227,45 +227,23 @@ class Downloader:
 
   @staticmethod
   def requeue(req: PostDownloadsRestartRequest):
-    """Sets a download's status to queued in the database and broadcasts the update.
+    """Sets the status of the given downloads to queued in the database if not already queued/downloading and broadcasts the update to the socket.
 
     Args:
-      req (PostDownloadsRestartRequest): The request to restart a download containing the download ID.
+      req (PostDownloadsRestartRequest): The request to restart a download containing the download IDs.
 
     Returns:
-      bool: True if the download was found and could be restarted, false otherwise.
+      int: The number of downloads restarted.
     """
 
     with db.connect() as conn:
       dl = models.db.Download(conn)
-      requeued = dl.requeue(req.download_id)
+      restart_count = dl.requeue(req.download_ids)
 
-      if requeued:
-        download = dl.get_download(req.download_id)
+      if restart_count > 0:
+        DownloadsSocket.instance().get_and_send_all_downloads()
 
-        if download["status"] == DownloadStatus.QUEUED.value:
-          update = DownloadUpdate()
-          update.status = DownloadStatus.QUEUED
-          update.download_id = req.download_id
-          update.artist_names = TrackArtistNames([download["main_artist"], *download["other_artists"]])
-          update.track_name = download["track_name"]
-          update.codec = TrackCodec(download["codec"])
-          update.bitrate = TrackCodec(download["bitrate"])
-          update.url = download["url"]
-          update.download_dir = download["download_dir"]
-          update.terminated_at = None
-          update.created_at = download["created_at"]
-          update.error_msg = None
-          update.eta = None
-          update.speed = None
-          update.downloaded_bytes = None
-          update.total_bytes = None
-
-          DownloadsSocket.instance().send_download_update(update)
-
-        return True
-
-      return False
+      return restart_count
   # END requeue
     
 # END class Downloader

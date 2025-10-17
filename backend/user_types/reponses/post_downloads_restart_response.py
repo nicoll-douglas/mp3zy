@@ -18,27 +18,12 @@ class PostDownloadsRestartResponse():
 
     Attributes:
       message (str): A user-friendly message.
+      restart_count (int): The number of downloads restarted.
     """
 
     message: str
-
-    
-    def __init__(self):
-      self.message = "Your download has been queued and should restart shortly."
-    # END __init__
+    restart_count: int
     
   # END class Ok
-
-
-  class ServerError:
-    """Represents the response body for a 500 status code request to a GET /downloads/restart request.
-
-    Attributes:
-      message (str): A user-friendly error message.
-    """
-
-    message: str
-
-  # END class ServerError
 
 # END class PostDownloadsRestartResponse

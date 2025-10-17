@@ -53,6 +53,20 @@ class DownloadsSocket(Namespace):
   def on_connect(self):
     """Sends a list of all downloads when a client connects to the namespace.
     """
+
+    self.get_and_send_all_downloads()
+  # END on_connect
+
+
+  def on_disconnect(self):
+    pass
+  # END on_disconnect
+
+
+  def get_and_send_all_downloads(self):
+    """Gets and sends a list of all downloads.
+    """
+    
     db_conn = self._db_conn
     created_conn = False
 
@@ -85,16 +99,11 @@ class DownloadsSocket(Namespace):
 
       download_updates.append(d_update)
 
-      self.send_all_downloads(download_updates)
+    self.send_all_downloads(download_updates)
 
     if created_conn:
       db_conn.close()
-  # END on_connect
-
-
-  def on_disconnect(self):
-    pass
-  # END on_disconnect
+  # END get_and_send_all_downloads
 
 
   def send_all_downloads(self, downloads: list[DownloadUpdate]):

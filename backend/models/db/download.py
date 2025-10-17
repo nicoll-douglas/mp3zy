@@ -217,7 +217,11 @@ GROUP BY d.id
       terminated_at (str | None): The timestamp of when the download completed, gets set to the current timestamp if an empty value passed.
     """
     
-    sql = f"UPDATE {self.TABLE} SET status = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ?, terminated_at = ? WHERE id = ?"
+    sql = f"""
+UPDATE {self.TABLE} 
+SET status = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ?, terminated_at = ? 
+WHERE id = ?
+"""
 
     terminated_at = terminated_at if terminated_at else self.get_current_timestamp()
     params = (DownloadStatus.COMPLETED.value, None, None, None, None, terminated_at, download_id)
@@ -236,7 +240,11 @@ GROUP BY d.id
       terminated_at (str | None): The timestamp of when the download failed, gets set to the current timestamp if an empty value passed.
     """
     
-    sql = f"UPDATE {self.TABLE} SET status = ?, terminated_at = ?, error_msg = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ? WHERE id = ?"
+    sql = f"""
+UPDATE {self.TABLE} 
+SET status = ?, terminated_at = ?, error_msg = ?, total_bytes = ?, downloaded_bytes = ?, eta = ?, speed = ? 
+WHERE id = ?
+"""
 
     terminated_at = terminated_at if terminated_at else self.get_current_timestamp()
     params = (DownloadStatus.FAILED.value, terminated_at, error_msg, None, None, None, None, download_id)
@@ -246,24 +254,30 @@ GROUP BY d.id
   # END set_terminated
 
 
-  def requeue(self, download_id: int) -> bool:
-    """Sets a row/download to queued in the table if it is not downloading, essentially requeueing the download.
+  def requeue(self, download_ids: list[int]) -> int:
+    """Sets rows/downloads to queued in the table if they are not downloading, essentially requeueing the downloads.
     
     Args:
-      download_it (int): The ID of the row/download.
+      download_ids (list[int]): The IDs of the rows/downloads.
 
     Returns
-      bool: Whether the download was successfully requeued.
+      int: The number of downloads requeued.
     """
-    
-    sql = f"UPDATE {self.TABLE} SET status = ?, terminated_at = ?, error_msg = ? WHERE id = ? AND status != ?"
 
-    params = (DownloadStatus.QUEUED.value, None, None, download_id, DownloadStatus.DOWNLOADING.value)
+    download_id_placeholders = ", ".join("?" * len(download_ids))
+    
+    sql = f"""
+UPDATE {self.TABLE} 
+SET status = ?, terminated_at = ?, error_msg = ? 
+WHERE id IN ({download_id_placeholders}) AND status != ?
+"""
+
+    params = (DownloadStatus.QUEUED.value, None, None *download_ids, DownloadStatus.DOWNLOADING.value)
 
     self._cur.execute(sql, params)
     self._conn.commit()
 
-    return self._cur.rowcount > 0
+    return self._cur.rowcount
   # END requeue
     
 
