@@ -48,7 +48,7 @@ class DeleteDownloadsValidator():
       self._response.message = f"Field `{self._response.field}` must be an array."
       return bad_request
 
-    if len(list) == 0:
+    if len(download_ids) == 0:
       self._response.message = f"Field `{self._response.field}` must be of at least length 1."
       return bad_request
 
