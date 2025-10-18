@@ -3,6 +3,7 @@ import { useDownloadFormContext } from "../../../context/DownloadFormContext";
 import { Controller } from "react-hook-form";
 import { useState } from "react";
 import { LuFolder, LuTrash } from "react-icons/lu";
+import { Tooltip } from "@/components/chakra-ui/tooltip";
 
 /**
  * Represents a file picker component that opens a dialog to let the user select an album cover for their download.
@@ -20,15 +21,18 @@ export default function AlbumCoverPicker() {
           control={form.control}
           render={({ field }) => (
             <Ch.Group attached w="full">
-              <Ch.Input
-                {...field}
-                disabled
-                value={field.value ?? ""}
-                cursor={"default"}
-                title={field.value ?? ""}
-                textOverflow={"ellipsis"}
-                placeholder="Select an image file"
-              />
+              <Tooltip content={field.value} disabled={!field.value}>
+                <Ch.Input
+                  {...field}
+                  disabled
+                  value={field.value ?? ""}
+                  cursor={"default"}
+                  textOverflow={"ellipsis"}
+                  placeholder="Select an image file"
+                  borderRight={"none"}
+                  borderRightRadius={0}
+                />
+              </Tooltip>
               <Ch.Button
                 variant={"outline"}
                 onClick={async () => {
