@@ -1,5 +1,5 @@
 import * as Ch from "@chakra-ui/react";
-import { LuList, LuDownload } from "react-icons/lu";
+import { LuList, LuDownload, LuInfo } from "react-icons/lu";
 import SidebarButtonLink from "./SidebarButtonLink";
 import { FaSpotify } from "react-icons/fa";
 import Logo from "../Logo";
@@ -58,9 +58,10 @@ export default function Sidebar() {
             <Ch.Spacer />
             <ColorModeButton display={{ lg: "none" }} />
             <SettingsButton display={{ lg: "none" }} />
-            <Ch.Badge size={"lg"} display={{ lgDown: "none" }}>
-              Version 1.0.0
-            </Ch.Badge>
+            <Ch.Separator display={{ lgDown: "none" }} />
+            <SidebarButtonLink Icon={LuInfo} href="/about">
+              About
+            </SidebarButtonLink>
           </Ch.Stack>
         </Ch.Card.Body>
       </Ch.Card.Root>
