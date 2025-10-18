@@ -53,7 +53,13 @@ export default function App() {
           alignItems={"start"}
         >
           <Sidebar />
-          <Ch.Stack gap={"4"} mt={"10"} flex={1}>
+          <Ch.Stack
+            gap={"4"}
+            pt={{ base: "8", lg: "10" }}
+            mt={"2px"}
+            flex={1}
+            overflow={"auto"}
+          >
             <Outlet />
           </Ch.Stack>
         </Ch.Container>
