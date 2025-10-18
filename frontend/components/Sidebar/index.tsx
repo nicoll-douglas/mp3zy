@@ -1,8 +1,7 @@
 import * as Ch from "@chakra-ui/react";
-import { LuList, LuDownload, LuSettings } from "react-icons/lu";
+import { LuList, LuDownload } from "react-icons/lu";
 import SidebarButtonLink from "./SidebarButtonLink";
 import { FaSpotify } from "react-icons/fa";
-import { Link } from "react-router";
 import Logo from "../Logo";
 import { ColorModeButton } from "../chakra-ui/color-mode";
 import { system } from "@/config/theme";
@@ -33,6 +32,7 @@ export default function Sidebar() {
               as={"div"}
               cursor={"default"}
               fontSize={"md"}
+              textTransform={"uppercase"}
             >
               {import.meta.env.VITE_APP_NAME}
               <Logo />
@@ -46,11 +46,11 @@ export default function Sidebar() {
       <Ch.Card.Root size={"sm"} flex={"1"} maxHeight={"100%"}>
         <Ch.Card.Body p={{ lgDown: "2" }}>
           <Ch.Stack width={"full"} height={"100%"}>
+            <SidebarButtonLink Icon={LuDownload} href="/">
+              New Download
+            </SidebarButtonLink>
             <SidebarButtonLink href="/downloads" Icon={LuList}>
               Downloads
-            </SidebarButtonLink>
-            <SidebarButtonLink Icon={LuDownload} href="/download">
-              New Download
             </SidebarButtonLink>
             <SidebarButtonLink Icon={FaSpotify} href="/spotify-sync">
               Download from Spotify
