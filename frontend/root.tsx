@@ -1,4 +1,11 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLocation,
+} from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -41,6 +48,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { pathname } = useLocation();
+
   return (
     <QueryClientProvider client={queryClient}>
       <ChProvider>
@@ -53,7 +62,13 @@ export default function App() {
           alignItems={"start"}
         >
           <Sidebar />
-          <Ch.Stack gap={"4"} pt={"8"} mt={"2px"} flex={1} overflow={"auto"}>
+          <Ch.Stack
+            gap={"4"}
+            pt={"8"}
+            mt={"2px"}
+            flex={1}
+            overflow={pathname === "/" ? "inherit" : "auto"}
+          >
             <Outlet />
           </Ch.Stack>
         </Ch.Container>
